@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:layout_gravity="center"
+    >
+
+    <!--android:background="@color/cardview_light_background"-->
+    <!--android:elevation="20dp"-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Zip code:         "
+
+        android:layout_margin="8dp"
+        android:textSize="20sp"/>
+
+        <EditText
+            android:id="@+id/newAddress"
+            android:inputType="textPostalAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:hint="zip code"
+            android:digits="0123456789+"
+            android:maxLength="5"
+            android:lines = "1"
+            android:layout_margin="8dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Max Distance: "
+        android:layout_margin="8dp"
+        android:textSize="20sp"/>
+
+    <EditText
+        android:id="@+id/newRadius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:digits="0123456789+"
+        android:maxLength="2"
+        android:lines = "1"
+        android:hint="miles"
+        android:layout_margin="8dp"
+        android:inputType="number"
+        android:gravity="center"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="mile(s)"
+            android:textSize="20dp"
+            android:layout_margin="8dp"/>
+
+</LinearLayout>
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:gravity="center">-->
+
+        <!--<Button-->
+            <!--android:id="@+id/cancel_butt"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginRight="20dp"-->
+            <!--android:text="@string/cancel"/>-->
+
+    <!--<Button-->
+        <!--android:id="@+id/submit_butt"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_marginLeft="20dp"-->
+        <!--android:text="Save" />-->
+
+    <!--</LinearLayout>-->
+
+</LinearLayout>

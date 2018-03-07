@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:theme="@style/SplashTheme">
+
+    <TextView
+        android:id="@+id/zipcode_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Please enter a Zipcode"
+        android:textColor="@color/noni_theme"
+        android:focusable="true"
+        android:textSize="26sp"
+        android:focusableInTouchMode="true"/>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/zipcode"
+        android:layout_width="275dp"
+        android:layout_height="125dp"
+        android:paddingLeft="35dp"
+        android:paddingTop="50dp"
+        android:textColorHint="@color/noni_theme">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/add_zip"
+            android:digits="0123456789+"
+            android:maxLength="5"
+            android:lines = "1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Zipcode"
+            android:textColor="@color/noni_theme"
+            android:backgroundTint="@color/noni_theme"
+            android:textSize="26sp"
+            android:textColorHint="@color/noni_theme"
+            android:textColorHighlight="@color/noni_theme"
+            android:textColorLink="@color/noni_theme"
+            android:shadowColor="@color/noni_theme"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/zipcode_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+
+        android:text="Submit" />
+
+</LinearLayout>
