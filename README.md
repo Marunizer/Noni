@@ -39,6 +39,8 @@ There may be things to google for the NDK / Google Play Store if Android Studio 
 
 FIREBASE
 
+MIGHT Work because I have included my  google-services.json but if it doesn't , please delete this file, although I think firebase would just overwrite it later anyway
+
 Once, done with all of the above, the app will still not work and you will have an error with Glide in RestaurantViewActivity.java
 until Firebase is properly integrated with Android Studio.
 
