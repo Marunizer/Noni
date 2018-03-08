@@ -61,20 +61,21 @@ import menu.noni.android.noni.model3D.util.Menu;
  * 	    * Add item name and description option and have a textView float for at least the name
  *
  * 	    *Handle Different category options, right now just assumed first category
+ * 	    *Also Find out how we change Categories
  */
 public class ModelActivity extends FragmentActivity implements MyCircleAdapter.AdapterCallback{
 
-	// Used to load the 'native-lib' library on application startup.
-	static {
-		System.loadLibrary("native-lib");
-	}
-
-	/**
-	 * A native method that is implemented by the 'native-lib' native library,
-	 * which is packaged with this application.
-	 */
-	public native String stringFromJNI();
-	//call method as normal with stringFromJNI()
+//	// Used to load the 'native-lib' library on application startup.
+//	static {
+//		System.loadLibrary("native-lib");
+//	}
+//
+//	/**
+//	 * A native method that is implemented by the 'native-lib' native library,
+//	 * which is packaged with this application.
+//	 */
+//	public native String stringFromJNI();
+//	//call method as normal with stringFromJNI()
 
 	// Storage Permissions
 	private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -83,9 +84,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			Manifest.permission.WRITE_EXTERNAL_STORAGE
 	};
 
-
 	private String paramAssetDir;
-	private String paramAssetFilename;
 	private String textureFilename;
 	private String categoryKey = "Most Popular";
 	private String coordinateKey;
@@ -109,9 +108,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	 * The file to load. Passed as input parameter
 	 */
 	private String paramFilename;
-	/**
-	 * Background GL clear color. Default is light gray
-	 */
 
 	//convert to local if works
 	private RecyclerView mRecyclerView;
@@ -138,11 +134,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		Bundle b = getIntent().getExtras();
 
 		if (b != null) {
-			//TODO remove unnecassary variables
-			this.paramAssetDir = b.getString("assetDir");//the directory where the files are stored perfectly
+			this.paramAssetDir = getFilesDir().getAbsolutePath();
 			this.coordinateKey = b.getString("coordinateKey");
 			this.restaurantName = b.getString("restaurantName");
-			this.paramAssetFilename = b.getString("assetFilename");//NULL should remove everywhere
 			this.paramFilename = b.getString("uri");//the important one
 		}
 
@@ -151,6 +145,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		menu.setRestName(restaurantName);
 
 		//Check permission and request for storage options... Might not be necessary but expected of API 23+
+		//TODO: Properly ask for permission before downloading, so we atleast get firebase data, then wait
 		// verifyStoragePermissions(this);
 
 		prepareMenu();
@@ -225,13 +220,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 							categoryKey = categories.getKey();
 							foodTitle.setText(menuItem.getName());
 							foodCost.setText(menuItem.getCost());
-							//Would rather access here, TESTING at the moment, so instead is called after list is complete
+							//Would rather start downloading/loading first model here, TESTING at the moment, may be better method
 							firstAccess();
 						}
 					}
 				}
-				//wait until list is done
-				//firstAccess();
 			}
 
 			@Override
@@ -247,6 +240,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		//first time this Activity is created, should just load the very first model
 		//in the restaurant so what should be loaded here is should probably just be the very first model
 
+		//reference the model currently looking at
 		Menu.Categories.MenuItem model = menu.allCategories.get(categoryKey).allItems.
 				get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
 
@@ -256,14 +250,14 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		Bundle b= new Bundle();
 
 		b.putString("assetDir",getParamAssetDir());
-		b.putString("assetFilename",getParamAssetFilename());
 		b.putString("textureName", getTextureFilename());
 		b.putString("fileName", getParamFilename());
 
 
-		//Always start out with Viewer for direct access to user
+		//Always start out with 3D-Viewer for direct access to user
 
 		//3D model Viwer*******************************************
+
 		modelFragment = new ModelFragment();
 		modelFragment.setArguments(b);
 
@@ -272,9 +266,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		if (null == fragMgr.findFragmentByTag(CONTENT_VIEW_TAG)) {
 			xact.add(R.id.modelFrame,  modelFragment ,CONTENT_VIEW_TAG).commit();
 		}
+
 		//3D model Viwer*******************************************
 
-		//Sets up Circle images at bottom of screen
+
+		//Sets up recycler view of circle buttons at bottom of screen
 		mRecyclerView = findViewById(R.id.model_recycler_view);
 		mRecyclerView.setHasFixedSize(true);
 		mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -285,11 +281,17 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				   this.menu.allCategories.get(categoryKey).keyConverter, this);
 		mRecyclerView.setAdapter(mAdapter);
 
+
+		//****************************START DOWNLOADING/LOADING FOR FIRST MODEL
+		//TODO:Also start whole downloading process here within a thread, we can make multiple threads, one for each model dynamically
+		//Easy to do all at once, hard to manage and give priority
+		//Make easy way first to atleast have a way to have downloads (:
 		//Download First Model, Displays if already downloaded
+		//testing number can be used to add to a thread name although better to use model name
 		Thread downlaodFirstModelThread = new Thread(){
 			public void run(){
 				System.out.println("Download first model Thread Running");
-				downloadOneModel(testingNumber);
+				downloadOneModel();
 
 				testingNumber++;
 			}
@@ -297,15 +299,18 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 		//Run a download
 		downlaodFirstModelThread.start();
+		//****************************END DOWNLOADING/LOADING FOR FIRST MODEL
 	}
 
 	//TODO: Make a normal download system that downloads everything
 	//Probably need to look at Farzas to know how he handles all events such as having priority
 	//although a quick fix, would be to just have a loading animation (:
+	//refer to above for quick fix on using for loop to make dynamic threads for each downlaod for simple solutopn
 	private void downloadAll(){
 	}
 
-	private void downloadOneModel(final int testingNumb){
+	//Contrary to name, does not download, It prepares the 3 downloads needed for one model
+	private void downloadOneModel(){
 
 		Menu.Categories.MenuItem model = menu.allCategories.get(categoryKey).allItems.
 				get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
@@ -322,18 +327,16 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 		//file object does not exist, so download it ALL -> checks specific folder later!
 		if(!objFolder.exists()) {
-			downloadModel(objFolder, model.getObjPath(), testingNumb);
-			downloadModel(mtlFolder, model.getMtlPath(), testingNumb);
-			downloadModel(jpgFolder, model.getJpgPath(), testingNumb);
+			downloadModel(objFolder, model.getObjPath());
+			downloadModel(mtlFolder, model.getMtlPath());
+			downloadModel(jpgFolder, model.getJpgPath());
 		}
-		//MAYBE REMOVE, I believe that the model auto loads anyway if the file exists, TEST
-//		else
-//			beginLoadingModel();
 	}
 
 	//TODO: If file is a draco file, download to external storage, probably use override
 	//Final download stage: Downloads requested file from Firebase storage
-	private void downloadModel(File files_folder, String imageKey, final int fileNumber) {
+	//Some functionality in here only works for first model
+	private void downloadModel(File files_folder, String imageKey) {
 
 		//If file already exists, Do nothing
 		if(!files_folder.exists()) {
@@ -354,7 +357,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				folder.mkdirs();
 			}
 
-			//File has finished downloading !
+			//File has finished downloading ! If it is the 3rd file to finish, then we load model, only works for first download
 			fileToDownload.getFile(files_folder).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
 				@Override
 				public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
@@ -363,9 +366,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					//doesnt seem to work file number is never 3 because it is a final variable, maybe cause not atomic
 					//fileNumber == 3 &&
 					if(downloadCheck == 3)
-							beginLoadingModel();
+						beginLoadingModel();
 
-					System.out.println("FINISHED DOWNLOADING...fileNumber = " + fileNumber + "    downlaodCheck = " + downloadCheck);
+					System.out.println("FINISHED DOWNLOADING..." + "    downlaodCheck = " + downloadCheck);
 
 				}
 			}).addOnFailureListener(new OnFailureListener() {
@@ -384,13 +387,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	}
 
 	//Currently assumes that there should be a 3D view
-	//Should check what view is currently on (3D or AR) then change appropriate fragment
 	//Fills our Activity frame with the appropriate model selected
 	void beginLoadingModel()
 	{
 		Bundle b= new Bundle();
 		b.putString("assetDir",getParamAssetDir());
-		b.putString("assetFilename",getParamAssetFilename());
 		b.putString("fileName", getParamFilename());
 		b.putString("textureName", getTextureFilename());
 
@@ -398,7 +399,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		modelFragment.setArguments(b);
 		fragMgr.beginTransaction().replace(R.id.modelFrame, modelFragment).commit();
 
-		//TODO: Handle normal download and loading handling
+		//Now that the first model has been downloaded and loaded, call DownloadALL(); or
+		//either implement donwloads here, OR implement in the firstaccess() method
 		//Threads for the purpose of running multiple (3 at a time) downloads at the same time
 //			Thread thread1 = new Thread(){
 //				public void run(){
@@ -417,7 +419,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		File file = new File(getFilesDir().toString() + "/model");
 		FileUtils.deleteDirectory(file);
 	}
-	//Used for deleting  files on non emulators, easier to use Device Monitor
+	//Used for deleting  files on non emulators, easier to use Device Monitor, just replace filename
 //		File file = new File(getFilesDir().toString() + "/model/ryan.mtl");
 //		File file2 = new File(getFilesDir().toString() + "/model/ryan.obj");
 //		File file3 = new File(getFilesDir().toString() + "/model/ryan.jpg");
@@ -427,10 +429,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	public String getParamAssetDir() {
 		return this.paramAssetDir;
-	}
-
-	public String getParamAssetFilename() {
-		return this.paramAssetFilename;
 	}
 
 	public String getParamFilename() {
@@ -446,7 +444,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	//  \___/|___| |_____| \_/ \___|_| |_|\__|___/
 	//
 
-	//When bubble gets hit
+	//When bubble gets hit, find its key, and model information, depending on what view we're in , pass to right Fragment
 	@Override
 	public void onMethodCallback(int key) {
 
@@ -457,27 +455,19 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		this.textureFilename = menu.allCategories.get(categoryKey).
 				allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex)).getJpgPath();
 
+		//We are in AR, so pass data
 		if (viewFlag)
 		{
 			arModelFragment.passData(this.paramFilename, this.textureFilename);
 		}
+		//Recreate 3D environment. Might want to consider just passing in new information,
+		//I think i may have tested before though and didnt work
 		else
 			beginLoadingModel();
-//		{
-//			//Threads for the purpose of running multiple (3 at a time) downloads at the same time
-//			Thread thread1 = new Thread(){
-//				public void run(){
-//					System.out.println("Thread1 Running");
-//					downloadOneModel(testingNumber);
-//					testingNumber++;
-//				}
-//			};
-//
-//			thread1.start();
-//		}
-
 	}
 
+	//for back button on top left of screen, just close activity to go back to RestaurantViewActivity
+	//TODO:Sometimes causes crash, probably because restaurant activity doesn't know what to do
 	public void onBackPress(View view)
 	{
 		finish();
@@ -485,6 +475,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	//AR Button on top right of screen
 	//Should be made into a flag system, to go from AR to 3D view interchangeably
+	//Should deal with permissions appropriately
 	public void loadMode(View view) {
 
 		//MARU - made a change here where AR now 'replaces' the 3d view frag instead of technically creating one over it.
@@ -566,7 +557,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 
 
-
+//This adapter is for the recycler view holding all the circle buttons at bottom of screen
 class MyCircleAdapter extends RecyclerView.Adapter<MyCircleAdapter.ViewHolder> {
 
 	private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
@@ -648,4 +639,3 @@ class MyCircleAdapter extends RecyclerView.Adapter<MyCircleAdapter.ViewHolder> {
 		void onMethodCallback(int key);
 	}
 }
-

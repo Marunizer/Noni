@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * Created by mende on 10/30/2017.
+ * Purpose of this Class is to always keep track of our users location data
  */
 
 public final class LocationHelper {
@@ -21,9 +22,7 @@ public final class LocationHelper {
     private static String city;
     private static String state;
     private static String zipcode;
-    private static int radius = 8; //Not certain what 8 truly means 8 meters? 8 miles?
-    //Unused as of now
-    private static boolean locationPermission = false;
+    private static int radius = 8; //8 gathers the most restaurant , Not certain what 8 truly means 8 meters? 8 miles? Must look up Documentation that geoFire uses
 
     public static int getRadius() {
         return radius;
@@ -31,14 +30,6 @@ public final class LocationHelper {
 
     public static void setRadius(int radius) {
         LocationHelper.radius = radius;
-    }
-
-    public static boolean isLocationPermission() {
-        return locationPermission;
-    }
-
-    public static void setLocationPermission(boolean locationPermission) {
-        LocationHelper.locationPermission = locationPermission;
     }
 
     public static String getZipcode() {
@@ -49,11 +40,12 @@ public final class LocationHelper {
         LocationHelper.zipcode = zipcode;
     }
 
+    //Assuming we were only given a zipcode, turn that zipcode into the most specific location data we can muster
     public static void setZipcodeAndAll(final String zipcode, Context context) throws IOException {
+
         LocationHelper.zipcode = zipcode;
         final Location[] mLastLocation = new Location[1];
 
-        //Maybe do all of this within the LocationHelper instead, just pass in the zip
         final Geocoder geocoder = new Geocoder(context);
 
         //TODO: This sometimes times out! Possible Solution: Have permission to Network State

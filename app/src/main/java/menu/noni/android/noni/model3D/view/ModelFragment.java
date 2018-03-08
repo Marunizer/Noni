@@ -16,6 +16,9 @@ import menu.noni.android.noni.model3D.services.SceneLoader;
 
 /**
  * Created by mende on 1/24/2018.
+ *
+ * The purpose of this class is to be hold the scene which in turn holds the surface
+ * view of the 3D modeling screen
  */
 
 public class ModelFragment extends Fragment {
@@ -25,8 +28,10 @@ public class ModelFragment extends Fragment {
     private ModelSurfaceView gLView;
     private SceneLoader scene;
     private String paramAssetDir;
-    private String paramAssetFilename;
     private String paramFilename;
+    //This is literally empty, but 3D modeler relies on this variable in many areas
+    //So cannot delete unless we deal with those parameters deeper in the renderer
+    private String paramAssetFilename;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -35,7 +40,6 @@ public class ModelFragment extends Fragment {
 
         if (b != null) {
             this.paramAssetDir = b.getString("assetDir");
-            this.paramAssetFilename = b.getString("assetFilename");
             this.paramFilename = b.getString("fileName");
         }
 

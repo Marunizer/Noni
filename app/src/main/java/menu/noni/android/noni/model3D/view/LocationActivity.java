@@ -18,20 +18,29 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
 
 /**
  * Created by mauricio mendez on 10/20/2017.
+ *
+ * Purpose of this Activity is to extract location information from user since it will be required
+ * to find any restaurants around them or around where they want to check
+ *
+ * Idea: Be able to accept a zipcode OR an Address, and user can choose whichever they prefer
  */
 
 public class LocationActivity  extends Activity{
 
-    TextView queryText;
-    EditText zipcodeText;
-    Button enterQuery;
-    String zip;
-    Context context;
+    //make local if possible, may just be able to delete
+    private TextView queryText;
+    private EditText zipcodeText;
+    //make local if possible
+    private Button enterQuery;
+    //make local if possible
+    private String zip;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Assign UI to references
         setContentView(R.layout.activity_location_query);
         queryText = findViewById(R.id.zipcode_text);
         zipcodeText = findViewById(R.id.add_zip);
@@ -54,7 +63,6 @@ public class LocationActivity  extends Activity{
             {
                 try {
                     LocationHelper.setZipcodeAndAll(zip, context);
-                    LocationHelper.setLocationPermission(false);
 
                     SharedPreferences.Editor editor = getSharedPreferences("ZIP_PREF", MODE_PRIVATE).edit();
                     editor.putString("zipCode", zip);

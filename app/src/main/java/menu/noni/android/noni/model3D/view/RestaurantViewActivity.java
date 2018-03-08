@@ -58,11 +58,21 @@ import static android.content.ContentValues.TAG;
  *     * (IGNORE FOR NOW) When checking if the restaurant found is already within the ArrayList, check based on
  *      2 parameters (name AND location) instead of just one. (Just in case for the future, multiple restaurants with same geoLocation)
  *
+ *     * (High Priority) We actually don't want our real-time database to have a real-time listener. Right now if any change is made to database,
+ *       app will crash because it noticed the change. Just make one call to a snapshot of data, do not remain listening
+ *
  *     * When a default picture was added to the imageView inside card_view_restaurant,
  *      it seems to delay the process of showing items, and does it all at once instead.
  *          - Replace default image with a very small default picture unlike the one currently there
  *
  *    * Make images appear fluidly with little to no delay
+ *
+ *    * Right now Location that is Displayed is the full Address, might be too specific and therefor creep users out, might instead want to
+ *      only show city, and state
+ *      OR
+ *      ask for an address instead of asking for a zipcode so its not unwarranted.
+ *
+ *    *Maybe have access firebase data before this class, and just pass it in
  */
 
 public class RestaurantViewActivity extends AppCompatActivity implements MyAdapter.AdapterCallback, LocationDialogFragment.NoticeDialogListener {
@@ -85,6 +95,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
         super.onCreate(savedInstanceState);
 
+        //Set up UI components
         toolbar= findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
 
@@ -111,12 +122,11 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                 }
         );
 
+        //Access Firebase and gather restaurant data
         prepareRestaurantArray();
-
-        //initial loading data here seems to lessen the time it takes to make everything show up.
-        reloadData();
     }
 
+    //When user swipes down at top of screen, update information
     public void swipeUpdate(){
         //Toast to notify a refresh has started, calls the prepareRestaurantArray() method again
         Toast.makeText(getApplicationContext(),"Refreshing",Toast.LENGTH_SHORT).show();
@@ -134,6 +144,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     //  Prepare List to display
     void prepareRestaurantArray()
     {
+        //Prepare Firebase references and keys
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference myRef = database.getReference();
         final String NAME_KEY = "restaurant_name";
@@ -141,7 +152,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         final String LONG_KEY = "long";
         final String COST_KEY = "dollar_signs";
 
-        //reset in case there is an update. Make sure everything is clean slate
+        //reset in case there is an update. Make sure everything is clean slate so no redundant data
         restaurant.clear();
         restaurantGeoChecker.clear();
 
@@ -155,9 +166,11 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                 double latitude = LocationHelper.getLatitude();
                 double longitude  = LocationHelper.getLongitude();
 
-                double radius = LocationHelper.getRadius(); //this will be the initial radius always at 5, and then whatever changed to after
+                //this will be the initial radius always at 5-10 or some standard, and then whatever changed to after
+                double radius = LocationHelper.getRadius();
 
                 //hardcoded values for testing purposes, eventually remove
+                //Set to My/Farzas house
                 latitude = 28.546373;
                 longitude = -81.162192;
 
@@ -168,6 +181,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                     @Override
                     public void onKeyEntered(String key, GeoLocation location) {
 
+                        //Set the lat,long to compare to, geofire will help us figure out what restaurants
+                        //are closest to us using geo-coordinates and radius
                         String myLat = String.format(java.util.Locale.US,"%.6f", location.latitude);
                         String myLong =  String.format(java.util.Locale.US,"%.6f", location.longitude);
                         String locationKey = myLat + myLong;
@@ -187,13 +202,14 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                 rest_location.setLatitude(Double.parseDouble(item_lat));
 
 
-                                //Checks if we already have this restaurant in our list
+                                //If we have not already accounted for this restaurant, add it, else ignore
                                 if(!restaurantGeoChecker.contains(location)){
 
                                     restaurant.add(new Restaurant(name, rest_location, item.getKey(),dollar_signs));
                                     restaurantGeoChecker.add(location);
                                     System.out.println("RestaurantViewActivity: ADDING NEW RESTAURANT : " + name + ", " + item_lat + ", " + item_long + "  item.getKey() = " + item.getKey() + " location = " + location);
 
+                                    //Updates entire arraylist
                                     setRestaurant(restaurant);
                                 }
                             }
@@ -213,6 +229,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                     @Override
                     public void onGeoQueryReady() {
                         //stackoverflow.com/questions/4066538/sort-an-arraylist-based-on-an-object-field
+                        //Sort Restaurant arraylist based on distance
                         Collections.sort(restaurant, new Comparator<Restaurant>(){
                             public int compare(Restaurant o1, Restaurant o2){
                                 if(o1.getDistanceAway() == o2.getDistanceAway())
@@ -220,8 +237,9 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                 return o1.getDistanceAway() < o2.getDistanceAway() ? -1 : 1;
                             }
                         });
+
+                        //Reload list with appropriate distance order
                         reloadData();
-                        //This is where the list should be loaded and where I should sort my restaurants
                         System.out.println("All initial data has been loaded and events have been fired!");
                     }
 
@@ -246,6 +264,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         this.restaurant = restaurant;
     }
 
+    //Fills Adapter (Recycler Card View) with data and displays it
     void reloadData()
     {
         textView.setText(LocationHelper.getAddress());
@@ -264,10 +283,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         Intent intent = new Intent(RestaurantViewActivity.this.getApplicationContext(), ModelActivity.class);
         Bundle b = new Bundle();
         b.putString("assetDir", getFilesDir().getAbsolutePath());
-        b.putString("modelLocation", "small");
         b.putString("coordinateKey", key);
         b.putString("restaurantName", restName);
-        b.putString("immersiveMode", "true");
         intent.putExtras(b);
         RestaurantViewActivity.this.startActivity(intent);
     }
@@ -289,14 +306,16 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     private AdapterCallback adapterCallback;
     private Context context;
-    private ArrayList mDataset;
+
+    //used to for Glide to cache images from firebase storage
     private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
+    //This is the restaurant data
+    private ArrayList mDataset;
+
      static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
+
+         //Declare and then initiate UI components of CardView
          CardView cv;
          TextView restName;
          TextView restDistance;
@@ -346,6 +365,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         //Create a StorageReference variable to store the path to the image
         StorageReference image = fbStorageReference.child(path);
 
+
         //Serve this path to Glide which is put into the image holder and cached for us
         //Can change withCrossFade timer to change fade in time, in milliseconds.
         GlideApp.with(context)
@@ -356,6 +376,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         holder.restName.setText(((Restaurant) mDataset.get(position)).getName());
 
+        //Add '$' based on the number provided
         int dollar_cost = ((Restaurant) mDataset.get(position)).getGeneralCost();
         StringBuilder cost = new StringBuilder("$");
         if (dollar_cost != 1)
@@ -367,6 +388,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
         holder.restCost.setText(cost);
 
+        //Handle possible cases for distance away and display
         float milesAway = metersToMiles(((Restaurant) mDataset.get(position)).getDistanceAway());
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         milesAway = Float.valueOf(decimalFormat.format(milesAway));
@@ -395,7 +417,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         );
     }
 
-    public float metersToMiles(float meters)
+    private float metersToMiles(float meters)
     {
         return (float) (meters*0.000621371192);
     }

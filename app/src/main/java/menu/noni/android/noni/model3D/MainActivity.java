@@ -33,19 +33,32 @@ import menu.noni.android.noni.model3D.view.RestaurantViewActivity;
  * TODO:
  * Implement using WIFI (network calls) over gps when available, consumes less battery, better accuracy
  *
+ *
+ * When asking for Permissions, ask for external Storage permissions as well as for location to get them both out of the way
+ * I believe an example of this is set up in Model Activity, but maybe not fully implemented
+ * -Would still want to keep permission check at Model Activity in case user Declines location, therefor
+ *  declining both, unless asked one at a time, in which case, remove Permission check in ModelActivity
+ *
+ *
+ *  IDEA: Might want to consider accessing Firebase here and in Location Activity to already fill Restaurant class before
+ *  RestaurantViewActivity is accessed
+ *        - reason: It takes Firebase a bit of time to connect sometimes, leads to a long blank screen
+ *                  Although A reason for this may be because of Glide caching images, not the database query. Must check
+ *
  */
 
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener {
 
 	GoogleApiClient mGoogleApiClient;
-	Location mLastLocation;
 	Context context;
-
 	static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
 	//Not yet applied, I have been turning on storage through phone settings
 	static final int MY_PERMISSIONS_REQUEST_ACCESS_EXTERNAL_STORAGE = 1;
+
+	//Stores the Location of user, involving specific coordinates and such
+	Location mLastLocation;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +72,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 	}
 
 
-	//    EVERYTHING
-	//
-	//              GOOGLE
-	//
-	//                       API
 	private void createGoogleAPIClient() {
 		// Create an instance of GoogleAPIClient.
 		if (mGoogleApiClient == null) {
@@ -79,19 +87,24 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 	//http://developer.android.com/training/permissions/requesting.html
 	//------------------------------------------------------------------------------
 	private void getMyLocation() {
+
+		//If Permissions are not granted, as for permission
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 				!= PackageManager.PERMISSION_GRANTED
 				&& ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
 				!= PackageManager.PERMISSION_GRANTED) {
 
-			//------------------------------------------------------------------------------
 			ActivityCompat.requestPermissions(MainActivity.this,
 					new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
 					MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
 			return;
 		}
+
+		//TODO: FusedLocationApi is deprecated, find replacement/solution/work around. could effect app in future
 		this.mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+		//Location exists, set it as our used location, move on to Restaurant View
 		if (mLastLocation != null) {
 			try {
 				sendLocation();
@@ -101,10 +114,14 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}else{
+		}
+		//Location could not be accessed, therefor try using zipcode.
+		else{
+			//This variable keeps last used zipcode user has used in the past
             SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
-
             final String restoredZip = sharedZip.getString("zipCode", null);
+
+            //If user has a saved zipcode, move on to Restaurant View
             if (restoredZip != null)
             {
 				try {
@@ -112,11 +129,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 				Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
 				MainActivity.this.startActivity(intent);
 				finish();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
+					} catch (IOException e) {
+						e.printStackTrace();
+						}
             }
+            //No saved zipcode, go to LocationActivity to ask for one
             else
             {
                 Intent intent = new Intent(MainActivity.this.getApplicationContext(), LocationActivity.class);
@@ -132,15 +149,23 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 		switch (requestCode) {
 			case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+
 				// If request is cancelled, the result arrays are empty.
 				if (grantResults.length > 0
 						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+					//Permission is granted, move on
 					getMyLocation();
+
+					//TODO: I believe These lines happen in 'getMyLocation', so probably safe to delete, must test
+					//********************************************************
 					Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
 					MainActivity.this.startActivity(intent);
 					finish();
-
+					//*********************************************************
 				}
+
+				//permission not granted, see if have saved zip and move on. if no saved zip, ask for one in LocationActivity
 				else {
 					SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
 
@@ -163,11 +188,12 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 						finish();
 					}
 				}
-				return;
 			}
 		}
 	}
 
+	//Assuming we have a known live location, set the data to our LocationHelper
+	//way want to consider having to pass mLastLocation as a parameter instead of accessing global one
 	void sendLocation() throws IOException {
 		Geocoder geocoder;
 		List<Address> addresses;
@@ -182,7 +208,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 		LocationHelper.setState(addresses.get(0).getAdminArea());
 		LocationHelper.setCity(addresses.get(0).getLocality());
 		LocationHelper.setZipcode(addresses.get(0).getPostalCode());
-		LocationHelper.setLocationPermission(true);
 	}
 
 	@Override

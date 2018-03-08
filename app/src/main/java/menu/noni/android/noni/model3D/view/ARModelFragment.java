@@ -177,6 +177,11 @@ public class ARModelFragment extends Fragment {
             session = new Session(getContext());
             // Create default config, check is supported, create session from that config.
             defaultConfig = new Config(session);
+
+            //I have reason to believe this will disable light estimation for the Model
+            //Need to test if it removes any extra lighting, if does not, then delete
+            //defaultConfig.setLightEstimationMode(Config.LightEstimationMode.DISABLED);
+
             if (!session.isSupported(defaultConfig)) {
                 Toast.makeText(getContext(), "This device does not support AR", Toast.LENGTH_LONG).show();
                 getActivity().finish();
@@ -219,6 +224,13 @@ public class ARModelFragment extends Fragment {
                         && ((Point) trackable).getOrientationMode()
                         == Point.OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
 
+                    /*I have not included the andhy_shadow obj or texture file in the assets
+                      They can be found through ARCore sample app
+
+                      The reason I have disables using the shadow is because it seems to keep the shadow of the object
+                      previously allotted to and thus makes two separate objects on the screen after first.
+                      Might be worth looking into in the future but very low priority for now
+                    */
 //                    final ObjectRenderer shadow = objectFactory.create("andy_shadow.obj");
 //                    if (shadow != null) {
 //                        shadow.setBlendMode(ObjectRenderer.BlendMode.Shadow);
@@ -242,6 +254,8 @@ public class ARModelFragment extends Fragment {
                     }
 
                     if (object != null) {
+
+                        //This is what draws a model to the screen! Allots an anchor point to the model
                         scene.addRenderer(
                                 object,
                                 trackable,
