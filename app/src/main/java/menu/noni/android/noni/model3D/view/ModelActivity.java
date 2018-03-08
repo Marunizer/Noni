@@ -87,7 +87,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	private String paramAssetDir;
 	private String paramAssetFilename;
 	private String textureFilename;
-	private String categoryKey;
+	private String categoryKey = "Most Popular";
 	private String coordinateKey;
 	private String restaurantName;
 	Menu menu;
@@ -226,12 +226,12 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 							foodTitle.setText(menuItem.getName());
 							foodCost.setText(menuItem.getCost());
 							//Would rather access here, TESTING at the moment, so instead is called after list is complete
-//							firstAccess();
+							firstAccess();
 						}
 					}
 				}
 				//wait until list is done
-				firstAccess();
+				//firstAccess();
 			}
 
 			@Override
@@ -251,6 +251,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
 
 		this.paramFilename = model.getObjPath();
+		this.textureFilename = model.getJpgPath();
 
 		Bundle b= new Bundle();
 
@@ -501,7 +502,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 				bundle.putString("fileName", getParamFilename());
 				bundle.putString("textureName", getTextureFilename());
-
 
 				//*******************AR
 				arModelFragment = new ARModelFragment();

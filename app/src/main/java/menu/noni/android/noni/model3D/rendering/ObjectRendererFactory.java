@@ -36,7 +36,13 @@ public class ObjectRendererFactory {
   }
 
   public ObjectRenderer create(String objectFileName,
-                               String textureFileName) {
+                               String textureFileName)
+  {
+    System.out.println("2:  obj: " + objectFileName + "    texture: " + textureFileName);
+    objectFileName = normalizeFileName(objectFileName, basepath);
+    textureFileName = normalizeFileName(textureFileName, basepath);
+    System.out.println("3:  obj: " + objectFileName + "    texture: " + textureFileName);
+
     System.out.println("OBJECT RENDERER FACTORY : Create step 2");
     return create(
         objectFileName,

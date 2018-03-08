@@ -47,13 +47,15 @@ import menu.noni.android.noni.model3D.util.CameraPermissionHelper;
  * Created by mende on 1/24/2018.
  *
  * This fragment doesn't just act as the content of SurfaceView but has the role of a renderer
+ *
  */
 
 public class ARModelFragment extends Fragment {
 
     private static final String TAG = ARModelFragment.class.getSimpleName();
 
-    // Rendering. The Renderers are created here, and initialized when the GL surface is created.
+    //Make local if possible
+    //The Renderers are created here, and initialized when the GL surface is created.
     private GLSurfaceView surfaceView;
 
     private boolean installRequested = false;
@@ -69,6 +71,7 @@ public class ARModelFragment extends Fragment {
     private boolean objectBuiltFlag = false;
 
     private Scene scene;
+    //make local if possible
     private Config defaultConfig;
     private Session session;
     //private GestureDetector gestureDetector;
@@ -82,7 +85,7 @@ public class ARModelFragment extends Fragment {
 
     // Tap handling and UI.
     private ArrayBlockingQueue<MotionEvent> queuedTaps = new ArrayBlockingQueue<>(16);
-    private String nextObject;// = "TheRyanBurger.obj";//"andy.obj";//default fets changed in onCreate, can remove
+    private String nextObject = "ryan.obj";// = "TheRyanBurger.obj";//"andy.obj";//default fets changed in onCreate, can remove
 
     private String objFile;
     private String textureFile;
@@ -123,6 +126,7 @@ public class ARModelFragment extends Fragment {
             this.textureFile = b.getString("textureName");
         }
         nextObject = objFile;
+        System.out.println("1:  obj: " + objFile + "    texture: " + textureFile);
 
         View v= inflater.inflate(R.layout.fragment_model_view_ar, container, false);
 
@@ -138,7 +142,7 @@ public class ARModelFragment extends Fragment {
 
     private void init(View v) {
 
-        //Here I would set up buttons? or set up interphase??? since I already have that
+        //Here I would set up necassary UI componenets
 
         surfaceView = v.findViewById(R.id.surfaceview);
 
@@ -226,15 +230,15 @@ public class ARModelFragment extends Fragment {
 //                    }
 
                     final ObjectRenderer object;
-                    if (nextObject.length() != 0 && !objectBuiltFlag) {
+                    if (nextObject.length() != 0) {//&& !objectBuiltFlag) {
                         object = objectFactory.create(nextObject, textureFile);
-                        this.objectBuiltFlag = true;
-                        scene.setScaleFactor(.03f);
+                   //     this.objectBuiltFlag = true;
+                    //    scene.setScaleFactor(.03f);
                     } else {
                         object = new XmlLayoutRenderer(getContext(), R.layout.model_ingredient_view);
                         System.out.println("Do we build the layout??");
-                        this.objectBuiltFlag = false;
-                        scene.setScaleFactor(1.0f);
+                 //       this.objectBuiltFlag = false;
+                  //      scene.setScaleFactor(1.0f);
                     }
 
                     if (object != null) {
