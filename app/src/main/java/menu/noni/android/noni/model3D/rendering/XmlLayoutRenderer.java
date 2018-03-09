@@ -13,6 +13,19 @@ import java.io.FileNotFoundException;
 
 import static menu.noni.android.noni.model3D.rendering.ShaderUtil.normalizeFileName;
 
+/**
+ * This class is in charge of setting up and rendering an XML Layout as an object to be projected in AR
+ *
+ *  Goals:
+ *      * Have the XML be able to list the Description for the specific model
+ *       - We can pass in this information from ModelActivity to ARModel Fragment and use it to create this object
+ *
+ *      * Make it look pretty (-: (To be done in the XML itself)
+ *
+ *      * Have the XML rotate in the direction of the user Camera. This won't necessarily be implemented here
+ *       - Check : https://github.com/google-ar/arcore-android-sdk/issues/144#issuecomment-370535477
+ *                 https://github.com/inio/arcore-android-sdk/blob/32e29839fb0ecf68e406c16344fc5be979c530e3/samples/hello_ar_java/app/src/main/java/org/inio/arcore/compassdemo/MathHelpers.java#L13-L35
+ */
 public class XmlLayoutRenderer extends ObjectRenderer {
   private Bitmap bitmap;
 
