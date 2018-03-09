@@ -46,8 +46,36 @@ import menu.noni.android.noni.model3D.util.CameraPermissionHelper;
 /**
  * Created by mende on 1/24/2018.
  *
- * This fragment doesn't just act as the content of SurfaceView but has the role of a renderer
+ * Purpose of this Class is to be the entry point and Manager for models to be rendered and drawn on Camera
+ * while using ARCore to track its position in space, and provide 'natural' lighting
  *
+ *    Concern: If it seems that an obj is not properly rendering because of it's file size,try implementing a complex object renderer
+ *        - https://github.com/google-ar/arcore-android-sdk/issues/136#issuecomment-364857183
+ *
+ *    Current Issues/Tasks:
+ *       * AR Models are not being dynamically sized.
+ *        - I believe there is a dynamic sizing algorithm in the 3D model view renderer but requires quite a bit of the obj
+ *          data to be kept and calculated, Probably can be found in 'model3D/model' folder
+ *
+ *        - This can also be solved by having a standard on how the object files are created
+ *
+ *       * We need to render the models in a separate thread as to not disrupt the UI only AFTER the model is done being downloaded
+ *
+ *       * need to keep a reference to the rendered models, to call upon later
+ *
+ *       * We need to create a separate thread that can Draw the model to screen only AFTER the model is done being rendered
+ *
+ *       * Have a limit of 2 models on the screen at a time.
+ *         BUT only allow one 1 object model, and only 1 XML model If and only if an object is already drawn + draw top of object/make rotate
+ *        (known issue: for some odd reason, first time I tried to make this work, it treated the different model types like they were in different sessions
+ *
+ *       * Change model lighting, seems to be very harsh and bright. May be because of a shader / or mtl based pre-set
+ *
+ *       * Low priority : Make an mtl reader and use that information in renderer instead of the hardcoded mtl information
+ *                        Provide a different png to detect planes as to not use ARCores sample plane, a make it more transparent
+ *
+ *       *Provide first time special on screen instructions on what to do with your camera and when to click phone for new users to learn!
+ *        - This should probably be implemented within ModelActivity.
  */
 
 public class ARModelFragment extends Fragment {

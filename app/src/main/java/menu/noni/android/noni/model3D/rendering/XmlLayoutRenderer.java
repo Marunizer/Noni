@@ -25,6 +25,11 @@ import static menu.noni.android.noni.model3D.rendering.ShaderUtil.normalizeFileN
  *      * Have the XML rotate in the direction of the user Camera. This won't necessarily be implemented here
  *       - Check : https://github.com/google-ar/arcore-android-sdk/issues/144#issuecomment-370535477
  *                 https://github.com/inio/arcore-android-sdk/blob/32e29839fb0ecf68e406c16344fc5be979c530e3/samples/hello_ar_java/app/src/main/java/org/inio/arcore/compassdemo/MathHelpers.java#L13-L35
+ *                 https://github.com/google-ar/arcore-android-sdk/issues/174#issuecomment-368168531
+ *
+ *      * Place the XML on TOP of our food model (assume already placed)
+ *                https://github.com/google-ar/arcore-android-sdk/issues/110#issuecomment-366435083
+ *
  */
 public class XmlLayoutRenderer extends ObjectRenderer {
   private Bitmap bitmap;

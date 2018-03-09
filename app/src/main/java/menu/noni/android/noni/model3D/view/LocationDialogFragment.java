@@ -22,6 +22,9 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
 
 /**
  * Created by mende on 2/8/2018.
+ *
+ * Purpose of this class is to serve as a mini settings menu where user can change search preferences
+ *
  */
 
 public class LocationDialogFragment extends DialogFragment {
@@ -54,7 +57,7 @@ public class LocationDialogFragment extends DialogFragment {
     }
 
     /** The system calls this only when creating the layout in a dialog. */
-    //TODO: make the radius change a bar that's scrolled for better user interaction, Max : 100 miles
+    //TODO: make the radius change a bar that's scrolled for better user interaction, Max : 100 miles or something that makes sense lol
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 

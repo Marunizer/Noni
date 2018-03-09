@@ -1,9 +1,9 @@
 package menu.noni.android.noni.model3D.view;
 
-
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +19,9 @@ import menu.noni.android.noni.model3D.services.SceneLoader;
  *
  * The purpose of this class is to be hold the scene which in turn holds the surface
  * view of the 3D modeling screen
+ *
+ * Possible solutions to zooming limit
+ *   https://github.com/andresoviedo/android-3D-model-viewer/issues/25#issuecomment-357078373
  */
 
 public class ModelFragment extends Fragment {

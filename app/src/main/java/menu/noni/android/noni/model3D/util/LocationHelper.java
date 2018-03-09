@@ -11,6 +11,9 @@ import java.util.List;
 /**
  * Created by mende on 10/30/2017.
  * Purpose of this Class is to always keep track of our users location data
+ *
+ * Concern: Geocoder sometimes times out and stops whole app
+ *   - research makes me think this is only an emulator problem and not a problem in real world, but something to keep in mind
  */
 
 public final class LocationHelper {

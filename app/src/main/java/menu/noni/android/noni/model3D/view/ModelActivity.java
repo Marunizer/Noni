@@ -47,21 +47,25 @@ import menu.noni.android.noni.model3D.util.Menu;
  * This activity represents the container for our 3D viewer.
  * TODO List:
  *
- * 		X* first, by using the known location key of the restaurant picked, access firebase and in order (0-1) (gross, should be changed..)
- * 	          Make an ArrayList that holds the names of the restaurant menu.
+ * 	    * 3d Model Viewer, if zooming in and out, do not allow user to rotate the screen ! (Medium Priority)
+ * 	           When user has 2 fingers not zooming on the screen, allow user to move camera position if possible ( Low Priority)
  *
- * 	    * Implement latest UI design, floating circle back button on top left, Name of item on top right with a clickable text for details for later
- *
- * 	    * 3d Model Viewer, if zooming in and out, do not allow user to rotate the screen !
- * 	                       When user has 2 fingers not zooming on the screen, allow user to move camera position? maybe not
- *
- * 	    * After the final 3d model production is decided, will need to change how xyz-axis are disaplyed so model is shown from the front.
+ * 	    * After the final 3d model production is decided, will need to change how xyz-axis are displayed so model is shown from the front.
+ * 	     - UPDATE: This is HIGHLY dependant on how an .obj is created so do not do this until a standard is set
  *
  * 	    * Make a onCreateOptionsMenu with a back button  at top left corner of screen
  * 	    * Add item name and description option and have a textView float for at least the name
+ * 	    - UPDATE: May not be necessary as to not take ip a bunch of room on the screen
  *
  * 	    *Handle Different category options, right now just assumed first category
- * 	    *Also Find out how we change Categories
+ * 	    *Will Find out how we change Categories, talk to Farza on how UI should be made
+ *
+ * 	    *We should know by the onCreate() if the device supports AR at all, this way, we can hide the AR View option if not needed
+ * 	    *If AR button is checked, we must check if user has ARCore installed on their phone, if not, lead them to the playstore
+ * 	    - https://github.com/google-ar/arcore-android-sdk/issues/162#event-1489578234
+ *
+ * 	    * Set up a thread based downloading Manager to download models, and have priority to download
+ * 	      models User has clicked but we have not gotten to yet
  */
 public class ModelActivity extends FragmentActivity implements MyCircleAdapter.AdapterCallback{
 

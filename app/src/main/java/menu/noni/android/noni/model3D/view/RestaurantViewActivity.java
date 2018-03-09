@@ -73,6 +73,13 @@ import static android.content.ContentValues.TAG;
  *      ask for an address instead of asking for a zipcode so its not unwarranted.
  *
  *    *Maybe have access firebase data before this class, and just pass it in
+ *
+ *    Low priority Ideal functionality: Let user manage the order of what comes up based on average price, distance, alphabetical, etc...
+ *    - Will need to make a UI change to add this
+ *
+ *
+ *    *Scale Concern (low priority - for now) Do not show all options at same time, but only show maybe 15,
+ *     then keep showing more, the farther down a user goes
  */
 
 public class RestaurantViewActivity extends AppCompatActivity implements MyAdapter.AdapterCallback, LocationDialogFragment.NoticeDialogListener {
