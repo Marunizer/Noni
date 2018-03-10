@@ -305,7 +305,6 @@ public class ObjectRenderer {
             setMaterialProperties(0.0f, 3.5f, 1.0f, 6.0f);
             try {
                 createOnGlThread();
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
