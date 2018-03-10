@@ -153,7 +153,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		//TODO: Properly ask for permission before downloading, so we atleast get firebase data, then wait
 		// verifyStoragePermissions(this);
 
-		prepareMenu();
+       // deleteFiles();
+        prepareMenu();
 
 		setContentView(R.layout.activity_model_viewer);
 		foodTitle = findViewById(R.id.title_text);
@@ -241,15 +242,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 						}
 					}
 				}
-//				//TODO: Threads seem to interfere with each other, maybe too many at a time, NO BUENO
-//				//FINISHED MAKING LIST, Start downloading everything
-//                Thread downloadAll = new Thread(){
-//                    public void run(){
-//                        downloadAll();
-//                    }
-//                };
-//                downloadAll.start();
-//                downloadAll();
+				// If a thread started here would interfere with first thread
+				//FINISHED MAKING LIST, Start downloading everything
+                downloadAll();
 			}
 
 			@Override
@@ -335,6 +330,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     //Split downloads up, and wait on a few before starting more
 	private void downloadAll(){
 
+        Thread testThread = new Thread(){
+            public void run(){
 
 		for (int i = 0; i < listOfCategories.size(); i++)
         {
@@ -354,6 +351,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
                 }
             }
         }
+            }
+        };
+        testThread.start();
 	}
 
 	//Prepares and checks Downloads to be done
@@ -461,10 +461,14 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	}
 
 	//Deletes entire folder, useful for testing
-	public void deleteFiles() throws IOException {
+	public void deleteFiles()  {
 		File file = new File(getFilesDir().toString() + "/model");
-		FileUtils.deleteDirectory(file);
-	}
+        try {
+            FileUtils.deleteDirectory(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 	//Used for deleting  files on non emulators, easier to use Device Monitor, just replace filename
 //		File file = new File(getFilesDir().toString() + "/model/ryan.mtl");
 //		File file2 = new File(getFilesDir().toString() + "/model/ryan.obj");
