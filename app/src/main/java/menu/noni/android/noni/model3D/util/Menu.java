@@ -1,7 +1,13 @@
 package menu.noni.android.noni.model3D.util;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import menu.noni.android.noni.model3D.rendering.ObjectRenderer;
 
 /**
  * Created by mende on 12/12/2017.
@@ -23,7 +29,9 @@ public class Menu {
     //May not be needed since we don't care about the Menu when we are no longer at the restaurant
     private String key;
     private String restName;
-    public Hashtable<String, Categories> allCategories = new Hashtable<>(); //Might wanna make private, just annoying to access
+
+    //Might wanna make private, just annoying to access
+    public Hashtable<String, Categories> allCategories = new Hashtable<>();
 
     //Probably should have a bar or some text at top of model Viewer where we display the resturant name
     public String getRestName() {
@@ -33,8 +41,6 @@ public class Menu {
     public void setRestName(String restName) {
         this.restName = restName;
     }
-
-
 
     public static class Categories
     {
@@ -51,8 +57,13 @@ public class Menu {
         //keeps a numbered index of the items entered to hashtable, used as key converter
         //when working with adapters that return the position, indicating a menu item
         //These probz need to be private, just annoying to set up for now
+        //TODO: Remove key converter, I think I can straight up pass the String key from circle adapter
         public ArrayList<String> keyConverter = new ArrayList<>();
         public Hashtable<String, MenuItem> allItems = new Hashtable<>();
+
+        public String getName() {
+            return name;
+        }
 
         public void setCategoryIconName(String categoryIconName) {
             this.categoryIconName = categoryIconName;
@@ -68,9 +79,16 @@ public class Menu {
             String iconPath;
             String description;
             String cost;
-
+            public AtomicInteger atomicDownloadCheck = new AtomicInteger(0);
             //Not being used effectively yet
-            int downloadChecker;
+            boolean isDownloaded = false;
+
+            //Have we set up object using the factory
+            boolean isFactoryReady = false;
+            boolean isRendered = false;
+            boolean isDrawn = false;
+
+            ObjectRenderer modelAR;
 
             public MenuItem(String id, String drcPath, String mtlPath, String jpgPath,
                             String iconPath, String description, String cost) {
@@ -82,10 +100,92 @@ public class Menu {
                 this.iconPath = iconPath;
                 this.description = description;
                 this.cost = cost;
-                this.downloadChecker = 0;
+                this.isDownloaded = false;
+                this.isFactoryReady = false;
+                this.isDrawn = false;
             }
 
+            public String getObjPath() {
+                return objPath;
+            }
 
+            public String getMtlPath() {
+                return mtlPath;
+            }
+
+            public String getJpgPath() {
+                return jpgPath;
+            }
+
+            public String getIconPath() {
+                return iconPath;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public String getDescription()
+            {
+                return description;
+            }
+
+            public String getCost()
+            {
+                return cost;
+            }
+
+            public boolean isDownloaded() {
+                return isDownloaded;
+            }
+
+            public void setDownloaded(boolean isDownloaded) {
+                this.isDownloaded = isDownloaded;
+            }
+
+            public int getAtomicDownloadCheck() {
+                return atomicDownloadCheck.get();
+            }
+
+            public void incrementAtomicDownloadCheck() {
+                int temp = atomicDownloadCheck.incrementAndGet();
+                this.atomicDownloadCheck = new AtomicInteger(temp);
+            }
+
+            public boolean isFactory() {
+                return isFactoryReady;
+            }
+
+            public void setFactory(boolean factory) {
+                isFactoryReady = factory;
+            }
+
+            public ObjectRenderer getModelAR() {
+                return modelAR;
+            }
+
+            public void setModelAR(ObjectRenderer modelAR) {
+                this.modelAR = modelAR;
+            }
+
+            public boolean isDrawn() {
+                return isDrawn;
+            }
+
+            public void setDrawn(boolean drawn) {
+                isDrawn = drawn;
+            }
+
+            public String getBucketPath() {
+
+                //if name contains TwoCapitals, it is one word so return
+                if (isOneWord(name))
+                    return name;
+                else
+                    return convertToCamelCase(name);
+            }
+
+            //TODO: Should move to Utils
             private String convertToCamelCase(String text) {
                 String result = "", result1 = "";
                 for (int i = 0; i < text.length(); i++) {
@@ -120,10 +220,10 @@ public class Menu {
                 return result;
             }
 
+            //TODO: Should move to Utils
             private static boolean isOneWord(String s) {
                 return (s.length() > 0 && s.split("\\s+").length == 1);
             }
-
 
             //Unused for now, SplitsCamelCase --> Splits Camel Case
 //            static String splitCamelCase(String s) {
@@ -137,52 +237,38 @@ public class Menu {
 //                );
 //            }
 
-            public String getObjPath() {
-                return objPath;
-            }
+            //Possible method with the purpose to stall app until we the model is downloaded
+            //A better solution would be to wait for a callback from the download itself
+            public boolean stallUntilDownloaded(Context cheatCode){
 
-            public String getMtlPath() {
-                return mtlPath;
-            }
+//                String objPath = cheatCode.getFilesDir().toString() + "/model/" + getObjPath();
+//                String mtlPath = cheatCode.getFilesDir().toString() + "/model/" + getMtlPath();
+//                String jpgPath = cheatCode.getFilesDir().toString() + "/model/" + getJpgPath();
+//
+//                File objFile = new File(objPath);
+//                File mtlFile = new File(mtlPath);
+//                File jpgFile = new File(jpgPath);
+//
+//
+//                while(!objFile.exists() || !mtlFile.exists() || !jpgFile.exists() )
+//                {
+//                    try {
+//                        TimeUnit.MINUTES.wait(1);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+                //OR Like this, makes more sense lmao
+                while(!isDownloaded())
+                {
+                    try {
+                        TimeUnit.MINUTES.wait(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return true;
 
-            public String getJpgPath() {
-                return jpgPath;
-            }
-
-            public String getIconPath() {
-                return iconPath;
-            }
-
-            public String getName() {
-                return name;
-            }
-
-            public String getBucketPath() {
-
-                //if name contains TwoCapitals, it is one word so return
-                if (isOneWord(name))
-                    return name;
-                else
-                    return convertToCamelCase(name);
-            }
-
-            public String getDescription()
-            {
-                return description;
-            }
-
-
-            public String getCost()
-            {
-                return cost;
-            }
-
-            public int getDownloadChecker() {
-                return downloadChecker;
-            }
-
-            public void incrementDownloadChecker() {
-                this.downloadChecker++;
             }
 
         }
