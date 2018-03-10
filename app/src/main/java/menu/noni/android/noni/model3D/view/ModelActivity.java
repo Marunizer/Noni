@@ -53,10 +53,6 @@ import menu.noni.android.noni.model3D.util.Menu;
  * 	    * After the final 3d model production is decided, will need to change how xyz-axis are displayed so model is shown from the front.
  * 	     - UPDATE: This is HIGHLY dependant on how an .obj is created so do not do this until a standard is set
  *
- * 	    * Make a onCreateOptionsMenu with a back button  at top left corner of screen
- * 	    * Add item name and description option and have a textView float for at least the name
- * 	    - UPDATE: May not be necessary as to not take ip a bunch of room on the screen
- *
  * 	    *Handle Different category options, right now just assumed first category
  * 	    *Will Find out how we change Categories, talk to Farza on how UI should be made
  *
@@ -91,23 +87,27 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	private String paramAssetDir;
 	private String textureFilename;
 	private String categoryKey = "Most Popular";
+	private int categoryIndex = 0;
 	private String coordinateKey;
 	private String restaurantName;
-	Menu menu;
+
+    Menu menu;
+	Menu.Categories.MenuItem modelItem;
+	ArrayList<Menu.Categories> listOfCategories = new ArrayList<>();
 	TextView foodTitle;
 	TextView foodCost;
+	TextView menuTitle;
+	TextView categoryTitle;
 
 	//Keeps track of which circle is hit, then is converted to the key of the model
 	private int menuIndex = 0;
 
-	//Was used for testing, Possible that it should not be removed everywhere, no obvious purpose
-	private int testingNumber = 0;
-
-	//Purpose is to start loading model, after we have the 3 necessary files downloaded
-	private int downloadCheck = 0;
-
 	//First time user is opening Activity
 	boolean firstAccess = true;
+    boolean firstDownloadAndLoad = true;
+
+    //If first time, may need to load model right after downloading
+	boolean needLoad = true;
 	/**
 	 * The file to load. Passed as input parameter
 	 */
@@ -137,7 +137,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 		Bundle b = getIntent().getExtras();
 
-		if (b != null) {
+		if (b != null)
+		{
 			this.paramAssetDir = getFilesDir().getAbsolutePath();
 			this.coordinateKey = b.getString("coordinateKey");
 			this.restaurantName = b.getString("restaurantName");
@@ -157,6 +158,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		setContentView(R.layout.activity_model_viewer);
 		foodTitle = findViewById(R.id.title_text);
 		foodCost = findViewById(R.id.item_cost);
+		menuTitle = findViewById(R.id.store_name);
+		categoryTitle = findViewById(R.id.category_name);
+
 	}
 
 	//Prepares The Categories, and Menu items in that category. Fills the Menu class with data
@@ -170,13 +174,17 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			public void onDataChange(final DataSnapshot dataSnapshot) {
 
 				//Will traverse every Category
-				for (DataSnapshot categories: dataSnapshot.getChildren()) {     //categories = Most Popular
+				for (DataSnapshot categories: dataSnapshot.getChildren()) {
 
 					//Create the Category, and keep reference
 					Menu.Categories category = new Menu.Categories(categories.getKey());
 
 					//Add category to our table, at the same time, we are naming the category
 					menu.allCategories.put(categories.getKey(),category);
+
+					//Add category to our list to be able to easily traverse list by index
+
+                    listOfCategories.add(category);
 
 					//get the icon name for the category, we go in one level deeper
 					category.setCategoryIconName(categories.child("category_icon_name").getValue().toString());
@@ -224,11 +232,24 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 							categoryKey = categories.getKey();
 							foodTitle.setText(menuItem.getName());
 							foodCost.setText(menuItem.getCost());
+							menuTitle.setText(restaurantName);
+							categoryTitle.setText(categoryKey);
+							setModelItem(menuItem);
+
 							//Would rather start downloading/loading first model here, TESTING at the moment, may be better method
 							firstAccess();
 						}
 					}
 				}
+//				//TODO: Threads seem to interfere with each other, maybe too many at a time, NO BUENO
+//				//FINISHED MAKING LIST, Start downloading everything
+//                Thread downloadAll = new Thread(){
+//                    public void run(){
+//                        downloadAll();
+//                    }
+//                };
+//                downloadAll.start();
+//                downloadAll();
 			}
 
 			@Override
@@ -244,12 +265,10 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		//first time this Activity is created, should just load the very first model
 		//in the restaurant so what should be loaded here is should probably just be the very first model
 
-		//reference the model currently looking at
-		Menu.Categories.MenuItem model = menu.allCategories.get(categoryKey).allItems.
-				get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
+        this.paramFilename = modelItem.getObjPath();
+        this.textureFilename = modelItem.getJpgPath();
 
-		this.paramFilename = model.getObjPath();
-		this.textureFilename = model.getJpgPath();
+        System.out.println("obj: " + paramFilename + "  jpg: " + textureFilename);
 
 		Bundle b= new Bundle();
 
@@ -292,64 +311,92 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		//Make easy way first to atleast have a way to have downloads (:
 		//Download First Model, Displays if already downloaded
 		//testing number can be used to add to a thread name although better to use model name
-		Thread downlaodFirstModelThread = new Thread(){
+
+                                               //can probably replace with modelItem
+        final Menu.Categories.MenuItem model = menu.allCategories.get(categoryKey).allItems.
+                get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
+
+		Thread downloadFirstModelThread = new Thread(){
 			public void run(){
 				System.out.println("Download first model Thread Running");
-				downloadOneModel();
-
-				testingNumber++;
+				prepareDownload(model);
 			}
 		};
+		downloadFirstModelThread.start();
 
-		//Run a download
-		downlaodFirstModelThread.start();
 		//****************************END DOWNLOADING/LOADING FOR FIRST MODEL
 	}
 
 	//TODO: Make a normal download system that downloads everything
 	//Probably need to look at Farzas to know how he handles all events such as having priority
 	//although a quick fix, would be to just have a loading animation (:
-	//refer to above for quick fix on using for loop to make dynamic threads for each downlaod for simple solutopn
+	//refer to above for quick fix on using for loop to make dynamic threads for each downlaod for simple solution
+    //Right now, This is not enough, downloads interfere with each other. too much going on at once
+    //Split downloads up, and wait on a few before starting more
 	private void downloadAll(){
+
+
+		for (int i = 0; i < listOfCategories.size(); i++)
+        {
+            ArrayList<String> allItemsList = menu.allCategories.get(listOfCategories.get(i).getName()).keyConverter;
+
+            for (int j = 0; j < allItemsList.size(); j++)
+            {
+                //make sure we are not already dealing with firs item
+                if(menu.allCategories.get(listOfCategories.get(i).getName()).keyConverter.get(j) != modelItem.getName())
+                {
+                    Menu.Categories.MenuItem models = menu.allCategories.get(listOfCategories.get(i).getName())
+                            .allItems.get(menu.allCategories.get(listOfCategories.get(i).getName()).keyConverter.get(j));
+
+                    System.out.println("WHAT WE DOWNLOADING?: " + models.getName() + "At Category: "  + listOfCategories.get(i).getName());
+                    if(!models.isDownloaded())
+                        prepareDownload(models);
+                }
+            }
+        }
 	}
 
-	//Contrary to name, does not download, It prepares the 3 downloads needed for one model
-	private void downloadOneModel(){
+	//Prepares and checks Downloads to be done
+    //TODO: What we could do instead, is start three separate threads from here instead of 1 thread to download first, and one to download all
+    //Problem: Maybe too many threads running at a time - low concern
+    //Problem: for first Model, difficult to track when it should be downloaded, so we should not start all until we know that first is done
+	private void prepareDownload(Menu.Categories.MenuItem modelToDownload){
 
-		Menu.Categories.MenuItem model = menu.allCategories.get(categoryKey).allItems.
-				get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
+		// TODO: Do not download obj, instead download draco, then convert to obj, Implement AFTER Draco use is finished
+        // String drcPath = getFilesDir().toString() + "/model/" + modelToDownload.getDrcPath();
+		String objPath = getFilesDir().toString() + "/model/" + modelToDownload.getObjPath();
+		String mtlPath = getFilesDir().toString() + "/model/" + modelToDownload.getMtlPath();
+		String jpgPath = getFilesDir().toString() + "/model/" + modelToDownload.getJpgPath();
 
+		//File drcFile = new File(drcPath);
+		File objFile = new File(objPath);
+		File mtlFile = new File(mtlPath);
+		File jpgFile = new File(jpgPath);
 
-		//TODO: Do not download obj, instead download draco, then convert to obj, Implement AFTER Draco use is finished
-		String objPath = getFilesDir().toString() + "/model/" + model.getObjPath();
-		String mtlPath = getFilesDir().toString() + "/model/" + model.getMtlPath();
-		String jpgPath = getFilesDir().toString() + "/model/" + model.getJpgPath();
-
-		File objFolder = new File(objPath);
-		File mtlFolder = new File(mtlPath);
-		File jpgFolder = new File(jpgPath);
-
-		//file object does not exist, so download it ALL -> checks specific folder later!
-		if(!objFolder.exists()) {
-			downloadModel(objFolder, model.getObjPath());
-			downloadModel(mtlFolder, model.getMtlPath());
-			downloadModel(jpgFolder, model.getJpgPath());
+		if(!objFile.exists() && !mtlFile.exists() && !jpgFile.exists())
+		{
+		  //  dracoDownload(drcFile, modelToDownload.getDrcPath());
+            System.out.println("CHECK POINT : line 383");
+			downloadModel(objFile, modelToDownload.getObjPath(), modelToDownload);
+			downloadModel(mtlFile, modelToDownload.getMtlPath(), modelToDownload);
+			downloadModel(jpgFile, modelToDownload.getJpgPath(), modelToDownload);
+		}
+		else
+		{
+		    System.out.println("CHECK POINT : line 389");
+		    //This will be redundantly set to false each download
+			needLoad = false;
+			modelToDownload.setDownloaded(true);
 		}
 	}
 
-	//TODO: If file is a draco file, download to external storage, probably use override
 	//Final download stage: Downloads requested file from Firebase storage
-	//Some functionality in here only works for first model
-	private void downloadModel(File files_folder, String imageKey) {
+	private void downloadModel(File files_folder, String imageKey, final  Menu.Categories.MenuItem targetModel) {
 
 		//If file already exists, Do nothing
-		if(!files_folder.exists()) {
-
-			//Reference to the current model, Maybe should delete, and instead have the path as a parameter
-			Menu.Categories.MenuItem model = menu.allCategories.get(categoryKey).allItems.
-					get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
-
-			String path = "Home" + File.separator + model.getBucketPath() + File.separator + model.getBucketPath()+"Android" + File.separator + imageKey;
+		if(!files_folder.exists())
+		{
+			String path = "Home" + File.separator + targetModel.getBucketPath() + File.separator + targetModel.getBucketPath()+"Android" + File.separator + imageKey;
 
 			//If the path does not exist, I don't believe anything negative happens other than no download
 			final StorageReference fileToDownload = fbStorageReference.child(path);
@@ -361,18 +408,27 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				folder.mkdirs();
 			}
 
-			//File has finished downloading ! If it is the 3rd file to finish, then we load model, only works for first download
+			//File has finished downloading, atomic variable lets us keep track of downloads
 			fileToDownload.getFile(files_folder).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
 				@Override
 				public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-					downloadCheck++;
-					// downloadCheck listens to make sure all three files are ready
-					//doesnt seem to work file number is never 3 because it is a final variable, maybe cause not atomic
-					//fileNumber == 3 &&
-					if(downloadCheck == 3)
-						beginLoadingModel();
+					targetModel.incrementAtomicDownloadCheck();
 
-					System.out.println("FINISHED DOWNLOADING..." + "    downlaodCheck = " + downloadCheck);
+					if(targetModel.getAtomicDownloadCheck() == 3)
+					{
+					    //model fully downloaded, set reference to true
+						getModelItem().setDownloaded(true);
+
+						// First model to be downloaded, load ASAP
+                        if (firstDownloadAndLoad && needLoad)
+                        {
+                            beginLoadingModel();
+                            setFirstDownloadAndLoad(false);
+                            setNeedLoad(false);
+                        }
+					}
+
+					System.out.println("FINISHED DOWNLOADING..." + "    downlaodCheck = " + targetModel.getAtomicDownloadCheck());
 
 				}
 			}).addOnFailureListener(new OnFailureListener() {
@@ -385,7 +441,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	}
 
 	//To be used to download Draco file
-	private void dracoDownlaod(File files_folder, String imageKey, final int fileNumber) {
+	private void dracoDownload(File files_folder, String imageKey) {
 
 		//TODO: Download Draco to external folder, then decompress for obj
 	}
@@ -402,20 +458,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		modelFragment = new ModelFragment();
 		modelFragment.setArguments(b);
 		fragMgr.beginTransaction().replace(R.id.modelFrame, modelFragment).commit();
-
-		//Now that the first model has been downloaded and loaded, call DownloadALL(); or
-		//either implement donwloads here, OR implement in the firstaccess() method
-		//Threads for the purpose of running multiple (3 at a time) downloads at the same time
-//			Thread thread1 = new Thread(){
-//				public void run(){
-//					System.out.println("Thread1 Running");
-//					downloadOneModel(testingNumber);
-//					testingNumber++;
-//				}
-//			};
-//
-//			thread1.start();
-
 	}
 
 	//Deletes entire folder, useful for testing
@@ -441,6 +483,27 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	public String getTextureFilename() { return this.textureFilename;}
 
+    public void setFirstDownloadAndLoad(boolean firstDownloadAndLoad) {
+        this.firstDownloadAndLoad = firstDownloadAndLoad;
+    }
+
+    public void setNeedLoad(boolean needLoad) {
+        this.needLoad = needLoad;
+    }
+
+	public Menu.Categories.MenuItem getModelItem() {
+		return modelItem;
+	}
+
+	public void setModelItem(Menu.Categories.MenuItem modelItem) {
+		this.modelItem = modelItem;
+	}
+
+	public Menu getMenuObject()
+	{
+		return this.menu;
+	}
+
 	//  _   _ ___   _____                 _
 	// | | | |_ _| | ____|_   _____ _ __ | |_ ___
 	// | | | || |  |  _| \ \ / / _ \ '_ \| __/ __|
@@ -453,16 +516,16 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	public void onMethodCallback(int key) {
 
 		this.menuIndex = key;
+		this.modelItem = menu.allCategories.get(categoryKey).
+                allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
 
-		this.paramFilename = menu.allCategories.get(categoryKey).
-				allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex)).getObjPath();
-		this.textureFilename = menu.allCategories.get(categoryKey).
-				allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex)).getJpgPath();
+		this.paramFilename = modelItem.getObjPath();
+		this.textureFilename = modelItem.getJpgPath();
 
 		//We are in AR, so pass data
 		if (viewFlag)
 		{
-			arModelFragment.passData(this.paramFilename, this.textureFilename);
+			arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
 		}
 		//Recreate 3D environment. Might want to consider just passing in new information,
 		//I think i may have tested before though and didnt work
@@ -497,6 +560,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 				bundle.putString("fileName", getParamFilename());
 				bundle.putString("textureName", getTextureFilename());
+				bundle.putString("coordinateKey", coordinateKey);
+				bundle.putString("catKey", categoryKey);
+				bundle.putString("modelKey", menu.allCategories.get(categoryKey).allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex)).getName());
+				bundle.putInt("catIndex", categoryIndex);
+				bundle.putInt("modelIndex", menuIndex);
 
 				//*******************AR
 				arModelFragment = new ARModelFragment();
