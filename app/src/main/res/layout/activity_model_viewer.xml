@@ -17,7 +17,6 @@
         android:id="@+id/store_name"
         android:layout_width="190dp"
         android:layout_height="50dp"
-        android:text="Restaurant Name"
         android:fontFamily="@font/avenir"
         android:gravity="center"
         android:textStyle="bold"
@@ -33,7 +32,6 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/avenir"
         android:layout_centerHorizontal="true"
-        android:text="item name"
         android:gravity="center"
         android:layout_below="@id/store_name"
         android:textColor="@color/cardview_light_background"
@@ -45,7 +43,6 @@
         android:gravity="center"
         android:layout_height="wrap_content"
         android:fontFamily="@font/avenir"
-        android:text="$$$"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/title_text"
         android:textColor="@color/cardview_light_background"
@@ -55,58 +52,31 @@
         android:id="@+id/AR_image"
         android:layout_width="64dp"
         android:layout_height="64dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:layout_gravity="center"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="25dp"
+        android:onClick="onLoadMode"
         android:scaleType="centerCrop"
-        android:src="@drawable/cast_album_art_placeholder"
+        android:src="@android:drawable/ic_menu_camera"
         app:sriv_border_color="#F29AB2"
         app:sriv_border_width="2dp"
-        app:sriv_oval="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="25dp"
-        android:layout_marginRight="12dp"
-        android:onClick="loadMode"
-        />
+        app:sriv_oval="true" />
 
-    <LinearLayout
+    <com.joooonho.SelectableRoundedImageView
+        android:id="@+id/backButton"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:onClick="onBackPress"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_group_expand_00"
+        android:rotation="90"
         android:layout_marginTop="25dp"
         android:layout_marginLeft="12dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <com.joooonho.SelectableRoundedImageView
-            android:id="@+id/backButton"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:onClick="onBackPress"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_group_expand_00"
-            android:rotation="90"
-            app:sriv_border_color="#F29AB2"
-            app:sriv_border_width="2dp"
-            app:sriv_oval="true" />
-
-        <!--<TextView-->
-            <!--android:id="@+id/title_text"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:fontFamily="@font/avenir"-->
-            <!--android:gravity="center"-->
-            <!--android:text="item name"-->
-            <!--android:textColor="@color/cardview_light_background"-->
-            <!--android:textSize="36sp" />-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/item_cost"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:fontFamily="@font/avenir"-->
-            <!--android:text="$$$"-->
-            <!--android:textColor="@color/cardview_light_background"-->
-            <!--android:textSize="36sp" />-->
-    </LinearLayout>
-
+        app:sriv_border_color="#F29AB2"
+        app:sriv_border_width="2dp"
+        app:sriv_oval="true" />
 
     <TextView
         android:id="@+id/category_name"
@@ -136,31 +106,5 @@
 
         </android.support.v7.widget.RecyclerView>
     </LinearLayout>
-
-<!--
-    <Button
-        android:id="@+id/left_button"
-        android:layout_width="120dp"
-        android:layout_height="80dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="previous model"
-        android:onClick="previous_model"/>
-
-    <Button
-        android:id="@+id/right_button"
-        android:layout_width="120dp"
-        android:layout_height="80dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="next model"
-        android:onClick="next_model"/>
-
--->
-
 
 </RelativeLayout>

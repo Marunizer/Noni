@@ -57,7 +57,7 @@ public class Menu {
         //keeps a numbered index of the items entered to hashtable, used as key converter
         //when working with adapters that return the position, indicating a menu item
         //These probz need to be private, just annoying to set up for now
-        //TODO: Remove key converter, I think I can straight up pass the String key from circle adapter
+        //May be able to remove keyConverter but seems to be useful in downloadAll()Scenario - Keep in mind -  remove if not needed
         public ArrayList<String> keyConverter = new ArrayList<>();
         public Hashtable<String, MenuItem> allItems = new Hashtable<>();
 
@@ -71,16 +71,15 @@ public class Menu {
 
         public static class MenuItem {
 
-            String name; // The name WILL be the Key or ID
-            String drcPath; //Have for now but I do not think we will be storing draco name to be reused, it's a hit it and quit it
-            String objPath;
-            String mtlPath;
-            String jpgPath;
-            String iconPath;
-            String description;
-            String cost;
-            public AtomicInteger atomicDownloadCheck = new AtomicInteger(0);
-            //Not being used effectively yet
+            private String name; // The name WILL be the Key or ID
+            private String drcPath; //Have for now but I do not think we will be storing draco name to be reused, it's a hit it and quit it
+            private String objPath;
+            private String mtlPath;
+            private String jpgPath;
+            private String iconPath;
+            private String description;
+            private String cost;
+            private AtomicInteger atomicDownloadCheck = new AtomicInteger(0);
             boolean isDownloaded = false;
 
             //Have we set up object using the factory
@@ -239,6 +238,7 @@ public class Menu {
 
             //Possible method with the purpose to stall app until we the model is downloaded
             //A better solution would be to wait for a callback from the download itself
+            //TODO: May no longer be needed: check and delete
             public boolean stallUntilDownloaded(Context cheatCode){
 
 //                String objPath = cheatCode.getFilesDir().toString() + "/model/" + getObjPath();
@@ -268,10 +268,7 @@ public class Menu {
                     }
                 }
                 return true;
-
             }
-
         }
-
     }
 }
