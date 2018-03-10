@@ -521,6 +521,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 		this.paramFilename = modelItem.getObjPath();
 		this.textureFilename = modelItem.getJpgPath();
+		foodCost.setText(modelItem.getCost());
+		foodTitle.setText(modelItem.getName());
 
 		//We are in AR, so pass data
 		if (viewFlag)
