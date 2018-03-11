@@ -81,6 +81,7 @@ import menu.noni.android.noni.model3D.util.CameraPermissionHelper;
 public class ARModelFragment extends Fragment {
 
     private static final String TAG = ARModelFragment.class.getSimpleName();
+    public static final String AR_MODEL_FRAGMENT_TAG = "AR_MODEL_FRAGMENT_TAG";
 
     //Make local if possible
     //The Renderers are created here, and initialized when the GL surface is created.

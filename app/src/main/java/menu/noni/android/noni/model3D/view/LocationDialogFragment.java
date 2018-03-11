@@ -23,7 +23,7 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
 /**
  * Created by mende on 2/8/2018.
  *
- * Purpose of this class is to serve as a mini settings menu where user can change search preferences
+ * Purpose of this class is to serve as a mini settings restaurantMenu where user can change search preferences
  *
  */
 

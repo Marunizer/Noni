@@ -28,6 +28,8 @@ public class ModelFragment extends Fragment {
 
     private float[] backgroundColor = new float[]{0.2f, 0.2f, 0.2f, 1.0f};
 
+    public static final String CONTENT_VIEW_TAG = "MODEL_FRAG";
+
     private ModelSurfaceView gLView;
     private SceneLoader scene;
     private String paramAssetDir;
