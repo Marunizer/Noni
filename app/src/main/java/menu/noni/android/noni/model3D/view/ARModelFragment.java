@@ -108,17 +108,11 @@ public class ARModelFragment extends Fragment {
     // Tap handling and UI.
     private ArrayBlockingQueue<MotionEvent> queuedTaps = new ArrayBlockingQueue<>(16);
 
-    //Maybe we just nee keys, don't need the list itself
-    //technically, the Key is never needed, key converter on index is enough, but it's so much code for referencing lol
-    private ArrayList<Menu.Categories> categoryList;
-    private String objFile;
-    private String textureFile;
-    private String coordinateKey;
-    private int modelIndex;
-
     Menu menu;
     Menu.Categories.MenuItem model_prototype;
-
+    private String objFile;
+    private String textureFile;
+    private int modelIndex;
 
     private final View.OnTouchListener tapListener = new View.OnTouchListener() {
         @Override
@@ -155,7 +149,6 @@ public class ARModelFragment extends Fragment {
             this.objFile = b.getString("fileName");
             this.textureFile = b.getString("textureName");
             this.modelIndex = b.getInt("modelIndex");
-            this.coordinateKey = b.getString("coordinateKey");
         }
 
             //Lets pass on the list of Categories    --Update: May not be necessary, do not include for now
@@ -167,7 +160,6 @@ public class ARModelFragment extends Fragment {
         System.out.println(TAG + " Object File: "  + objFile);
         System.out.println(TAG + " Texture File: " + textureFile);
         System.out.println(TAG + " Menu Index: " + modelIndex);
-        System.out.println(TAG + " Coordinate: " + coordinateKey);
         System.out.println(TAG + " Menu name: " + menu.getRestName());
 
         //TODO: MAKE SURE THIS DOESNT BREAK STUFF

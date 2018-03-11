@@ -52,6 +52,7 @@ public class Menu {
 
         //Will need to be used after I know how the category is selected
         private String name;
+
         private String categoryIconName;
 
         //keeps a numbered index of the items entered to hashtable, used as key converter
@@ -67,6 +68,10 @@ public class Menu {
 
         public void setCategoryIconName(String categoryIconName) {
             this.categoryIconName = categoryIconName;
+        }
+
+        public String getCategoryIconName() {
+            return categoryIconName;
         }
 
         public static class MenuItem {

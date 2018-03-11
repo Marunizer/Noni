@@ -111,7 +111,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         textView.setText(LocationHelper.getAddress());
         textView.setPaintFlags(textView.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
 
-        mRecyclerView = findViewById(R.id.my_recycler_view);
+        mRecyclerView = findViewById(R.id.restaurant_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -299,7 +299,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     @SuppressLint("WrongConstant")
     public void changeAddress(View view) {
         DialogFragment newFragment = new LocationDialogFragment();
-        newFragment.show(getFragmentManager(), "missiles");
+        newFragment.show(getFragmentManager(), "locationMenu");
     }
 
     @Override
@@ -367,7 +367,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
-        //Get the path to the file from the dataset
+        //Get the path to the file from the data set
         String path = "restsTableImages" + File.separator + ((Restaurant) mDataset.get(position)).getName() + "_main_image.png";
         //Create a StorageReference variable to store the path to the image
         StorageReference image = fbStorageReference.child(path);

@@ -1,6 +1,8 @@
 package menu.noni.android.noni.model3D.view;
 
 import android.Manifest;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -18,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -113,7 +116,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private TextView foodTitle;
     private TextView foodCost;
     private TextView menuTitle;
-    private TextView categoryTitle;
+    private Button categoryButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -137,7 +140,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         foodTitle = findViewById(R.id.title_text);
         foodCost = findViewById(R.id.item_cost);
         menuTitle = findViewById(R.id.store_name);
-        categoryTitle = findViewById(R.id.category_name);
+        categoryButton = findViewById(R.id.category_button);
         mRecyclerView = findViewById(R.id.model_recycler_view);
 
         //Set up the recyclerView
@@ -227,7 +230,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 							foodTitle.setText(menuItem.getName());
 							foodCost.setText(menuItem.getCost());
 							menuTitle.setText(restaurantName);
-							categoryTitle.setText(categoryKey);
+							categoryButton.setText(categoryKey);
 							setModelItem(menuItem);
 
 							//Would rather start downloading/loading first model here, TESTING at the moment, may be better method
@@ -444,6 +447,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		return this.menu;
 	}
 
+    public ArrayList<Menu.Categories> getListOfCategories() {
+        return listOfCategories;
+    }
 	//  _   _ ___   _____                 _
 	// | | | |_ _| | ____|_   _____ _ __ | |_ ___
 	// | | | || |  |  _| \ \ / / _ \ '_ \| __/ __|
@@ -451,12 +457,18 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	//  \___/|___| |_____| \_/ \___|_| |_|\__|___/
 	//
 
+    public void onCategoryClick(View v)
+    {
+        CategoryDialogFragment newFragment = new CategoryDialogFragment();
+
+        newFragment.show(getFragmentManager(), "categorySelect");
+    }
     //Function for callback when I make a UI to have user select the category
     public void onCategorySelect(int categoryPosition){
 
         categoryKey = menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).getName();
 	    categoryIndex = categoryPosition;
-        categoryTitle.setText(categoryKey);
+        categoryButton.setText(categoryKey);
 
         //Fill Adapter with list of all menu items
         MyCircleAdapter mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryPosition).allItems,
@@ -524,7 +536,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				Bundle bundle= new Bundle();
 				bundle.putString("fileName", getParamFilename());
 				bundle.putString("textureName", getTextureFilename());
-				bundle.putString("coordinateKey", coordinateKey);
 				bundle.putInt("modelIndex", menuIndex);
 
 				//**********************************************************AR
