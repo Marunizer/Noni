@@ -113,10 +113,7 @@ public class ARModelFragment extends Fragment {
     private ArrayList<Menu.Categories> categoryList;
     private String objFile;
     private String textureFile;
-    private String categoryKey;
-    private String modelKey;
     private String coordinateKey;
-    private int categoryIndex;
     private int modelIndex;
 
     Menu menu;
@@ -157,9 +154,6 @@ public class ARModelFragment extends Fragment {
         {
             this.objFile = b.getString("fileName");
             this.textureFile = b.getString("textureName");
-            this.categoryKey= b.getString("catKey");
-            this.modelKey = b.getString("modelKey");
-            this.categoryIndex = b.getInt("catIndex");
             this.modelIndex = b.getInt("modelIndex");
             this.coordinateKey = b.getString("coordinateKey");
         }
@@ -172,14 +166,12 @@ public class ARModelFragment extends Fragment {
         //Check our variables: Delete later
         System.out.println(TAG + " Object File: "  + objFile);
         System.out.println(TAG + " Texture File: " + textureFile);
-        System.out.println(TAG + " Category Key: " + categoryKey);
-        System.out.println(TAG + " Category index: " + categoryIndex);
-        System.out.println(TAG + " Menu Key: " + modelKey);
         System.out.println(TAG + " Menu Index: " + modelIndex);
         System.out.println(TAG + " Coordinate: " + coordinateKey);
         System.out.println(TAG + " Menu name: " + menu.getRestName());
 
-        model_prototype = menu.allCategories.get(categoryKey).allItems.get(modelKey);
+        //TODO: MAKE SURE THIS DOESNT BREAK STUFF
+        model_prototype = ((ModelActivity)getActivity()).getModelItem();//menu.allCategories.get(categoryKey).allItems.get(modelKey);
 
         View v= inflater.inflate(R.layout.fragment_model_view_ar, container, false);
 

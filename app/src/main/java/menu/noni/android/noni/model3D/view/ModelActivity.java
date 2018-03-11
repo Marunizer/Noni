@@ -89,15 +89,15 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private Menu.Categories.MenuItem modelItem;
     private ArrayList<Menu.Categories> listOfCategories = new ArrayList<>();
     private String paramFilename;
-	private String paramAssetDir;
+    private String paramAssetDir;
 	private String textureFilename;
 	private String coordinateKey;
 	private String restaurantName;
     private String categoryKey;
-    private int categoryIndex = 0; //TO be used later when a Category change view is made
-    private int menuIndex; //Keeps track of which circle is hit, then is converted to the key of the model
+    private int categoryIndex;
+    private int menuIndex;
 
-	//First time user is opening Activity / first time download AND load 
+	//First time user is opening Activity / first time download AND load
 	private boolean firstAccess = true;
     private boolean firstDownloadAndLoad = true;
     //If viewFlag = false -> 3D viewer (default)|| If viewFlag = true -> AR viewer
@@ -109,6 +109,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private static final String CONTENT_VIEW_TAG = "MODEL_FRAG";
 
 	private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
+    private RecyclerView mRecyclerView;
     private TextView foodTitle;
     private TextView foodCost;
     private TextView menuTitle;
@@ -137,6 +138,13 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         foodCost = findViewById(R.id.item_cost);
         menuTitle = findViewById(R.id.store_name);
         categoryTitle = findViewById(R.id.category_name);
+        mRecyclerView = findViewById(R.id.model_recycler_view);
+
+        //Set up the recyclerView
+        mRecyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
 		//Check permission and request for storage options... Might not be necessary but expected of API 23+
 		//TODO: Properly ask for permission before downloading, so we atleast get firebase data, then wait
@@ -215,6 +223,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 						{
 							firstAccess = false;
 							categoryKey = categories.getKey();
+							categoryIndex = 0;
 							foodTitle.setText(menuItem.getName());
 							foodCost.setText(menuItem.getCost());
 							menuTitle.setText(restaurantName);
@@ -228,7 +237,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				}
 				// If a thread started here would interfere with first thread
 				//FINISHED MAKING LIST, Start downloading everything
-                downloadAll();
+                //this would not be called here, I think It would be called onMethodCallBack with position of download
+                downloadAll(categoryIndex, menuIndex);
 			}
 
 			@Override
@@ -239,9 +249,14 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		});
 	}
 
+    //very first instructions called when Activity is accessed
 	private void firstAccess() {
-		//very first instructions called when Activity is accessed
-		//first time this Activity is created, should just load the very first model
+
+        //Fill Adapter with list of all menu items
+        MyCircleAdapter mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryKey).allItems,
+                this.menu.allCategories.get(categoryKey).keyConverter, this);
+        mRecyclerView.setAdapter(mAdapter);
+
 
         this.paramFilename = modelItem.getObjPath();
         this.textureFilename = modelItem.getJpgPath();
@@ -250,6 +265,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		Bundle b= new Bundle();
 		b.putString("assetDir",getParamAssetDir());
 		b.putString("fileName", getParamFilename());
+
+        //START DOWNLOADING/LOADING FOR FIRST MODEL
+        prepareDownload(modelItem);
 
 		//Start with 3D model Viwer upon firstAccess*******************************************
 		modelFragment = new ModelFragment();
@@ -260,45 +278,26 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		if (null == fragMgr.findFragmentByTag(CONTENT_VIEW_TAG))
 			xact.add(R.id.modelFrame,  modelFragment ,CONTENT_VIEW_TAG).commit();
 		//3D model Viwer***********************************************************************
-
-        //START DOWNLOADING/LOADING FOR FIRST MODEL
-        prepareDownload(modelItem);
-
-		//Set up the rest of the UI
-        RecyclerView mRecyclerView = findViewById(R.id.model_recycler_view);
-		mRecyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-		mRecyclerView.setLayoutManager(mLayoutManager);
-		mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        MyCircleAdapter mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryKey).allItems,
-                this.menu.allCategories.get(categoryKey).keyConverter, this);
-		mRecyclerView.setAdapter(mAdapter);
 	}
 
-	//Download System that goes through and downloads everything
-    //TODO: Make this download ALL to download ahead by 3
-    //IDEA: make a parameter including the item we are currently on and the category we are currently on
-            //Use this and only download 3 ahead.
-            //This way user isn't downloading more than necessary
-	private void downloadAll(){
+	//Download System that goes through and downloads menu item on + next 3 items
+	private void downloadAll(int categoryPosition, int menuPosition){
 
-		for (int i = 0; i < listOfCategories.size(); i++)
+        ArrayList<String> allItemsList = menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter;
+
+        //goes through 4 times, 1 for current position, then the next 3 positions
+        //j makes sure we go through 4 times, k makes sure we don't go to a null item
+        for (int j = 0, k = menuPosition; j < 5 && k < allItemsList.size(); j++,k++)
         {
-            ArrayList<String> allItemsList = menu.allCategories.get(listOfCategories.get(i).getName()).keyConverter;
-
-            for (int j = 0; j < allItemsList.size(); j++)
+            //make sure we are not already dealing with firs item
+            if(menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter.get(k) != modelItem.getName())
             {
-                //make sure we are not already dealing with firs item
-                if(menu.allCategories.get(listOfCategories.get(i).getName()).keyConverter.get(j) != modelItem.getName())
-                {
-                    Menu.Categories.MenuItem models = menu.allCategories.get(listOfCategories.get(i).getName())
-                            .allItems.get(menu.allCategories.get(listOfCategories.get(i).getName()).keyConverter.get(j));
+                Menu.Categories.MenuItem models = menu.allCategories.get(listOfCategories.get(categoryPosition).getName())
+                        .allItems.get(menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter.get(k));
 
-                    System.out.println(TAG + " DOWNLOADING: " + models.getName() + "At Category: "  + listOfCategories.get(i).getName());
-                    if(!models.isDownloaded())
-                        prepareDownload(models);
-                }
+                System.out.println(TAG + " DOWNLOADING: " + models.getName() + "At Category: "  + listOfCategories.get(categoryPosition).getName());
+                if(!models.isDownloaded())
+                    prepareDownload(models);
             }
         }
 	}
@@ -372,7 +371,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 						getModelItem().setDownloaded(true);
 
 						// First model to be downloaded, load ASAP
-                        if (firstDownloadAndLoad )
+                        if (firstDownloadAndLoad)
                         {
                             beginLoadingModel();
                             setFirstDownloadAndLoad(false);
@@ -452,6 +451,22 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	//  \___/|___| |_____| \_/ \___|_| |_|\__|___/
 	//
 
+    //Function for callback when I make a UI to have user select the category
+    public void onCategorySelect(int categoryPosition){
+
+        categoryKey = menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).getName();
+	    categoryIndex = categoryPosition;
+        categoryTitle.setText(categoryKey);
+
+        //Fill Adapter with list of all menu items
+        MyCircleAdapter mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryPosition).allItems,
+                this.menu.allCategories.get(categoryPosition).keyConverter, this);
+        mRecyclerView.setAdapter(mAdapter);
+
+        downloadAll(categoryPosition,0);
+        }
+
+
 	//When bubble gets hit, find its key, and model information, depending on what view we're in , pass to right Fragment
 	@Override
 	public void onMethodCallback(int key) {
@@ -468,11 +483,19 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		foodCost.setText(modelItem.getCost());
 		foodTitle.setText(modelItem.getName());
 
-		//We are in AR, so pass data
-		if (viewFlag)
-			arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
-		else //Recreate 3D environment. Might want to consider just passing in new information.
-			beginLoadingModel();
+		downloadAll(categoryIndex, menuIndex);
+
+		if(modelItem.isDownloaded())
+        {
+            //We are in AR, so pass data
+            if (viewFlag)
+                arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
+            else //Recreate 3D environment. Might want to consider just passing in new information.
+                beginLoadingModel();
+        }
+        else
+            Toast.makeText(ModelActivity.this,
+                    "Download in progress..", Toast.LENGTH_LONG).show();
 	}
 
 	//For Back Button, go back to RestaurantViewActivity
@@ -502,9 +525,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				bundle.putString("fileName", getParamFilename());
 				bundle.putString("textureName", getTextureFilename());
 				bundle.putString("coordinateKey", coordinateKey);
-				bundle.putString("catKey", categoryKey);
-				bundle.putString("modelKey", menu.allCategories.get(categoryKey).allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex)).getName());
-				bundle.putInt("catIndex", categoryIndex);
 				bundle.putInt("modelIndex", menuIndex);
 
 				//**********************************************************AR
