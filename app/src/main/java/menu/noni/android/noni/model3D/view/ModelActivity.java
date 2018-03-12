@@ -1,8 +1,6 @@
 package menu.noni.android.noni.model3D.view;
 
 import android.Manifest;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -62,8 +60,11 @@ import menu.noni.android.noni.model3D.util.Menu;
  * 	    - https://github.com/google-ar/arcore-android-sdk/issues/162#event-1489578234
  *
  * 	    + Further more within code
+ *
+ * 	    *Implement better use of transaction manager for fragment : Possible to retain their state, when you back to them
+ * 	    https://developer.android.com/guide/components/fragments.html
  */
-public class ModelActivity extends FragmentActivity implements MyCircleAdapter.AdapterCallback{
+public class ModelActivity extends FragmentActivity implements MyCircleAdapter.AdapterCallback, CategoryPickerAdapter.AdapterCallbackCategory{
 
 //	// Used to load the 'native-lib' library on application startup.
 //	static {
@@ -91,9 +92,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private Menu menu;
     private Menu.Categories.MenuItem modelItem;
     private ArrayList<Menu.Categories> listOfCategories = new ArrayList<>();
+    private MyCircleAdapter mAdapter;
     private String paramFilename;
     private String paramAssetDir;
 	private String textureFilename;
+	private boolean categoryChange = false;
 	private String coordinateKey;
 	private String restaurantName;
     private String categoryKey;
@@ -109,7 +112,10 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	private FragmentManager fragMgr;
 	private ModelFragment modelFragment;
 	private ARModelFragment arModelFragment;
+	//private CategoryFragment categoryFragment;
+	private CategoryDialogFragment categoryFragment;
     private static final String CONTENT_VIEW_TAG = "MODEL_FRAG";
+    private static final String CATEGORY_VIEW_TAG = "CATEGORY_FRAG";
 
 	private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
     private RecyclerView mRecyclerView;
@@ -256,7 +262,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	private void firstAccess() {
 
         //Fill Adapter with list of all menu items
-        MyCircleAdapter mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryKey).allItems,
+        mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryKey).allItems,
                 this.menu.allCategories.get(categoryKey).keyConverter, this);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -292,16 +298,12 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         //j makes sure we go through 4 times, k makes sure we don't go to a null item
         for (int j = 0, k = menuPosition; j < 5 && k < allItemsList.size(); j++,k++)
         {
-            //make sure we are not already dealing with firs item
-            if(menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter.get(k) != modelItem.getName())
-            {
-                Menu.Categories.MenuItem models = menu.allCategories.get(listOfCategories.get(categoryPosition).getName())
-                        .allItems.get(menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter.get(k));
+            Menu.Categories.MenuItem models = menu.allCategories.get(listOfCategories.get(categoryPosition).getName())
+                    .allItems.get(menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter.get(k));
 
-                System.out.println(TAG + " DOWNLOADING: " + models.getName() + "At Category: "  + listOfCategories.get(categoryPosition).getName());
-                if(!models.isDownloaded())
-                    prepareDownload(models);
-            }
+            System.out.println(TAG + " DOWNLOADING: " + models.getName() + "At Category: "  + listOfCategories.get(categoryPosition).getName());
+            if(!models.isDownloaded())
+                prepareDownload(models);
         }
 	}
 
@@ -457,22 +459,37 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	//  \___/|___| |_____| \_/ \___|_| |_|\__|___/
 	//
 
+    //Category Button : Shows DialogFragment
     public void onCategoryClick(View v)
     {
-        CategoryDialogFragment newFragment = new CategoryDialogFragment();
-
-        newFragment.show(getFragmentManager(), "categorySelect");
+        categoryFragment = new CategoryDialogFragment();
+        categoryFragment.show(getFragmentManager(), CATEGORY_VIEW_TAG);
     }
-    //Function for callback when I make a UI to have user select the category
+
+    //New Category selected, change all necessary variables
     public void onCategorySelect(int categoryPosition){
+
+	    categoryFragment.dismiss();
+
+	    //if no change in category, do nothing
+        if (categoryIndex == categoryPosition)
+            return;
+
+        categoryChange = true;
 
         categoryKey = menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).getName();
 	    categoryIndex = categoryPosition;
         categoryButton.setText(categoryKey);
 
-        //Fill Adapter with list of all menu items
-        MyCircleAdapter mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryPosition).allItems,
-                this.menu.allCategories.get(categoryPosition).keyConverter, this);
+        modelItem = menu.allCategories.get(categoryKey).
+                allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
+
+        paramFilename = modelItem.getObjPath();
+        textureFilename = modelItem.getJpgPath();
+
+        mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryKey).allItems,
+                this.menu.allCategories.get(categoryKey).keyConverter, this);
+
         mRecyclerView.setAdapter(mAdapter);
 
         downloadAll(categoryPosition,0);
@@ -483,6 +500,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	@Override
 	public void onMethodCallback(int key) {
 
+        //User hit same item, don't do anything  | We compare keys because index may be the same
+        if (!categoryChange)
+            return;
+
+        this.categoryChange = false;
 	    //Set all our new important references to the model selected
 		this.menuIndex = key;
 		this.modelItem = menu.allCategories.get(categoryKey).
@@ -492,8 +514,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		this.textureFilename = modelItem.getJpgPath();
 
 		//Update UI
-		foodCost.setText(modelItem.getCost());
-		foodTitle.setText(modelItem.getName());
+		this.foodCost.setText(modelItem.getCost());
+		this.foodTitle.setText(modelItem.getName());
 
 		downloadAll(categoryIndex, menuIndex);
 
@@ -596,7 +618,12 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			}
 		}
 	}
-	}
+
+    @Override
+    public void onMethodCallbackCategory(int index) {
+        onCategorySelect(index);
+    }
+}
 
 
 

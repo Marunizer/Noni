@@ -19,7 +19,7 @@
     app:cardElevation="100dp" -->
 
     <RelativeLayout
-        android:id="@+id/card_layout"
+        android:id="@+id/restaurant_card_layout"
         android:layout_width="match_parent"
         android:layout_height="224dp">
 

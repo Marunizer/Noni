@@ -1,18 +1,19 @@
 package menu.noni.android.noni.model3D.view;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
+
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,27 +33,25 @@ import menu.noni.android.noni.model3D.util.Menu;
  * Purpose of this class is to let user select a different Category to view from a Menu
  */
 
-public class CategoryDialogFragment extends DialogFragment implements CategoryPickerAdapter.AdapterCallback{
-
-    private Context context;
-    Activity activity;
+public class CategoryDialogFragment extends DialogFragment {
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.context = getActivity();
-        this.activity = getActivity();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        getDialog().setCanceledOnTouchOutside(true);
 
         View rootView=inflater.inflate(R.layout.fragment_dialog_category,container, false);
 
         ArrayList<Menu.Categories> categoryList = ((ModelActivity) getActivity()).getListOfCategories();
 
         RecyclerView cardRecycler = rootView.findViewById(R.id.category_recycler_view);
-        cardRecycler .setHasFixedSize(true);
+        cardRecycler.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         cardRecycler.setLayoutManager(mLayoutManager);
         cardRecycler.setItemAnimator(new DefaultItemAnimator());
@@ -63,86 +62,56 @@ public class CategoryDialogFragment extends DialogFragment implements CategoryPi
         return rootView;
     }
 
-//    public Dialog onCreateDialog(Bundle savedInstanceState) {
-//
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), android.R.style.ThemeOverlay_Material_Dialog_Alert);
-//
-//        LayoutInflater inflater = getActivity().getLayoutInflater();
-//        View rootView = inflater.inflate(R.layout.fragment_dialog_category,null);
-//
-//        ArrayList<Menu.Categories> categoryList = ((ModelActivity) getActivity()).getListOfCategories();
-//
-//        RecyclerView cardRecycler = rootView.findViewById(R.id.category_recycler_view);
-//        cardRecycler .setHasFixedSize(true);
-//        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this.getActivity());
-//        cardRecycler.setLayoutManager(mLayoutManager);
-//        cardRecycler.setItemAnimator(new DefaultItemAnimator());
-//
-//        CategoryPickerAdapter cardAdapter = new CategoryPickerAdapter(categoryList, this.getActivity());
-//        cardRecycler.setAdapter(cardAdapter);
-//
-//        builder.setView(rootView);
-//
-//        return builder.create();
-//    }
+    public void onResume()
+    {
+        super.onResume();
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
 
-
-    @Override
-    public void onMethodCallback(int index) {
-        ((ModelActivity) getActivity()).onCategorySelect(index);
+        Window window = getDialog().getWindow();
+        window.setLayout(width-150, height-300);
+        window.setGravity(Gravity.CENTER);
     }
 }
 
 
 class ViewHolder extends RecyclerView.ViewHolder {
 
+    CardView cv;
     ImageView categoryIcon;
     TextView categoryName;
 
     public ViewHolder(View catView) {
         super(catView);
+        cv = catView.findViewById(R.id.category_card);
         categoryIcon = catView.findViewById(R.id.category_image);
         categoryName = catView.findViewById(R.id.category_name);
     }
 }
 
 
-
-
 //Recycler view to Handle each Category
 class CategoryPickerAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-    private AdapterCallback adapterCallback;
+    private AdapterCallbackCategory adapterCallback;
     private Context context;
     private ArrayList<Menu.Categories> mDataset;
 
     //used to for Glide to cache images from firebase storage
     private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
 
-
-//    static class ViewHolder extends RecyclerView.ViewHolder {
-//
-//        ImageView categoryIcon;
-//        TextView categoryName;
-//
-//        ViewHolder(final View catView){
-//            super(catView);
-//            categoryIcon = catView.findViewById(R.id.category_image);
-//            categoryName = catView.findViewById(R.id.category_name);
-//        }
-//    }
-
     // Provide a suitable constructor (depends on the kind of dataset)
     CategoryPickerAdapter(ArrayList<Menu.Categories> myDataset, Context context) {
 
         this.mDataset = myDataset;
         this.context = context;
- //       this.adapterCallback = ((AdapterCallback) context);
-//        try {
-//            this.adapterCallback = ((AdapterCallback) context);
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException("Activity must implement AdapterCallback.");
-//        }
+        this.adapterCallback = ((AdapterCallbackCategory) context);
+        try {
+            this.adapterCallback = ((AdapterCallbackCategory) context);
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Activity must implement AdapterCallback.");
+        }
     }
 
     @Override
@@ -152,18 +121,6 @@ class CategoryPickerAdapter extends RecyclerView.Adapter<ViewHolder> {
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
-
-
-//    // Create new views (invoked by the layout manager)
-//    @Override
-//    public CategoryPickerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-//                                                   int viewType) {
-//        // create a new view
-//        View v = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.card_view_category, parent, false);
-//        ViewHolder vh = new ViewHolder(v);
-//        return vh;
-//    }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
@@ -185,14 +142,13 @@ class CategoryPickerAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         holder.categoryName.setText(mDataset.get(position).getName());
 
-        holder.categoryIcon.setOnClickListener(new View.OnClickListener(){
+        holder.cv.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view)
             {
-                adapterCallback.onMethodCallback(position);
+                adapterCallback.onMethodCallbackCategory(position);
             }}
         );
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -201,7 +157,7 @@ class CategoryPickerAdapter extends RecyclerView.Adapter<ViewHolder> {
         return mDataset.size();
     }
 
-    public interface AdapterCallback {
-        void onMethodCallback(int index);
+    public interface AdapterCallbackCategory {
+        void onMethodCallbackCategory(int index);
     }
 }
