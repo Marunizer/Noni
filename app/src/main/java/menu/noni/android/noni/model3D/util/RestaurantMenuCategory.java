@@ -24,7 +24,15 @@ public class RestaurantMenuCategory {
     public ArrayList<String> keyConverter = new ArrayList<>();
     public Hashtable<String, RestaurantMenuItem> allItems = new Hashtable<>();
 
+    public String getName() {
+        return name;
+    }
+
     public void setCategoryIconName(String categoryIconName) {
         this.categoryIconName = categoryIconName;
+    }
+
+    public String getCategoryIconName() {
+        return categoryIconName;
     }
 }

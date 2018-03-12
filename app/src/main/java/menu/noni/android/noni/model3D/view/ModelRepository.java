@@ -1,5 +1,6 @@
 package menu.noni.android.noni.model3D.view;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -27,6 +28,9 @@ public class ModelRepository implements ValueEventListener {
     private boolean firstAccess = true;
     private ModelRepositoryListener listener;
     private RestaurantMenu restaurantMenu;
+    final String databaseTitle = "menus";
+    final String databaseSubTitle = "Categories";
+    ModelDownloadHandler downloadHandler;
 
     /**
      * The file to load. Passed as input parameter
@@ -38,7 +42,8 @@ public class ModelRepository implements ValueEventListener {
                            String paramAssetDir,
                            String paramFilename,
                            ModelRepositoryListener listener,
-                           RestaurantMenu restaurantMenu) {
+                           RestaurantMenu restaurantMenu,
+                           Context context) {
 
         this.coordinateKey = coordinateKey;
         this.restaurantName = restaurantName;
@@ -46,6 +51,7 @@ public class ModelRepository implements ValueEventListener {
         this.paramFilename = paramFilename;
         this.listener = listener;
         this.restaurantMenu = restaurantMenu;
+        downloadHandler = new ModelDownloadHandler(context);
     }
 
     public void getMenuItemModels(){
@@ -63,6 +69,9 @@ public class ModelRepository implements ValueEventListener {
             //Add category to our table, at the same time, we are naming the category
             restaurantMenu.allCategories.put(categories.getKey(), category);
 
+            //Add category to our list to be able to easily traverse list by index
+            listOfCategories.add(category);
+
             //get the icon name for the category, we go in one level deeper
             category.setCategoryIconName((String) (categories.child("category_icon_name").getValue()));
 
@@ -75,6 +84,7 @@ public class ModelRepository implements ValueEventListener {
                 DataSnapshot data = model.child("model_data_android");
 
                 String descriptionText;
+
                 //check if item has a description, Database is not consistent at the moment
                 if (!model.child("description").exists()) {
                     descriptionText = model.getKey();
@@ -104,6 +114,8 @@ public class ModelRepository implements ValueEventListener {
                 }
             }
         }
+
+        downloadHandler.downloadAll();
     }
 
     @Override

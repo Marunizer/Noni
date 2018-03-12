@@ -20,6 +20,13 @@ import menu.noni.android.noni.model3D.services.SceneLoader;
  * The purpose of this class is to be hold the scene which in turn holds the surface
  * view of the 3D modeling screen
  *
+ * 	    * After the final 3d model production is decided, will need to change how xyz-axis are displayed so model is shown from the front.
+ * 	     - UPDATE: This is HIGHLY dependant on how an .obj is created so do not do this until a standard is set
+ *
+ * 	    * 3d Model Viewer, if zooming in and out, do not allow user to rotate the screen ! (Medium Priority)
+ * 	       When user has 2 fingers not zooming on the screen, allow user to move camera position if possible ( Low Priority)
+ *
+ *
  * Possible solutions to zooming limit
  *   https://github.com/andresoviedo/android-3D-model-viewer/issues/25#issuecomment-357078373
  */
@@ -34,6 +41,7 @@ public class ModelFragment extends Fragment {
     private SceneLoader scene;
     private String paramAssetDir;
     private String paramFilename;
+
     //This is literally empty, but 3D modeler relies on this variable in many areas
     //So cannot delete unless we deal with those parameters deeper in the renderer
     private String paramAssetFilename;
@@ -55,8 +63,8 @@ public class ModelFragment extends Fragment {
         return v;
     }
 
-    private void init(View v) {
-
+    private void init(View v)
+    {
         gLView = v.findViewById(R.id.myglsurfaceFragView);
         gLView.setModelActivity(this);
         scene= new SceneLoader(this);
@@ -66,7 +74,6 @@ public class ModelFragment extends Fragment {
 
     @Override
     public void onStart() {
-        //this is where I do my stuff (:
         super.onStart();
     }
 

@@ -1,5 +1,9 @@
 package menu.noni.android.noni.model3D.util;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import menu.noni.android.noni.model3D.rendering.ObjectRenderer;
+
 /**
  * Created by Wiita on 3/9/2018.
  */
@@ -14,9 +18,15 @@ public class RestaurantMenuItem {
     private String iconPath;
     private String description;
     private String cost;
+    private AtomicInteger atomicDownloadCheck = new AtomicInteger(0);
+    boolean isDownloaded = false;
 
-    //Not being used effectively yet
-    private int downloadChecker;
+    //Have we set up object using the factory
+    boolean isFactoryReady = false;
+    boolean isRendered = false;
+    boolean isDrawn = false;
+
+    private ObjectRenderer modelAR;
 
     public RestaurantMenuItem(String id, String drcPath, String mtlPath, String jpgPath,
                     String iconPath, String description, String cost) {
@@ -28,8 +38,93 @@ public class RestaurantMenuItem {
         this.iconPath = iconPath;
         this.description = description;
         this.cost = cost;
-        this.downloadChecker = 0;
+        this.isDownloaded = false;
+        this.isFactoryReady = false;
+        this.isDrawn = false;
     }
+
+    public String getObjPath() {
+        return objPath;
+    }
+
+    public String getMtlPath() {
+        return mtlPath;
+    }
+
+    public String getJpgPath() {
+        return jpgPath;
+    }
+
+    public String getIconPath() {
+        return iconPath;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getBucketPath() {
+
+        //if name contains TwoCapitals, it is one word so return
+        if (isOneWord(name))
+            return name;
+        else
+            return convertToCamelCase(name);
+    }
+
+    public boolean isDownloaded() {
+        return isDownloaded;
+    }
+
+    public void setDownloaded(boolean isDownloaded) {
+        this.isDownloaded = isDownloaded;
+    }
+
+    public int getAtomicDownloadCheck() {
+        return atomicDownloadCheck.get();
+    }
+
+    public void incrementAtomicDownloadCheck() {
+        int temp = atomicDownloadCheck.incrementAndGet();
+        this.atomicDownloadCheck = new AtomicInteger(temp);
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+
+    public String getCost()
+    {
+        return cost;
+    }
+
+    public boolean isFactory() {
+        return isFactoryReady;
+    }
+
+    public void setFactory(boolean factory) {
+        isFactoryReady = factory;
+    }
+
+    public ObjectRenderer getModelAR() {
+        return modelAR;
+    }
+
+    public void setModelAR(ObjectRenderer modelAR) {
+        this.modelAR = modelAR;
+    }
+
+    public boolean isDrawn() {
+        return isDrawn;
+    }
+
+    public void setDrawn(boolean drawn) {
+        isDrawn = drawn;
+    }
+
+
 
 
     private String convertToCamelCase(String text) {
@@ -83,52 +178,7 @@ public class RestaurantMenuItem {
 //                );
 //            }
 
-    public String getObjPath() {
-        return objPath;
-    }
-
-    public String getMtlPath() {
-        return mtlPath;
-    }
-
-    public String getJpgPath() {
-        return jpgPath;
-    }
-
-    public String getIconPath() {
-        return iconPath;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getBucketPath() {
-
-        //if name contains TwoCapitals, it is one word so return
-        if (isOneWord(name))
-            return name;
-        else
-            return convertToCamelCase(name);
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
 
 
-    public String getCost()
-    {
-        return cost;
-    }
-
-    public int getDownloadChecker() {
-        return downloadChecker;
-    }
-
-    public void incrementDownloadChecker() {
-        this.downloadChecker++;
-    }
 
 }
