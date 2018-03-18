@@ -8,8 +8,11 @@ import android.support.annotation.LayoutRes;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import java.io.FileNotFoundException;
+
+import menu.noni.android.noni.R;
 
 import static menu.noni.android.noni.model3D.rendering.ShaderUtil.normalizeFileName;
 
@@ -17,9 +20,6 @@ import static menu.noni.android.noni.model3D.rendering.ShaderUtil.normalizeFileN
  * This class is in charge of setting up and rendering an XML Layout as an object to be projected in AR
  *
  *  Goals:
- *      * Have the XML be able to list the Description for the specific model
- *       - We can pass in this information from ModelActivity to ARModel Fragment and use it to create this object
- *
  *      * Make it look pretty (-: (To be done in the XML itself)
  *
  *      * Have the XML rotate in the direction of the user Camera. This won't necessarily be implemented here
@@ -28,20 +28,22 @@ import static menu.noni.android.noni.model3D.rendering.ShaderUtil.normalizeFileN
  *                 https://github.com/google-ar/arcore-android-sdk/issues/174#issuecomment-368168531
  *
  *      * Place the XML on TOP of our food model (assume already placed)
+ *      right now I'm working on this: the position can be translated in TrackableAttachment.Java
+ *      I can place the description at the same exact trackable and anchor but I can't move it up
  *                https://github.com/google-ar/arcore-android-sdk/issues/110#issuecomment-366435083
  *
  */
 public class XmlLayoutRenderer extends ObjectRenderer {
   private Bitmap bitmap;
 
-  public XmlLayoutRenderer(Context context, @LayoutRes int xmlLayoutResource) {
+  public XmlLayoutRenderer(Context context, @LayoutRes int xmlLayoutResource, String description) {
     super(
             normalizeFileName("plane.obj", basepath(context)),
             "",
             normalizeFileName(ObjectRendererFactory.DEFAULT_FRAGMENT_SHADER_FILE_NAME, basepath(context)),
             normalizeFileName(ObjectRendererFactory.DEFAULT_VERTEX_SHADER_FILE_NAME, basepath(context)));
 
-    loadTexture(context, xmlLayoutResource);
+    loadTexture(context, xmlLayoutResource, description);
 
     setBlendMode(BlendMode.Grid);
   }
@@ -54,7 +56,7 @@ public class XmlLayoutRenderer extends ObjectRenderer {
     return bitmap;
   }
 
-  private void loadTexture(Context context, @LayoutRes int layout) {
+  private void loadTexture(Context context, @LayoutRes int layout, String description) {
     final DisplayMetrics displayMetrics = new DisplayMetrics();
     final DisplayManager manager = context.getSystemService(DisplayManager.class);
     manager.getDisplays()[0].getMetrics(displayMetrics);
@@ -69,6 +71,8 @@ public class XmlLayoutRenderer extends ObjectRenderer {
 
     LayoutInflater inflater = LayoutInflater.from(context);
     View view = inflater.inflate(layout, null, false);
+    TextView xmlText = view.findViewById(R.id.ingredient_text);
+    xmlText.setText(description);
 
     view.measure(measuredWidth, measuredHeight);
     view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());

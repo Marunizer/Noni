@@ -2,6 +2,9 @@ package menu.noni.android.noni.model3D.util;
 
 import android.content.Context;
 
+import com.google.ar.core.Anchor;
+import com.google.ar.core.Trackable;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +96,8 @@ public class Menu {
             boolean isDrawn = false;
 
             ObjectRenderer modelAR;
+            Trackable trackableReference;
+            Anchor anchorReference;
 
             public MenuItem(String id, String drcPath, String mtlPath, String jpgPath,
                             String iconPath, String description, String cost) {
@@ -178,6 +183,22 @@ public class Menu {
 
             public void setDrawn(boolean drawn) {
                 isDrawn = drawn;
+            }
+
+            public Trackable getTrackableReference() {
+                return trackableReference;
+            }
+
+            public void setTrackableReference(Trackable trackableReference) {
+                this.trackableReference = trackableReference;
+            }
+
+            public Anchor getAnchorReference() {
+                return anchorReference;
+            }
+
+            public void setAnchorReference(Anchor anchorReference) {
+                this.anchorReference = anchorReference;
             }
 
             public String getBucketPath() {

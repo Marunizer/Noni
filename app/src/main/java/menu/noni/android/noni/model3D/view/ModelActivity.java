@@ -50,10 +50,6 @@ import menu.noni.android.noni.model3D.util.Menu;
  *
  * 	    * Firebase gets accessed before UI is set up: result : ugly transition into activity, maybe re-arranging
  * 	        or something else can lead to a nicer transition to new screen
-
- * 	    *Handle Different category options, right now just assumed first category
- * 	    *Will Find out how we change Categories, talk to Farza on how UI should be made
- * 	    Probably Solution: Make a Dialog Fragment Class similar to LocationDialogFragment, gets created upon user touching Category textView(to be button)
  *
  * 	    *We should know by the onCreate() if the device supports AR at all, this way, we can hide the AR View option if not needed
  * 	    *If AR button is checked, we must check if user has ARCore installed on their phone, if not, lead them to the playstore
@@ -218,7 +214,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 								data.child("drc_name").getValue().toString(),
 								data.child("mtl_name").getValue().toString(),
 								data.child("texture_name").getValue().toString(),
-								data.child("icon_name").getValue().toString(),
+								model.child("icon_name").getValue().toString(),
 								descriptionText,
 								model.child("price").getValue().toString());
 
@@ -501,7 +497,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	public void onMethodCallback(int key) {
 
         //User hit same item, don't do anything  | We compare keys because index may be the same
-        if (!categoryChange)
+        if (!categoryChange && menuIndex == key)
             return;
 
         this.categoryChange = false;
@@ -554,7 +550,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 				viewFlag = true;
 
-				//TODO: Remove unnecessary values to send
 				Bundle bundle= new Bundle();
 				bundle.putString("fileName", getParamFilename());
 				bundle.putString("textureName", getTextureFilename());
@@ -680,7 +675,6 @@ class MyCircleAdapter extends RecyclerView.Adapter<MyCircleAdapter.ViewHolder> {
 
 		//If icon exists, then make it the icon image
 		String iconPath = "Home" + File.separator + modelDataSet.get(keyConverter.get(position)).getBucketPath() +
-				File.separator + modelDataSet.get(keyConverter.get(position)).getBucketPath()+"Android"+
 				File.separator + modelDataSet.get(keyConverter.get(position)).getIconPath();
 
 		StorageReference image = fbStorageReference.child(iconPath);

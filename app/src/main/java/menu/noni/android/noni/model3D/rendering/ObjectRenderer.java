@@ -93,6 +93,8 @@ public class ObjectRenderer {
 
     private BlendMode blendMode = null;
 
+    private boolean isXML = false;
+
     // Temporary matrices allocated here to reduce number of allocations for each frame.
     private final float[] modelMatrix = new float[16];
     private final float[] modelViewMatrix = new float[16];
@@ -302,7 +304,8 @@ public class ObjectRenderer {
      */
     public void draw(float[] cameraView, float[] cameraPerspective, float lightIntensity) {
         if (!isInitialized()) {
-            setMaterialProperties(0.0f, 3.5f, 1.0f, 6.0f);
+            //try specular : 0 was 1.0f , try specular power 0-1, was 6.0f .hmm seems to have some effect but not much,light intensity more important
+            setMaterialProperties(0.0f, 3.5f, 0.0f, 1.0f);
             try {
                 createOnGlThread();
             } catch (IOException e) {
@@ -323,8 +326,14 @@ public class ObjectRenderer {
         // Set the lighting environment properties.
         Matrix.multiplyMV(viewLightDirection, 0, modelViewMatrix, 0, LIGHT_DIRECTION, 0);
         normalizeVec3(viewLightDirection);
+
+        //This could probably be calculated better, but for now this is decent, if light intensity is very high, lower it a little
+        if (lightIntensity > .57f)
         GLES20.glUniform4f(lightingParametersUniform,
-                viewLightDirection[0], viewLightDirection[1], viewLightDirection[2], lightIntensity);
+                viewLightDirection[0], viewLightDirection[1], viewLightDirection[2], lightIntensity-0.2f);
+        else
+            GLES20.glUniform4f(lightingParametersUniform,
+                    viewLightDirection[0], viewLightDirection[1], viewLightDirection[2], lightIntensity);
 
         // Set the object material properties.
         GLES20.glUniform4f(materialParametersUniform, ambient, diffuse, specular,
@@ -419,5 +428,13 @@ public class ObjectRenderer {
         v[0] *= reciprocalLength;
         v[1] *= reciprocalLength;
         v[2] *= reciprocalLength;
+    }
+
+    public boolean isXML() {
+        return isXML;
+    }
+
+    public void setXML(boolean XML) {
+        isXML = XML;
     }
 }

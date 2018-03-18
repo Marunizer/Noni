@@ -12,6 +12,7 @@ import com.google.ar.core.Frame;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Point;
 import com.google.ar.core.PointCloud;
+import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
@@ -30,7 +31,7 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
     private static final String TAG = Scene.class.getSimpleName();
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private CameraFeedRenderer cameraFeedRenderer = new CameraFeedRenderer();
-    private List<ObjectRenderer> objectRenderer = new ArrayList<>();
+    private List<ObjectRenderer> objectRendererList = new ArrayList<>();
     private PlaneRenderer planeRenderer = new PlaneRenderer();
     private PointCloudRenderer pointCloudRenderer = new PointCloudRenderer();
     private Context context;
@@ -38,7 +39,8 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
     private Session session;
     private DrawingCallback callback;
     private DisplayRotationHelper mDisplayRotationHelper;
-    private float scaleFactor = .03f;//1.0f;
+    private float scaleFactor = .03f;
+    private float scaleFactorXML = 1.0f;
 
     public Scene(Context context, GLSurfaceView surfaceView, DrawingCallback callback) {
       // Set up renderer.
@@ -151,29 +153,28 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
       planeRenderer.drawPlanes(session.getAllTrackables(Plane.class), camera.getPose(), projmtx);
 
       // Visualize anchors created by touch.
-      for (final ObjectRenderer renderer : objectRenderer) {
+      for (final ObjectRenderer renderer : objectRendererList) {
         if (!renderer.isTracking()) {
           continue;
         }
 
-        // Update and draw each model.
-        renderer.updateModelMatrix(scaleFactor);
+        // Update and draw each model. + check what type of object it is
+        if (!renderer.isXML())
+              renderer.updateModelMatrix(scaleFactor);
+        else
+              renderer.updateModelMatrix(scaleFactorXML);
+
         renderer.draw(viewmtx, projmtx, lightIntensity);
       }
     }
 
     public int getRendererCount() {
-      return objectRenderer.size();
+      return objectRendererList.size();
     }
 
     public void addRenderer(ObjectRenderer renderer, Trackable trackable, Anchor anchor) {
-      // Cap the number of objects created. This avoids overloading both the
-      // rendering system and ARCore.
-      //Set a limit
-      if (objectRenderer.size() >= 1) {//was 16
-        objectRenderer.get(0).destroy(session);
-        objectRenderer.remove(0);
-      }
+
+      removeModel();
 
       // Adding an Anchor tells ARCore that it should track this position in
       // space. This anchor will be used in PlaneAttachment to place the 3d model
@@ -182,13 +183,54 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
         renderer.setAttachement(
                 new TrackableAttachment(
                         trackable,
-                        anchor)
+                         anchor
+                )
         );
       } catch (NotTrackingException e) {
         Log.e(TAG, "Session is not tracking.");
       }
 
-      objectRenderer.add(renderer);
+      objectRendererList.add(renderer);
+    }
+
+    //Specificly for XML description
+    public void addRenderer(ObjectRenderer renderer, Trackable trackable, Anchor anchor, boolean isXML) {
+      // Cap the number of objects created. This avoids overloading both the
+      // rendering system and ARCore.
+      //Set a limit
+      if (objectRendererList.size() >= 2) {//was 16
+        removeModel();
+      }
+
+      renderer.setXML(true);
+
+      // Adding an Anchor tells ARCore that it should track this position in
+      // space. This anchor will be used in PlaneAttachment to place the 3d model
+      // in the correct position relative both to the world and to the plane.
+      try {
+        renderer.setAttachement(
+                new TrackableAttachment(
+                        trackable,
+                        anchor,
+                        true
+                )
+        );
+      } catch (NotTrackingException e) {
+        Log.e(TAG, "Session is not tracking.");
+      }
+
+      objectRendererList.add(renderer);
+    }
+
+    public void removeModel()
+    {
+      // Cap the number of objects created. This avoids overloading both the
+      // rendering system and ARCore.
+      //Set a limit
+      if (objectRendererList.size() >= 1) {//was 16
+        objectRendererList.get(0).destroy(session);
+        objectRendererList.remove(0);
+      }
     }
 
     public float getScaleFactor() {

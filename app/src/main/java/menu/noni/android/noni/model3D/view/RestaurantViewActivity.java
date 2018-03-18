@@ -63,9 +63,9 @@ import static android.content.ContentValues.TAG;
  *
  *     * When a default picture was added to the imageView inside card_view_restaurant,
  *      it seems to delay the process of showing items, and does it all at once instead.
- *          - Replace default image with a very small default picture unlike the one currently there
+ *          - Replace default image with a very small default picture unlike the one currently there (empty)
  *
- *    * Make images appear fluidly with little to no delay
+ *    * Make images appear fluidly with little to no delay //Pretty much done, just have to test different numbers for animation of showing image
  *
  *    * Right now Location that is Displayed is the full Address, might be too specific and therefor creep users out, might instead want to
  *      only show city, and state
@@ -73,6 +73,7 @@ import static android.content.ContentValues.TAG;
  *      ask for an address instead of asking for a zipcode so its not unwarranted.
  *
  *    *Maybe have access firebase data before this class, and just pass it in
+ *    //Also, to not bore user, add loading gif that gets removed once a list is done being made
  *
  *    Low priority Ideal functionality: Let user manage the order of what comes up based on average price, distance, alphabetical, etc...
  *    - Will need to make a UI change to add this
@@ -88,10 +89,6 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     private ArrayList<GeoLocation> restaurantGeoChecker = new ArrayList<>();
     private RecyclerView mRecyclerView;
 
-    //may want to make local where called
-    private MyAdapter mAdapter;
-    //may want to make local where called
-    private RecyclerView.LayoutManager mLayoutManager;
     private SwipeRefreshLayout mySwipeRefreshLayout;
     Toolbar toolbar;
     TextView textView;
@@ -113,7 +110,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
         mRecyclerView = findViewById(R.id.restaurant_recycler_view);
         mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
@@ -235,7 +232,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
                     @Override
                     public void onGeoQueryReady() {
-                        //stackoverflow.com/questions/4066538/sort-an-arraylist-based-on-an-object-field
+                        //Credit: stackoverflow.com/questions/4066538/sort-an-arraylist-based-on-an-object-field
                         //Sort Restaurant arraylist based on distance
                         Collections.sort(restaurant, new Comparator<Restaurant>(){
                             public int compare(Restaurant o1, Restaurant o2){
@@ -281,7 +278,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         {
             mySwipeRefreshLayout.setRefreshing(false);
         }
-        mAdapter = new MyAdapter(restaurant, context);
+        MyAdapter mAdapter = new MyAdapter(restaurant, context);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -305,7 +302,6 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         prepareRestaurantArray();
-        //reloadData();
     }
 }
 

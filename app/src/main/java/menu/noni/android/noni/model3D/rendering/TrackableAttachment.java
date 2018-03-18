@@ -28,6 +28,7 @@ import static com.google.ar.core.TrackingState.TRACKING;
 public class TrackableAttachment {
   private final Trackable mTrackable;
   private final Anchor mAnchor;
+  private Anchor tempAnchor;
 
   // Allocate temporary storage to avoid multiple allocations per frame.
   private final float[] mPoseTranslation = new float[3];
@@ -36,6 +37,15 @@ public class TrackableAttachment {
   public TrackableAttachment(Trackable trackable, Anchor anchor) {
     mTrackable = trackable;
     mAnchor = anchor;
+  }
+
+  //Specifically for XML description
+  public TrackableAttachment(Trackable trackable, Anchor anchor, boolean isXML) {
+
+    mTrackable = trackable;
+    tempAnchor = anchor;
+    mAnchor = trackable.createAnchor(      //currently only effecting z because y is inaccessible
+            getTempPose().compose(Pose.makeTranslation(0, 2.0f, -.15f)));// right/left, up/down, front/back -0.15f
   }
 
   public boolean isTracking() {
@@ -48,6 +58,14 @@ public class TrackableAttachment {
     pose.getTranslation(mPoseTranslation, 0);
     pose.getRotationQuaternion(mPoseRotation, 0);
     mPoseTranslation[1] = mTrackable.getAnchors().iterator().next().getPose().ty();
+    return new Pose(mPoseTranslation, mPoseRotation);
+  }
+
+  public Pose getTempPose() {
+    Pose pose = tempAnchor.getPose();
+    pose.getTranslation(mPoseTranslation, 0);
+    pose.getRotationQuaternion(mPoseRotation, 0);
+    mPoseTranslation[1] = mTrackable.getAnchors().iterator().next().getPose().tz();
     return new Pose(mPoseTranslation, mPoseRotation);
   }
 

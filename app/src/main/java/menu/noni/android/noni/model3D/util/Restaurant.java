@@ -29,6 +29,7 @@ public class Restaurant {
     public Restaurant(String name,Location location,String coordinateKey,int cost) {
         this.name = name;
         this.coordinateKey  = coordinateKey;
+        //TODO: Sometimes this causes crash in emulator due to getLocation being null in emulator??? I think
         this.distanceAway = location.distanceTo(LocationHelper.getLocation());
         this.generalCost = cost;
     }

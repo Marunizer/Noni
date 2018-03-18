@@ -12,14 +12,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:padding="8dp"
-        android:text="Ingredients"
+        android:text="@string/ingredients"
         android:textAllCaps="true"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:textStyle="bold" />
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="2px"
+        android:layout_height="2dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:background="#80000000"
@@ -31,59 +31,14 @@
         android:layout_gravity="center"
         android:src="@drawable/noni_splash" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="16dp">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="button" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="button" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="button" />
-
-    </LinearLayout>
-
-    <!--<CheckBox-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="checkbox"-->
-    <!--/>-->
-
-    <!--<TextView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="😱😱😱😱"-->
-    <!--/>-->
-
-
     <TextView
         android:id="@+id/ingredient_text"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
+        android:layout_gravity="center"
+        android:gravity="center"
         android:layout_height="wrap_content"
         android:textColor="#000000"
-        android:text="This is some sample text that will be intended to be used as ingredients later on."
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="bold"/>
-
-    <!--<RatingBar-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_margin="32dp"-->
-    <!--android:numStars="5"-->
-    <!--android:rating="2"-->
-    <!--/>-->
 
 </LinearLayout>

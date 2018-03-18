@@ -70,29 +70,30 @@ public class CategoryDialogFragment extends DialogFragment {
         int height = metrics.heightPixels;
 
         Window window = getDialog().getWindow();
+        //TODO:Concern: This may not look well for any/all screens. Must Test !
         window.setLayout(width-150, height-300);
         window.setGravity(Gravity.CENTER);
     }
 }
 
 
-class ViewHolder extends RecyclerView.ViewHolder {
-
-    CardView cv;
-    ImageView categoryIcon;
-    TextView categoryName;
-
-    public ViewHolder(View catView) {
-        super(catView);
-        cv = catView.findViewById(R.id.category_card);
-        categoryIcon = catView.findViewById(R.id.category_image);
-        categoryName = catView.findViewById(R.id.category_name);
-    }
-}
+//class ViewHolder extends RecyclerView.ViewHolder {
+//
+//    CardView cv;
+//    ImageView categoryIcon;
+//    TextView categoryName;
+//
+//    public ViewHolder(View catView) {
+//        super(catView);
+//        cv = catView.findViewById(R.id.category_card);
+//        categoryIcon = catView.findViewById(R.id.category_image);
+//        categoryName = catView.findViewById(R.id.category_name);
+//    }
+//}
 
 
 //Recycler view to Handle each Category
-class CategoryPickerAdapter extends RecyclerView.Adapter<ViewHolder> {
+class CategoryPickerAdapter extends RecyclerView.Adapter<CategoryPickerAdapter.ViewHolder> {
 
     private AdapterCallbackCategory adapterCallback;
     private Context context;
@@ -100,6 +101,20 @@ class CategoryPickerAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     //used to for Glide to cache images from firebase storage
     private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        CardView cv;
+        ImageView categoryIcon;
+        TextView categoryName;
+
+        public ViewHolder(View catView) {
+            super(catView);
+            cv = catView.findViewById(R.id.category_card);
+            categoryIcon = catView.findViewById(R.id.category_image);
+            categoryName = catView.findViewById(R.id.category_name);
+        }
+    }
 
     // Provide a suitable constructor (depends on the kind of dataset)
     CategoryPickerAdapter(ArrayList<Menu.Categories> myDataset, Context context) {

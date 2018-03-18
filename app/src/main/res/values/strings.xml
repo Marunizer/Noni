@@ -41,4 +41,5 @@
     <!-- To review -->
     <string name="app_logo_desc">Teapot animated logo</string>
     <string name="submit">Submit</string>
+    <string name="ingredients">Ingredients</string>
 </resources>

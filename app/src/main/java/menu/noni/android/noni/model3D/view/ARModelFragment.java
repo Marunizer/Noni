@@ -11,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
@@ -57,20 +59,11 @@ import menu.noni.android.noni.model3D.util.Menu;
  *       * AR Models are not being dynamically sized.
  *        - I believe there is a dynamic sizing algorithm in the 3D model view renderer but requires quite a bit of the obj
  *          data to be kept and calculated, Probably can be found in 'model3D/model' folder
- *
- *        - This can also be solved by having a standard on how the object files are created
+ *               - This can also be solved by having a standard on how the object files are created
  *
  *       * We need to render the models in a separate thread as to not disrupt the UI only AFTER the model is done being downloaded
  *
- *       * need to keep a reference to the rendered models, to call upon later
- *
  *       * We need to create a separate thread that can Draw the model to screen only AFTER the model is done being rendered
- *
- *       * Have a limit of 2 models on the screen at a time.
- *         BUT only allow one 1 object model, and only 1 XML model If and only if an object is already drawn + draw top of object/make rotate
- *        (known issue: for some odd reason, first time I tried to make this work, it treated the different model types like they were in different sessions
- *
- *       * Change model lighting, seems to be very harsh and bright. May be because of a shader / or mtl based pre-set
  *
  *       * Low priority : Make an mtl reader and use that information in renderer instead of the hardcoded mtl information
  *                        Provide a different png to detect planes as to not use ARCores sample plane, a make it more transparent
@@ -97,6 +90,7 @@ public class ARModelFragment extends Fragment {
     private Session session;
     //private GestureDetector gestureDetector;
     private Snackbar loadingMessageSnackbar = null;
+    private View view;
 
     //Used to track the models to make sure whether they are rendered or not and then to draw them
     //I don't think we actually want to use this, Maybe a synchronized list of list ???????
@@ -151,9 +145,6 @@ public class ARModelFragment extends Fragment {
             this.modelIndex = b.getInt("modelIndex");
         }
 
-            //Lets pass on the list of Categories    --Update: May not be necessary, do not include for now
-                  //This way, we don't lose our reference and renders of our menu items from different categories
-
         this.menu =  ((ModelActivity)getActivity()).getMenuObject();
 
         //Check our variables: Delete later
@@ -162,8 +153,7 @@ public class ARModelFragment extends Fragment {
         System.out.println(TAG + " Menu Index: " + modelIndex);
         System.out.println(TAG + " Menu name: " + menu.getRestName());
 
-        //TODO: MAKE SURE THIS DOESNT BREAK STUFF
-        model_prototype = ((ModelActivity)getActivity()).getModelItem();//menu.allCategories.get(categoryKey).allItems.get(modelKey);
+        model_prototype = ((ModelActivity)getActivity()).getModelItem();
 
         View v= inflater.inflate(R.layout.fragment_model_view_ar, container, false);
 
@@ -179,6 +169,7 @@ public class ARModelFragment extends Fragment {
 
     private void init(View v) {
 
+        view = v;
         //Here we set up necessary UI components
 
         surfaceView = v.findViewById(R.id.surfaceview);
@@ -193,7 +184,7 @@ public class ARModelFragment extends Fragment {
         objectFactory = new ObjectRendererFactory(getContext().getFilesDir().getAbsolutePath()+"/model/", extPath);
 
         // first model - assume is downloaded
-        // Sets up Factory, does not render/draw
+        // Sets up Factory, does not render or draw
         Thread setUpFactoryModelThread = new Thread(){
             public void run(){
                 ObjectRenderer object;
@@ -303,50 +294,36 @@ public class ARModelFragment extends Fragment {
         // compared to frame rate.
         MotionEvent tap = queuedTaps.poll();
         Camera camera = frame.getCamera();
-        if (tap != null
-                && tap.getAction() == MotionEvent.ACTION_UP
+
+        if (tap != null && tap.getAction() == MotionEvent.ACTION_UP
                 && camera.getTrackingState() == TrackingState.TRACKING) {
+
             for (HitResult hit : frame.hitTest(tap)) {
+
                 // Check if any plane was hit, and if it was hit inside the plane polygon.
                 Trackable trackable = hit.getTrackable();
+
+                Anchor anchor = hit.createAnchor();
+
                 if ((trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose()))
                         || (trackable instanceof Point
                         && ((Point) trackable).getOrientationMode()
                         == Point.OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
 
-                    /**I have not included the andy_shadow obj or texture file in the assets
-                     * They can be found through ARCore sample app
-                     *
-                     * The reason I have disables using the shadow is because it seems to keep the shadow of the object
-                     * previously allotted to and thus makes two separate objects on the screen after first.
-                     * Might be worth looking into in the future but very low priority for now
-                     */
-//                    final ObjectRenderer shadow = objectFactory.create("andy_shadow.obj");
-//                    if (shadow != null) {
-//                        shadow.setBlendMode(ObjectRenderer.BlendMode.Shadow);
-//                        scene.addRenderer(
-//                                shadow,
-//                                trackable,
-//                                hit.createAnchor()
-//                        );
-//                    }
-
                     /*********************************************************
                      *
                      *  DRAW THE MODEL OR THE DESCRIPTION
                      *
-                     *  TODO: Instead of having a check and drawing the description
-                     *        Should only draw the description if the model itself was hit
-                     *
+                     *  TODO:
                      *        - Handle a case where not yet downloaded or not yet rendered, usually the solution will be to wait
                      *
                      *********************************************************/
 
                     System.out.println(TAG + " ATTEMPT TO DRAW OBJECT");
+
                     Menu.Categories.MenuItem model = model_prototype;
 
-                    //I don't know if this should be final???
-                    final ObjectRenderer object;
+                    ObjectRenderer object;
 
                     System.out.println(TAG + " MODEL DOWNLOADED: " + model.isDownloaded());
                     System.out.println(TAG + " MODEL RENDERED: " + model.isFactory());
@@ -354,38 +331,35 @@ public class ARModelFragment extends Fragment {
 
                     if(model.isDownloaded() && model.isFactory() && !model.isDrawn())
                     {
-                        System.out.println(TAG + " DRAW SUCCESS step 1");
                         object = model.getModelAR();
-                        //    scene.setScaleFactor(.03f);
-
                         if (object != null) {
 
+                            scene.removeModel();
                             //This is what draws a model to the screen! Allots an anchor point to the model
                             scene.addRenderer(
                                     object,
                                     trackable,
-                                    hit.createAnchor()
+                                    anchor
                             );
-                            System.out.println(TAG + " DRAW SUCCESS step 2");
                             model.setDrawn(true);
+                            model.setTrackableReference(trackable);
+                            model.setAnchorReference(anchor);
                         }
                     }
                     else if(model.isDownloaded() && model.isFactory() && model.isDrawn())
                     {
+                        object = new XmlLayoutRenderer(getContext(), R.layout.model_ingredient_view, model_prototype.getDescription());
 
-                        System.out.println(TAG + " DRAW SUCCESS xml");
-
-                        object = new XmlLayoutRenderer(getContext(), R.layout.model_ingredient_view);
                         System.out.println(TAG + " Rendering XML Description");
-                        //    scene.setScaleFactor(1.0f);
-
 
                         //This is what draws a model to the screen! Allots an anchor point to the model
                         scene.addRenderer(
                                 object,
-                                trackable,
-                                hit.createAnchor()
+                                model.getTrackableReference(),
+                                model.getAnchorReference(),
+                                true
                         );
+                        model.setDrawn(false);
                     }
 
                     System.out.println(TAG + " DONE DRAWING");
@@ -500,6 +474,23 @@ public class ARModelFragment extends Fragment {
         this.model_prototype = menuItem;
         this.objFile = obj;
         this.textureFile = texture;
+
+        if (!model_prototype.isFactory())
+        {
+            Thread setUpFactoryModelThread = new Thread(){
+                public void run(){
+                    ObjectRenderer object;
+
+                    object = objectFactory.create(objFile, textureFile);
+
+                    model_prototype.setModelAR(object);
+                    model_prototype.setFactory(true);
+                }
+            };
+
+            //Run thread
+            setUpFactoryModelThread.start();
+        }
 //        this.categoryKey= b.getString("catKey");
 //        this.modelKey = b.getString("modelKey");
 //        this.categoryIndex = b.getInt("catIndex");
