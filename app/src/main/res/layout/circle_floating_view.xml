@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal" android:layout_width="wrap_content"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingRight="8dp"
-    android:paddingLeft="8dp">
+    android:orientation="horizontal"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -20,15 +21,13 @@
             android:src="@drawable/cast_album_art_placeholder"
             app:sriv_border_color="#5DBCD2"
             app:sriv_border_width="2dp"
-            app:sriv_oval="true"
-             />
+            app:sriv_oval="true" />
 
         <TextView
             android:id="@+id/circle_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="food title"
             android:textColor="@android:color/white"
             android:textSize="10sp" />
 

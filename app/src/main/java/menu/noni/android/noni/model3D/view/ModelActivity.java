@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.ar.core.Frame;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -121,7 +122,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private TextView foodCost;
     private TextView menuTitle;
     private Button categoryButton;
-    private FrameLayout gradientFrame;
+    private FrameLayout gradientFrameBottom;
+    private FrameLayout gradientFrameTop;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +149,10 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
         mRecyclerView = findViewById(R.id.model_recycler_view);
-		gradientFrame = findViewById(R.id.gradient_frame);
+		gradientFrameBottom = findViewById(R.id.gradient_frame_bottom);
+		gradientFrameBottom.getBackground().setAlpha(30);//50% at 128, transparent 0 -> 255
+        gradientFrameTop = findViewById(R.id.gradient_frame_top);
+        gradientFrameTop.getBackground().setAlpha(30);
 
         //Set up the recyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -553,7 +558,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				System.out.println(Build.VERSION.SDK_INT);
 
 				viewFlag = true;
-				//gradientFrame.setVisibility(View.VISIBLE);
+				gradientFrameBottom.setVisibility(View.VISIBLE);
+				gradientFrameTop.setVisibility(View.VISIBLE);
 
 				Bundle bundle= new Bundle();
 				bundle.putString("fileName", getParamFilename());
@@ -575,7 +581,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		else //We Are in AR View, go to 3DView
 		{
 			viewFlag = false;
-			//gradientFrame.setVisibility(View.INVISIBLE);
+			gradientFrameBottom.setVisibility(View.INVISIBLE);
+			gradientFrameTop.setVisibility(View.INVISIBLE);
 			beginLoadingModel();
 		}
 	}

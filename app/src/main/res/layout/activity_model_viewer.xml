@@ -9,15 +9,26 @@
         android:id="@+id/modelFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
     </FrameLayout>
 
     <!--Works as a way to let me give the UI a gradient frame or design-->
     <FrameLayout
-        android:id="@+id/gradient_frame"
+        android:id="@+id/gradient_frame_bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"
-        android:background="@drawable/cast_expanded_controller_bg_gradient_light">
+        android:background="@drawable/cast_expanded_controller_bg_gradient_light"
+        android:visibility="invisible">
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/gradient_frame_top"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"
+        android:visibility="invisible">
+
     </FrameLayout>
 
     <TextView
@@ -29,7 +40,7 @@
         android:fontFamily="@font/avenir"
         android:gravity="center"
         android:maxLines="2"
-        android:textColor="@color/cardview_light_background"
+        android:textColor="@android:color/white"
         android:textSize="24sp"
         android:textStyle="bold" />
 
@@ -41,7 +52,7 @@
         android:layout_centerHorizontal="true"
         android:fontFamily="@font/avenir"
         android:gravity="center"
-        android:textColor="@color/cardview_light_background"
+        android:textColor="@android:color/white"
         android:textSize="24sp" />
 
     <TextView
@@ -52,7 +63,7 @@
         android:layout_centerHorizontal="true"
         android:fontFamily="@font/avenir"
         android:gravity="center"
-        android:textColor="@color/cardview_light_background"
+        android:textColor="@android:color/white"
         android:textSize="24sp" />
 
     <com.joooonho.SelectableRoundedImageView

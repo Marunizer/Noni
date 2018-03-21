@@ -105,7 +105,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         searchText = findViewById(R.id.search_text);
         gifView = findViewById(R.id.gif_view);
         GlideApp.with(this)
-                .load(R.drawable.noni_load_gif)
+                .load(R.drawable.double_ring)
                 .override(600,600)
                 .into(gifView);
 
