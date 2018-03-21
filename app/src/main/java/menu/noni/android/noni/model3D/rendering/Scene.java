@@ -41,6 +41,8 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
     private DisplayRotationHelper mDisplayRotationHelper;
     private float scaleFactor = .03f;
     private float scaleFactorXML = 1.0f;
+    private final Pose mCameraRelativePose = Pose.makeTranslation(0.15f, -0.15f, -0.5f);
+    private final float[] mAnchorMatrix = new float[16];
 
     public Scene(Context context, GLSurfaceView surfaceView, DrawingCallback callback) {
       // Set up renderer.
@@ -158,11 +160,19 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
           continue;
         }
 
-        // Update and draw each model. + check what type of object it is
+        // Update and draw each model. + check what type of object it is to use right scaling
         if (!renderer.isXML())
-              renderer.updateModelMatrix(scaleFactor);
+        {
+          renderer.updateModelMatrix(scaleFactor, renderer.isXML(), camera.getPose());
+        }
         else
-              renderer.updateModelMatrix(scaleFactorXML);
+        {
+          //this allows me to literally glue the xml to the camera, it will not move from it's position on the screen
+//          frame.getCamera().getDisplayOrientedPose()
+//                  .compose(mCameraRelativePose).toMatrix(mAnchorMatrix, 0);
+//          renderer.updateModelMatrix(mAnchorMatrix, scaleFactorXML);
+             renderer.updateModelMatrix(scaleFactorXML, renderer.isXML(), camera.getPose());
+        }
 
         renderer.draw(viewmtx, projmtx, lightIntensity);
       }
@@ -193,8 +203,8 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
       objectRendererList.add(renderer);
     }
 
-    //Specificly for XML description
-    public void addRenderer(ObjectRenderer renderer, Trackable trackable, Anchor anchor, boolean isXML) {
+    //Specifically for XML description
+    public void addRenderer(ObjectRenderer renderer, Trackable trackable, Anchor anchor, boolean isXML, Pose pose) {
       // Cap the number of objects created. This avoids overloading both the
       // rendering system and ARCore.
       //Set a limit
@@ -211,8 +221,7 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
         renderer.setAttachement(
                 new TrackableAttachment(
                         trackable,
-                        anchor,
-                        true
+                        anchor
                 )
         );
       } catch (NotTrackingException e) {

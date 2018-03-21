@@ -20,6 +20,7 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
+import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 
 import java.io.FileInputStream;
@@ -262,16 +263,25 @@ public class ObjectRenderer {
      * @param scaleFactor A separate scaling factor to apply before the {@code modelMatrix}.
      * @see Matrix
      */
-    public void updateModelMatrix(float scaleFactor) {
+    public void updateModelMatrix(float scaleFactor, boolean isXML,Pose pose) {
         mAttachement.getPose().toMatrix(modelMatrix, 0);
-
         float[] scaleMatrix = new float[16];
         Matrix.setIdentityM(scaleMatrix, 0);
+
+        if(isXML)
+        {
+            //hard coded value on raising the XML over the object
+            Matrix.translateM(scaleMatrix, 0, 0, .0025f, 0);
+             //we need to rotate somewhere else so the model updates when camera moves
+         //   Matrix.rotateM(scaleMatrix, 0, 30, 0f, 1f, 0f);//pose.qy()//test again
+        }
+
         scaleMatrix[0] = scaleFactor;
         scaleMatrix[5] = scaleFactor;
         scaleMatrix[10] = scaleFactor;
 
         Matrix.multiplyMM(mModelMatrix, 0, modelMatrix, 0, scaleMatrix, 0);
+
     }
 
     /**

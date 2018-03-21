@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
@@ -60,10 +59,6 @@ import menu.noni.android.noni.model3D.util.Menu;
  *        - I believe there is a dynamic sizing algorithm in the 3D model view renderer but requires quite a bit of the obj
  *          data to be kept and calculated, Probably can be found in 'model3D/model' folder
  *               - This can also be solved by having a standard on how the object files are created
- *
- *       * We need to render the models in a separate thread as to not disrupt the UI only AFTER the model is done being downloaded
- *
- *       * We need to create a separate thread that can Draw the model to screen only AFTER the model is done being rendered
  *
  *       * Low priority : Make an mtl reader and use that information in renderer instead of the hardcoded mtl information
  *                        Provide a different png to detect planes as to not use ARCores sample plane, a make it more transparent
@@ -146,12 +141,6 @@ public class ARModelFragment extends Fragment {
         }
 
         this.menu =  ((ModelActivity)getActivity()).getMenuObject();
-
-        //Check our variables: Delete later
-        System.out.println(TAG + " Object File: "  + objFile);
-        System.out.println(TAG + " Texture File: " + textureFile);
-        System.out.println(TAG + " Menu Index: " + modelIndex);
-        System.out.println(TAG + " Menu name: " + menu.getRestName());
 
         model_prototype = ((ModelActivity)getActivity()).getModelItem();
 
@@ -325,10 +314,6 @@ public class ARModelFragment extends Fragment {
 
                     ObjectRenderer object;
 
-                    System.out.println(TAG + " MODEL DOWNLOADED: " + model.isDownloaded());
-                    System.out.println(TAG + " MODEL RENDERED: " + model.isFactory());
-                    System.out.println(TAG + " MODEL DRAWN: " + !model.isDrawn());
-
                     if(model.isDownloaded() && model.isFactory() && !model.isDrawn())
                     {
                         object = model.getModelAR();
@@ -348,7 +333,7 @@ public class ARModelFragment extends Fragment {
                     }
                     else if(model.isDownloaded() && model.isFactory() && model.isDrawn())
                     {
-                        object = new XmlLayoutRenderer(getContext(), R.layout.model_ingredient_view, model_prototype.getDescription());
+                        object = new XmlLayoutRenderer(getContext(), R.layout.model_description_view, model_prototype.getDescription());
 
                         System.out.println(TAG + " Rendering XML Description");
 
@@ -357,7 +342,8 @@ public class ARModelFragment extends Fragment {
                                 object,
                                 model.getTrackableReference(),
                                 model.getAnchorReference(),
-                                true
+                                true,
+                                camera.getPose()//Might not be necassary
                         );
                         model.setDrawn(false);
                     }
@@ -463,39 +449,26 @@ public class ARModelFragment extends Fragment {
     //a check to make sure it's downloaded, and if not, do something about it  - communicate back to start download, show animation
     public void passData(Menu.Categories.MenuItem menuItem,String obj, String texture) {
 
-        //Lets pass on the 'key' category we are on, currently a string, possible we will need a key converter for this as well
-        //This way, we know what Category we are currently looking at
-        // Note: may be possible that we don't need index, but just the key
-
-        //Pass in the index of the menu item we are looking at (to be keyConverted)
-        //Let's us access the correct reference to
-        // * Note: We can probably just pass in the name (key) instead of an index from ModelActivity to avoid using key-converter
-        //With this information we can find the .obj and the .jpg
         this.model_prototype = menuItem;
         this.objFile = obj;
         this.textureFile = texture;
 
         if (!model_prototype.isFactory())
         {
-            Thread setUpFactoryModelThread = new Thread(){
-                public void run(){
+            //Makes no sense to have this done within a thread, going to keep it for a while though just in case
+//            Thread setUpFactoryModelThread = new Thread(){
+//                public void run(){
                     ObjectRenderer object;
 
                     object = objectFactory.create(objFile, textureFile);
 
                     model_prototype.setModelAR(object);
                     model_prototype.setFactory(true);
-                }
-            };
-
-            //Run thread
-            setUpFactoryModelThread.start();
+//                }
+//            };
+//
+//            //Run thread
+//            setUpFactoryModelThread.start();
         }
-//        this.categoryKey= b.getString("catKey");
-//        this.modelKey = b.getString("modelKey");
-//        this.categoryIndex = b.getInt("catIndex");
-//        this.modelIndex = b.getInt("modelIndex");
-      //  System.out.println("The anchor that has been hit " + anchors.get(anchors.size()-1));
-
     }
 }

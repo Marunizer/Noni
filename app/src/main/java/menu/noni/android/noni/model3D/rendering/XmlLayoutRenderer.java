@@ -8,6 +8,7 @@ import android.support.annotation.LayoutRes;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.FileNotFoundException;
@@ -61,7 +62,8 @@ public class XmlLayoutRenderer extends ObjectRenderer {
     final DisplayManager manager = context.getSystemService(DisplayManager.class);
     manager.getDisplays()[0].getMetrics(displayMetrics);
     final int height = displayMetrics.heightPixels;
-    final int width = displayMetrics.widthPixels;
+    //This is a hardcoded value 500 that just happens to work nicely here. Must test on other phones
+    final int width = displayMetrics.widthPixels +500;
 
     bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     final Canvas canvas = new Canvas(bitmap);
@@ -71,8 +73,10 @@ public class XmlLayoutRenderer extends ObjectRenderer {
 
     LayoutInflater inflater = LayoutInflater.from(context);
     View view = inflater.inflate(layout, null, false);
-    TextView xmlText = view.findViewById(R.id.ingredient_text);
-    xmlText.setText(description);
+  //  TextView xmlText = view.findViewById(R.id.ingredient_text);
+    Button xmlButton = view.findViewById(R.id.xml_button);
+   // xmlText.setText(description);
+    xmlButton.setText(description);
 
     view.measure(measuredWidth, measuredHeight);
     view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
