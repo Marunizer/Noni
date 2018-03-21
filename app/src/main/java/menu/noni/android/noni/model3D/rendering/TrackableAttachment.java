@@ -25,7 +25,7 @@ import static com.google.ar.core.TrackingState.TRACKING;
  * that will stay on the plane (in Y direction), while still properly tracking the XZ changes
  * from the anchor updates.
  */
-public class TrackableAttachment {
+ class TrackableAttachment {
   private final Trackable mTrackable;
   private final Anchor mAnchor;
 
@@ -33,17 +33,17 @@ public class TrackableAttachment {
   private final float[] mPoseTranslation = new float[3];
   private final float[] mPoseRotation = new float[4];
 
-  public TrackableAttachment(Trackable trackable, Anchor anchor) {
+  TrackableAttachment(Trackable trackable, Anchor anchor) {
     mTrackable = trackable;
     mAnchor = anchor;
   }
 
-  public boolean isTracking() {
+  boolean isTracking() {
     return /*true if*/
             mTrackable.getTrackingState() == TRACKING && mAnchor.getTrackingState() == TRACKING;
   }
 
-  public Pose getPose() {
+  Pose getPose() {
     Pose pose = mAnchor.getPose();
     pose.getTranslation(mPoseTranslation, 0);
     pose.getRotationQuaternion(mPoseRotation, 0);
@@ -51,7 +51,7 @@ public class TrackableAttachment {
     return new Pose(mPoseTranslation, mPoseRotation);
   }
 
-  public Anchor getAnchor() {
+  Anchor getAnchor() {
     return mAnchor;
   }
 }

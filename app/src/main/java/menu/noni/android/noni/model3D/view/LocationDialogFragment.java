@@ -1,5 +1,6 @@
 package menu.noni.android.noni.model3D.view;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -34,7 +35,7 @@ public class LocationDialogFragment extends DialogFragment {
     Context context;
 
     public interface NoticeDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog);
+        void onDialogPositiveClick(DialogFragment dialog);
     }
 
     // Use this instance of the interface to deliver action events
@@ -67,6 +68,7 @@ public class LocationDialogFragment extends DialogFragment {
         //Theme_Holo_Light_Dialog
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
+        @SuppressLint("InflateParams")
         View rootView = inflater.inflate(R.layout.fragment_dialog_location,null);
         newRadius = rootView.findViewById(R.id.newRadius);
         newRadius.setText(String.valueOf(LocationHelper.getRadius()));
@@ -104,7 +106,7 @@ public class LocationDialogFragment extends DialogFragment {
             if (!Objects.equals(newZip.getText().toString(), "")) {
                 LocationHelper.setZipcodeAndAll(newZip.getText().toString(), context);
 
-                SharedPreferences.Editor editor = context.getSharedPreferences("ZIP_PREF", context.MODE_PRIVATE).edit();
+                SharedPreferences.Editor editor = context.getSharedPreferences("ZIP_PREF", Context.MODE_PRIVATE).edit();
                 editor.putString("zipCode", newZip.getText().toString());
                 editor.apply();
             }

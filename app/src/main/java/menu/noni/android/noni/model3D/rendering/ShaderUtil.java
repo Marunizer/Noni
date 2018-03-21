@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 /**
  * Shader helper functions.
  */
-public class ShaderUtil {
+class ShaderUtil {
 
     /**
      * Converts a raw text file, into an OpenGL ES shader.
@@ -37,7 +37,7 @@ public class ShaderUtil {
      * @param type The type of shader we will be creating.
      * @return The shader object handler.
      */
-    public static int loadGLShader(String tag, String file, int type) {
+    static int loadGLShader(String tag, String file, int type) {
         String code;
         try {
             code = readRawTextFile(new FileInputStream(file));
@@ -74,7 +74,7 @@ public class ShaderUtil {
      * @param label Label to report in case of error.
      * @throws RuntimeException If an OpenGL error is detected.
      */
-    public static void checkGLError(String tag, String label) {
+    static void checkGLError(String tag, String label) {
         int error;
         while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
             Log.e(tag, label + ": glError " + error);
@@ -88,7 +88,7 @@ public class ShaderUtil {
      * @param inputStream the stream to be read.
      * @return The context of the text file, or null in case of error.
      */
-    public static String readRawTextFile(InputStream inputStream) {
+    private static String readRawTextFile(InputStream inputStream) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder sb = new StringBuilder();
@@ -107,7 +107,7 @@ public class ShaderUtil {
     /**
      * Normalize the filename, aka add a basepath if needed.
      */
-    public static String normalizeFileName(String fileName, String basepath) {
+    static String normalizeFileName(String fileName, String basepath) {
         if (!fileName.startsWith("/")) {
             if (!basepath.endsWith("/")) {
                 basepath += "/";

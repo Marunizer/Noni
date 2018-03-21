@@ -33,7 +33,6 @@ import menu.noni.android.noni.model3D.view.RestaurantViewActivity;
  * TODO:
  * Implement using WIFI (network calls) over gps when available, consumes less battery, better accuracy
  *
- *
  * When asking for Permissions, ask for external Storage permissions as well as for location to get them both out of the way
  * I believe an example of this is set up in Model Activity, but maybe not fully implemented
  * -Would still want to keep permission check at Model Activity in case user Declines location, therefor
@@ -101,7 +100,20 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 			return;
 		}
 
-		//TODO: FusedLocationApi is deprecated, find replacement/solution/work around. could effect app in future
+		//TODO: FusedLocationApi might be deprecated in the future, Google is being very hot and cold about this, works for now
+		//https://stackoverflow.com/questions/46481789/android-locationservices-fusedlocationapi-deprecated
+		//Possible fix code, or at least a start to it
+//		 FusedLocationProviderClient client =  LocationServices.getFusedLocationProviderClient(this);
+//		 client.getLastLocation()
+//				.addOnSuccessListener(this, new OnSuccessListener<Location>() {
+//					@Override
+//					public void onSuccess(Location location) {
+//						// Got last known location. In some rare situations this can be null.
+//						if (location != null) {
+//							mLastLocation = location;
+//						}
+//					}
+//				});
 		this.mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
 		//Location exists, set it as our used location, move on to Restaurant View

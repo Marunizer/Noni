@@ -1,6 +1,7 @@
 package menu.noni.android.noni.model3D.view;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -19,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -119,6 +121,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private TextView foodCost;
     private TextView menuTitle;
     private Button categoryButton;
+    private FrameLayout gradientFrame;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +147,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
         mRecyclerView = findViewById(R.id.model_recycler_view);
+		gradientFrame = findViewById(R.id.gradient_frame);
 
         //Set up the recyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -343,7 +347,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
             downloadJpgThread.start();
 		}
 		else
-			modelToDownload.setDownloaded(true);
+			modelToDownload.setDownloaded();
 	}
 
 	//Final download stage: Downloads requested file from Firebase storage
@@ -369,13 +373,13 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					if(targetModel.getAtomicDownloadCheck() == 3)
 					{
 					    //model fully downloaded, set reference to true
-						getModelItem().setDownloaded(true);
+						getModelItem().setDownloaded();
 
 						// First model to be downloaded, load ASAP
                         if (firstDownloadAndLoad)
                         {
                             beginLoadingModel();
-                            setFirstDownloadAndLoad(false);
+                            setFirstDownloadAndLoad();
                         }
 					}
 					System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName()+ "    downlaodCheck = " + targetModel.getAtomicDownloadCheck());
@@ -428,8 +432,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	public String getTextureFilename() { return this.textureFilename;}
 
-    public void setFirstDownloadAndLoad(boolean firstDownloadAndLoad) {
-        this.firstDownloadAndLoad = firstDownloadAndLoad;
+    public void setFirstDownloadAndLoad() {
+        this.firstDownloadAndLoad = false;
     }
 
 	public Menu.Categories.MenuItem getModelItem() {
@@ -478,7 +482,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         categoryButton.setText(categoryKey);
 
         modelItem = menu.allCategories.get(categoryKey).
-                allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
+                allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(0));//index is 0 to start from beginning
 
         paramFilename = modelItem.getObjPath();
         textureFilename = modelItem.getJpgPath();
@@ -549,6 +553,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				System.out.println(Build.VERSION.SDK_INT);
 
 				viewFlag = true;
+				//gradientFrame.setVisibility(View.VISIBLE);
 
 				Bundle bundle= new Bundle();
 				bundle.putString("fileName", getParamFilename());
@@ -570,6 +575,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		else //We Are in AR View, go to 3DView
 		{
 			viewFlag = false;
+			//gradientFrame.setVisibility(View.INVISIBLE);
 			beginLoadingModel();
 		}
 	}
@@ -597,19 +603,15 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
-										   String permissions[], int[] grantResults) {
+										   @NonNull String permissions[], @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case REQUEST_EXTERNAL_STORAGE: {
 				// If request is cancelled, the result arrays are empty.
-				if (grantResults.length > 0
-						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					return;
-
-				} else {
-
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+					System.out.println("External Storage Permission granted");
+				else
 					finish();
-				}
-				return;
+
 			}
 		}
 	}
@@ -658,20 +660,20 @@ class MyCircleAdapter extends RecyclerView.Adapter<MyCircleAdapter.ViewHolder> {
 	}
 
 	// Create new views (invoked by the layout manager)
-	@Override
-	public MyCircleAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-												   int viewType) {
+	@NonNull
+    @Override
+	public MyCircleAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                                         int viewType) {
 		// create a new view
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.circle_floating_view, parent, false);
 
-		ViewHolder vh = new ViewHolder(v);
-		return vh;
+        return new ViewHolder(v);
 	}
 
 	// Replace the contents of a view (invoked by the layout manager)
 	@Override
-	public void onBindViewHolder(final ViewHolder holder, final int position) {
+	public void onBindViewHolder(@NonNull final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
 
 		//If icon exists, then make it the icon image
 		String iconPath = "Home" + File.separator + modelDataSet.get(keyConverter.get(position)).getBucketPath() +

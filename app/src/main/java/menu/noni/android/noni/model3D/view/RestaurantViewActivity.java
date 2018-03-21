@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -50,9 +51,7 @@ import static android.content.ContentValues.TAG;
 
 /**
  * Created by mende on 12/16/2017.
- */
-
-/**
+ *
  * In this Activity, the list of available restaurants nea the user is displayed
  * TODO List:
  *     * (IGNORE FOR NOW) When checking if the restaurant found is already within the ArrayList, check based on
@@ -65,19 +64,13 @@ import static android.content.ContentValues.TAG;
  *      it seems to delay the process of showing items, and does it all at once instead.
  *          - Replace default image with a very small default picture unlike the one currently there (empty)
  *
- *    * Make images appear fluidly with little to no delay //Pretty much done, just have to test different numbers for animation of showing image
- *
  *    * Right now Location that is Displayed is the full Address, might be too specific and therefor creep users out, might instead want to
  *      only show city, and state
  *      OR
  *      ask for an address instead of asking for a zipcode so its not unwarranted.
  *
- *    *Maybe have access firebase data before this class, and just pass it in
- *    //Also, to not bore user, add loading gif that gets removed once a list is done being made
- *
  *    Low priority Ideal functionality: Let user manage the order of what comes up based on average price, distance, alphabetical, etc...
  *    - Will need to make a UI change to add this
- *
  *
  *    *Scale Concern (low priority - for now) Do not show all options at same time, but only show maybe 15,
  *     then keep showing more, the farther down a user goes
@@ -92,6 +85,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     private SwipeRefreshLayout mySwipeRefreshLayout;
     Toolbar toolbar;
     TextView textView;
+    TextView searchText;
+    ImageView gifView;
 
 
     @Override
@@ -107,6 +102,12 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         textView = findViewById(R.id.address_text);
         textView.setText(LocationHelper.getAddress());
         textView.setPaintFlags(textView.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+        searchText = findViewById(R.id.search_text);
+        gifView = findViewById(R.id.gif_view);
+        GlideApp.with(this)
+                .load(R.drawable.noni_load_gif)
+                .override(600,600)
+                .into(gifView);
 
         mRecyclerView = findViewById(R.id.restaurant_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -225,6 +226,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                System.out.println(String.format("Key %s is no longer in the search area", key));
                     }
 
+                    @SuppressLint("DefaultLocale")
                     @Override
                     public void onKeyMoved(String key, GeoLocation location) {
                                System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
@@ -263,7 +265,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     }
 
     //Set new list of restaurants
-    void setRestaurant(ArrayList restaurant)
+    void setRestaurant(ArrayList<Restaurant> restaurant)
     {
         this.restaurant = restaurant;
     }
@@ -280,6 +282,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         }
         MyAdapter mAdapter = new MyAdapter(restaurant, context);
         mRecyclerView.setAdapter(mAdapter);
+        gifView.setVisibility(View.GONE);
+        searchText.setVisibility(View.GONE);
     }
 
     public void onRestaurantClick(String key, String restName){
@@ -349,19 +353,19 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     // Create new views (invoked by the layout manager)
+    @NonNull
     @Override
-    public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+    public MyAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                    int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_view_restaurant, parent, false);
-        ViewHolder vh = new ViewHolder(v);
-        return vh;
+        return new ViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
         //Get the path to the file from the data set
         String path = "restsTableImages" + File.separator + ((Restaurant) mDataset.get(position)).getName() + "_main_image.png";
@@ -373,7 +377,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         //Can change withCrossFade timer to change fade in time, in milliseconds.
         GlideApp.with(context)
                 .load(image)
-                .transition(DrawableTransitionOptions.withCrossFade(1000))
+                .transition(DrawableTransitionOptions.withCrossFade(725))
                 .override(600,600)
                 .into(holder.restImage);
 
@@ -398,15 +402,15 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         if (milesAway < 1)
         {
-            holder.restDistance.setText("less than a mile away");
+            holder.restDistance.setText(R.string.less_than_one_mile);
         }
         else if (milesAway == 1)
         {
-            holder.restDistance.setText(String.valueOf(milesAway) + " mile away");
+            holder.restDistance.setText(String.format("%s mile away", String.valueOf(milesAway)));
         }
         else
         {
-            holder.restDistance.setText(String.valueOf(milesAway) + " miles away");
+            holder.restDistance.setText(String.format("%s miles away", String.valueOf(milesAway)));
         }
 
         holder.coordinateKey = (((Restaurant) mDataset.get(position)).getCoordinateKey());

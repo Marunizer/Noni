@@ -1,9 +1,11 @@
 package menu.noni.android.noni.model3D.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -73,19 +75,12 @@ public class ARModelFragment extends Fragment {
 
     private static final String TAG = ARModelFragment.class.getSimpleName();
 
-    //Make local if possible
-    //The Renderers are created here, and initialized when the GL surface is created.
-    private GLSurfaceView surfaceView;
-
     private boolean installRequested = false;
 
     private Scene scene;
-    //make local if possible
-    private Config defaultConfig;
     private Session session;
     //private GestureDetector gestureDetector;
     private Snackbar loadingMessageSnackbar = null;
-    private View view;
 
     //Used to track the models to make sure whether they are rendered or not and then to draw them
     //I don't think we actually want to use this, Maybe a synchronized list of list ???????
@@ -129,7 +124,7 @@ public class ARModelFragment extends Fragment {
     private ObjectRendererFactory objectFactory;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         Bundle b = this.getArguments();
 
@@ -140,6 +135,8 @@ public class ARModelFragment extends Fragment {
             this.modelIndex = b.getInt("modelIndex");
         }
 
+        //what the F is this LOL make sure doesn't break
+        assert getActivity() != null;
         this.menu =  ((ModelActivity)getActivity()).getMenuObject();
 
         model_prototype = ((ModelActivity)getActivity()).getModelItem();
@@ -156,12 +153,12 @@ public class ARModelFragment extends Fragment {
         super.onAttach(context);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void init(View v) {
 
-        view = v;
         //Here we set up necessary UI components
 
-        surfaceView = v.findViewById(R.id.surfaceview);
+        GLSurfaceView surfaceView = v.findViewById(R.id.surfaceview);
 
         scene = new Scene(getContext(), surfaceView,drawCallback);// session, drawCallback);
 
@@ -181,7 +178,7 @@ public class ARModelFragment extends Fragment {
                 object = objectFactory.create(objFile, textureFile);
 
                 model_prototype.setModelAR(object);
-                model_prototype.setFactory(true);
+                model_prototype.setFactory();
             }
         };
 
@@ -247,7 +244,7 @@ public class ARModelFragment extends Fragment {
             // Note that order matters - see the note in onPause(), the reverse applies here.
             session = new Session(getContext());
             // Create default config, check is supported, create session from that config.
-            defaultConfig = new Config(session);
+            Config defaultConfig = new Config(session);
 
             //I have reason to believe this will disable light estimation for the Model
             //Need to test if it removes any extra lighting, if does not, then delete
@@ -358,7 +355,7 @@ public class ARModelFragment extends Fragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] results) {
         if (!CameraPermissionHelper.hasCameraPermission(getActivity())) {
             Toast.makeText(getActivity(), "Camera permission is needed to run this application", Toast.LENGTH_LONG)
                     .show();
@@ -463,7 +460,7 @@ public class ARModelFragment extends Fragment {
                     object = objectFactory.create(objFile, textureFile);
 
                     model_prototype.setModelAR(object);
-                    model_prototype.setFactory(true);
+                    model_prototype.setFactory();
 //                }
 //            };
 //

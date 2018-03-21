@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -28,12 +27,7 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
 public class LocationActivity  extends Activity{
 
     //make local if possible, may just be able to delete
-    private TextView queryText;
     private EditText zipcodeText;
-    //make local if possible
-    private Button enterQuery;
-    //make local if possible
-    private String zip;
     private Context context;
 
     @Override
@@ -42,9 +36,8 @@ public class LocationActivity  extends Activity{
 
         //Assign UI to references
         setContentView(R.layout.activity_location_query);
-        queryText = findViewById(R.id.zipcode_text);
         zipcodeText = findViewById(R.id.add_zip);
-        enterQuery = findViewById(R.id.zipcode_button);
+        Button enterQuery = findViewById(R.id.zipcode_button);
         enterQuery.setOnClickListener(btnCheckDownloadLocationOnClickListener);
         context = this;
     }
@@ -53,7 +46,7 @@ public class LocationActivity  extends Activity{
         @Override
         public void onClick(final View v) {
 
-            zip = zipcodeText.getText().toString();
+            String zip = zipcodeText.getText().toString();
 
             if (zip.length() == 0)
                 Toast.makeText(LocationActivity.this, "Field is empty", Toast.LENGTH_SHORT).show();

@@ -19,7 +19,7 @@ public class SystemUiHiderBase extends SystemUiHider {
 	 * Constructor not intended to be called by clients. Use
 	 * {@link SystemUiHider#getInstance} to obtain an instance.
 	 */
-	protected SystemUiHiderBase(Activity activity, View anchorView, int flags) {
+	SystemUiHiderBase(Activity activity, View anchorView, int flags) {
 		super(activity, anchorView, flags);
 	}
 

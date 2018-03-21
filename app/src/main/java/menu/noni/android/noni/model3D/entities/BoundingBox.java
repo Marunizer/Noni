@@ -1,8 +1,8 @@
 package menu.noni.android.noni.model3D.entities;
 
 /**
- * @author
- * //TODO: Many unused methods, maybe delete
+ * Bounding Box tracking Helper Class
+ *
  */
 
 public final class BoundingBox {
@@ -14,7 +14,7 @@ public final class BoundingBox {
 	private float zMin = Float.MAX_VALUE;
 	private float zMax = Float.MIN_VALUE;
 
-	public BoundingBox(String id, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
+	BoundingBox(String id, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
 		this.id = id;
 		this.xMin = xMin;
 		this.xMax = xMax;

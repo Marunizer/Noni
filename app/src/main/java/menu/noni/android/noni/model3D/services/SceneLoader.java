@@ -35,7 +35,7 @@ public class SceneLoader {
 	/**
 	 * List of data objects containing info for building the opengl objects
 	 */
-	private List<Object3DData> objects = new ArrayList<Object3DData>();
+	private List<Object3DData> objects = new ArrayList<>();
 	/**
 	 * Whether to draw objects as wireframes
 	 */
@@ -162,8 +162,8 @@ public class SceneLoader {
 		lightPoint.setRotationY(angleInDegrees);
 	}
 
-	protected synchronized void addObject(Object3DData obj) {
-		List<Object3DData> newList = new ArrayList<Object3DData>(objects);
+	private synchronized void addObject(Object3DData obj) {
+		List<Object3DData> newList = new ArrayList<>(objects);
 		newList.add(obj);
 		this.objects = newList;
 		requestRender();

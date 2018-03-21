@@ -35,20 +35,16 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	private int height;
 	// Out point of view handler
 	private Camera camera;
-	// frustrum - nearest pixel
-	private float near = 1f;
-	// frustrum - fartest pixel
-	private float far = 10f;
 
 	private Object3DBuilder drawer;
 	// The wireframe associated shape (it should be made of lines only)
-	private Map<Object3DData, Object3DData> wireframes = new HashMap<Object3DData, Object3DData>();
+	private Map<Object3DData, Object3DData> wireframes = new HashMap<>();
 	// The loaded textures
-	private Map<byte[], Integer> textures = new HashMap<byte[], Integer>();
+	private Map<byte[], Integer> textures = new HashMap<>();
 	// The corresponding opengl bounding boxes and drawer
-	private Map<Object3DData, Object3DData> boundingBoxes = new HashMap<Object3DData, Object3DData>();
+	private Map<Object3DData, Object3DData> boundingBoxes = new HashMap<>();
 	// The corresponding opengl bounding boxes
-	private Map<Object3DData, Object3DData> normals = new HashMap<Object3DData, Object3DData>();
+	private Map<Object3DData, Object3DData> normals = new HashMap<>();
 
 	// 3D matrices to project our 3D world
 	private final float[] modelProjectionMatrix = new float[16];
@@ -65,16 +61,17 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	 * @param modelSurfaceView
 	 *            the 3D window
 	 */
-	public ModelRenderer(ModelSurfaceView modelSurfaceView) {
+	ModelRenderer(ModelSurfaceView modelSurfaceView) {
 		this.main = modelSurfaceView;
 	}
 
-	public float getNear() {
-		return near;
+	// frustrum - nearest pixel
+	private float getNear() {
+		return 1f;
 	}
-
+	// frustrum - farthest pixel
 	public float getFar() {
-		return far;
+		return 10f;
 	}
 
 	@Override

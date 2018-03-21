@@ -39,7 +39,16 @@
     <string name="toggle_boundingbox">Toggle bounding box</string>
 
     <!-- To review -->
-    <string name="app_logo_desc">Teapot animated logo</string>
     <string name="submit">Submit</string>
     <string name="ingredients">Ingredients</string>
+    <string name="less_than_one_mile">less than a mile away</string>
+    <string name="restaurants_near_you">Restaurants near you</string>
+    <string name="loading_progress_circle">Loading progress circle</string>
+    <string name="loading_message">Finding cool restaurants !</string>
+    <string name="zip_code">zip code</string>
+    <string name="miles">miles</string>
+    <string name="mile_s">mile(s)</string>
+    <string name="support_location_message">* Currently only supported within *  Orlando, Florida area.</string>
+    <string name="zipcode_query">Please enter a Zipcode</string>
+    <string name="zipcode">Zipcode</string>
 </resources>

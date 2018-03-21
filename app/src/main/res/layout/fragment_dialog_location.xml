@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
+        android:layout_marginStart="4dp"
         >
     <TextView
         android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            android:hint="zip code"
+            android:hint="@string/zip_code"
             android:digits="0123456789+"
             android:maxLength="5"
             android:lines = "1"
@@ -36,7 +36,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
+        android:layout_marginStart="4dp"
         >
 
     <TextView
@@ -54,7 +54,7 @@
         android:digits="0123456789+"
         android:maxLength="2"
         android:lines = "1"
-        android:hint="miles"
+        android:hint="@string/miles"
         android:layout_margin="8dp"
         android:inputType="number"
         android:gravity="center"/>
@@ -62,34 +62,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="mile(s)"
-            android:textSize="20dp"
+            android:text="@string/mile_s"
+            android:textSize="20sp"
             android:layout_margin="8dp"/>
 
 </LinearLayout>
 
-    <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="horizontal"-->
-        <!--android:gravity="center">-->
-
-        <!--<Button-->
-            <!--android:id="@+id/cancel_butt"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:layout_marginRight="20dp"-->
-            <!--android:text="@string/cancel"/>-->
-
-    <!--<Button-->
-        <!--android:id="@+id/submit_butt"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:layout_marginLeft="20dp"-->
-        <!--android:text="Save" />-->
-
-    <!--</LinearLayout>-->
+    <TextView
+        android:layout_margin="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:fontFamily="@font/avenir"
+        android:textSize="18sp"
+        android:text="@string/support_location_message"/>
 
 </LinearLayout>

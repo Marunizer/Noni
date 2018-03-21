@@ -1,5 +1,6 @@
 package menu.noni.android.noni.model3D.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -10,7 +11,6 @@ import menu.noni.android.noni.model3D.controller.TouchController;
 public class ModelSurfaceView extends GLSurfaceView {
 
 	private static ModelFragment parent;
-	private ModelRenderer mRenderer;
 	private TouchController touchHandler;
 
 	public ModelSurfaceView(Context context, AttributeSet attrs) {
@@ -20,7 +20,7 @@ public class ModelSurfaceView extends GLSurfaceView {
 		setEGLContextClientVersion(2);
 
 		// This is the actual renderer of the 3D space
-		mRenderer = new ModelRenderer(this);
+		ModelRenderer mRenderer = new ModelRenderer(this);
 		setRenderer(mRenderer);
 
 		// Render the view only when there is a change in the drawing data
@@ -30,6 +30,7 @@ public class ModelSurfaceView extends GLSurfaceView {
 		touchHandler = new TouchController(this, mRenderer);
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		return touchHandler.onTouchEvent(event);
@@ -40,6 +41,6 @@ public class ModelSurfaceView extends GLSurfaceView {
 	}
 
 	public void setModelActivity(ModelFragment model) {
-		this.parent = model;
+		parent = model;
 	}
 }

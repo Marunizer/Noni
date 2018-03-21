@@ -60,7 +60,7 @@ public class CameraFeedRenderer {
   private int mQuadTexCoordParam;
   private int mTextureId = -1;
 
-  public int getTextureId() {
+  int getTextureId() {
     return mTextureId;
   }
 
@@ -71,7 +71,7 @@ public class CameraFeedRenderer {
    *
    * @param context Needed to access shader source.
    */
-  public void createOnGlThread(Context context) {
+  void createOnGlThread(Context context) {
     // Generate the background texture.
     int textures[] = new int[1];
     GLES20.glGenTextures(1, textures, 0);

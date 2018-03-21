@@ -24,15 +24,11 @@ public abstract class LoaderTask extends AsyncTask<Void, Integer, Object3DData> 
 	/**
 	 * Callback to notify of events
 	 */
-	protected final Object3DBuilder.Callback callback;
+	private final Object3DBuilder.Callback callback;
 	/**
 	 * The dialog that will show the progress of the loading
 	 */
 	protected final ProgressDialog dialog;
-	/**
-	 * The parent activity
-	 */
-	private final Activity parent;
 	/**
 	 * Directory where the model is located (null when its loaded from asset)
 	 */
@@ -58,7 +54,6 @@ public abstract class LoaderTask extends AsyncTask<Void, Integer, Object3DData> 
 	 * @param modelId    the id the data being loaded
 	 */
 	protected LoaderTask(Activity parent, URL url, File currentDir, String assetsDir, String modelId, Object3DBuilder.Callback callback) {
-		this.parent = parent;
 		this.url = url;
 		this.currentDir = currentDir;
 		this.assetsDir = assetsDir;

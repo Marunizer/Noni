@@ -117,7 +117,7 @@ public class ObjectRenderer {
     private final String mFragmentShaderFileName;
     private final String mVertexShaderFileName;
 
-    public ObjectRenderer(
+    ObjectRenderer(
             String mObjectFileName,
             String textureFileName,
             String fragmentShaderFileName,
@@ -128,7 +128,7 @@ public class ObjectRenderer {
         this.mVertexShaderFileName = vertexShaderFileName;
     }
 
-    public void createOnGlThread() throws IOException {
+    private void createOnGlThread() throws IOException {
         Bitmap textureBitmap = readTexture();
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -253,7 +253,7 @@ public class ObjectRenderer {
      *
      * @param blendMode The blending mode.  Null indicates no blending (opaque rendering).
      */
-    public void setBlendMode(BlendMode blendMode) {
+    void setBlendMode(BlendMode blendMode) {
         this.blendMode = blendMode;
     }
 
@@ -263,7 +263,7 @@ public class ObjectRenderer {
      * @param scaleFactor A separate scaling factor to apply before the {@code modelMatrix}.
      * @see Matrix
      */
-    public void updateModelMatrix(float scaleFactor, boolean isXML,Pose pose) {
+    void updateModelMatrix(float scaleFactor, boolean isXML, Pose pose) {
         mAttachement.getPose().toMatrix(modelMatrix, 0);
         float[] scaleMatrix = new float[16];
         Matrix.setIdentityM(scaleMatrix, 0);
@@ -293,7 +293,7 @@ public class ObjectRenderer {
      * @param specularPower  Surface shininess.  Larger values result in a smaller, sharper
      *     specular highlight.
      */
-    public void setMaterialProperties(
+    private void setMaterialProperties(
             float ambient, float diffuse, float specular, float specularPower) {
         this.ambient = ambient;
         this.diffuse = diffuse;
@@ -417,11 +417,11 @@ public class ObjectRenderer {
         ShaderUtil.checkGLError(TAG, "After draw");
     }
 
-    public boolean isTracking() {
+    boolean isTracking() {
         return mAttachement.isTracking();
     }
 
-    public void setAttachement(TrackableAttachment attachement) {
+    void setAttachement(TrackableAttachment attachement) {
         this.mAttachement = attachement;
     }
 
@@ -429,7 +429,7 @@ public class ObjectRenderer {
         return mInitialized;
     }
 
-    public void destroy(Session session) {
+    void destroy() {
         mAttachement.getAnchor().detach();
     }
 
@@ -440,11 +440,11 @@ public class ObjectRenderer {
         v[2] *= reciprocalLength;
     }
 
-    public boolean isXML() {
+    boolean isXML() {
         return isXML;
     }
 
-    public void setXML(boolean XML) {
-        isXML = XML;
+    void setXML() {
+        isXML = true;
     }
 }

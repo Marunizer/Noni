@@ -25,21 +25,16 @@ import menu.noni.android.noni.model3D.rendering.ObjectRenderer;
 
 public class Menu {
 
-    public Menu(String key) {
-        this.key = key;
-    }
-
     //May not be needed since we don't care about the Menu when we are no longer at the restaurant
     private String key;
     private String restName;
 
+    public Menu(String key) {
+        this.key = key;
+    }
+
     //Might wanna make private, just annoying to access
     public Hashtable<String, Categories> allCategories = new Hashtable<>();
-
-    //Probably should have a bar or some text at top of model Viewer where we display the resturant name
-    public String getRestName() {
-        return restName;
-    }
 
     public void setRestName(String restName) {
         this.restName = restName;
@@ -148,8 +143,8 @@ public class Menu {
                 return isDownloaded;
             }
 
-            public void setDownloaded(boolean isDownloaded) {
-                this.isDownloaded = isDownloaded;
+            public void setDownloaded() {
+                this.isDownloaded = true;
             }
 
             public int getAtomicDownloadCheck() {
@@ -165,8 +160,8 @@ public class Menu {
                 return isFactoryReady;
             }
 
-            public void setFactory(boolean factory) {
-                isFactoryReady = factory;
+            public void setFactory() {
+                isFactoryReady = true;
             }
 
             public ObjectRenderer getModelAR() {
@@ -265,18 +260,27 @@ public class Menu {
             //Possible method with the purpose to stall app until we the model is downloaded
             //A better solution would be to wait for a callback from the download itself
             //TODO: May no longer be needed: check and delete
-            public boolean stallUntilDownloaded(Context cheatCode){
-
-//                String objPath = cheatCode.getFilesDir().toString() + "/model/" + getObjPath();
-//                String mtlPath = cheatCode.getFilesDir().toString() + "/model/" + getMtlPath();
-//                String jpgPath = cheatCode.getFilesDir().toString() + "/model/" + getJpgPath();
+//            public boolean stallUntilDownloaded(Context cheatCode){
 //
-//                File objFile = new File(objPath);
-//                File mtlFile = new File(mtlPath);
-//                File jpgFile = new File(jpgPath);
-//
-//
-//                while(!objFile.exists() || !mtlFile.exists() || !jpgFile.exists() )
+////                String objPath = cheatCode.getFilesDir().toString() + "/model/" + getObjPath();
+////                String mtlPath = cheatCode.getFilesDir().toString() + "/model/" + getMtlPath();
+////                String jpgPath = cheatCode.getFilesDir().toString() + "/model/" + getJpgPath();
+////
+////                File objFile = new File(objPath);
+////                File mtlFile = new File(mtlPath);
+////                File jpgFile = new File(jpgPath);
+////
+////
+////                while(!objFile.exists() || !mtlFile.exists() || !jpgFile.exists() )
+////                {
+////                    try {
+////                        TimeUnit.MINUTES.wait(1);
+////                    } catch (InterruptedException e) {
+////                        e.printStackTrace();
+////                    }
+////                }
+//                //OR Like this, makes more sense lmao
+//                while(!isDownloaded())
 //                {
 //                    try {
 //                        TimeUnit.MINUTES.wait(1);
@@ -284,17 +288,8 @@ public class Menu {
 //                        e.printStackTrace();
 //                    }
 //                }
-                //OR Like this, makes more sense lmao
-                while(!isDownloaded())
-                {
-                    try {
-                        TimeUnit.MINUTES.wait(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return true;
-            }
+//                return true;
+//            }
         }
     }
 }

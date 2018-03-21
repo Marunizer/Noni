@@ -9,7 +9,6 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 
@@ -60,6 +59,7 @@ public class XmlLayoutRenderer extends ObjectRenderer {
   private void loadTexture(Context context, @LayoutRes int layout, String description) {
     final DisplayMetrics displayMetrics = new DisplayMetrics();
     final DisplayManager manager = context.getSystemService(DisplayManager.class);
+    assert manager != null;
     manager.getDisplays()[0].getMetrics(displayMetrics);
     final int height = displayMetrics.heightPixels;
     //This is a hardcoded value 500 that just happens to work nicely here. Must test on other phones

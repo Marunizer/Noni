@@ -39,10 +39,6 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
     private Session session;
     private DrawingCallback callback;
     private DisplayRotationHelper mDisplayRotationHelper;
-    private float scaleFactor = .03f;
-    private float scaleFactorXML = 1.0f;
-    private final Pose mCameraRelativePose = Pose.makeTranslation(0.15f, -0.15f, -0.5f);
-    private final float[] mAnchorMatrix = new float[16];
 
     public Scene(Context context, GLSurfaceView surfaceView, DrawingCallback callback) {
       // Set up renderer.
@@ -163,6 +159,7 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
         // Update and draw each model. + check what type of object it is to use right scaling
         if (!renderer.isXML())
         {
+          float scaleFactor = .03f;
           renderer.updateModelMatrix(scaleFactor, renderer.isXML(), camera.getPose());
         }
         else
@@ -171,7 +168,8 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
 //          frame.getCamera().getDisplayOrientedPose()
 //                  .compose(mCameraRelativePose).toMatrix(mAnchorMatrix, 0);
 //          renderer.updateModelMatrix(mAnchorMatrix, scaleFactorXML);
-             renderer.updateModelMatrix(scaleFactorXML, renderer.isXML(), camera.getPose());
+          float scaleFactorXML = 1.0f;
+          renderer.updateModelMatrix(scaleFactorXML, renderer.isXML(), camera.getPose());
         }
 
         renderer.draw(viewmtx, projmtx, lightIntensity);
@@ -212,7 +210,7 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
         removeModel();
       }
 
-      renderer.setXML(true);
+      renderer.setXML();
 
       // Adding an Anchor tells ARCore that it should track this position in
       // space. This anchor will be used in PlaneAttachment to place the 3d model
@@ -237,17 +235,9 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
       // rendering system and ARCore.
       //Set a limit
       if (objectRendererList.size() >= 1) {//was 16
-        objectRendererList.get(0).destroy(session);
+        objectRendererList.get(0).destroy();
         objectRendererList.remove(0);
       }
-    }
-
-    public float getScaleFactor() {
-      return scaleFactor;
-    }
-
-    public void setScaleFactor(float scaleFactor) {
-      this.scaleFactor = scaleFactor;
     }
 
     public interface DrawingCallback {

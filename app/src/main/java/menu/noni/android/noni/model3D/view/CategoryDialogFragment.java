@@ -1,9 +1,11 @@
 package menu.noni.android.noni.model3D.view;
 
+import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -71,26 +73,11 @@ public class CategoryDialogFragment extends DialogFragment {
 
         Window window = getDialog().getWindow();
         //TODO:Concern: This may not look well for any/all screens. Must Test !
+        assert window != null;
         window.setLayout(width-150, height-300);
         window.setGravity(Gravity.CENTER);
     }
 }
-
-
-//class ViewHolder extends RecyclerView.ViewHolder {
-//
-//    CardView cv;
-//    ImageView categoryIcon;
-//    TextView categoryName;
-//
-//    public ViewHolder(View catView) {
-//        super(catView);
-//        cv = catView.findViewById(R.id.category_card);
-//        categoryIcon = catView.findViewById(R.id.category_image);
-//        categoryName = catView.findViewById(R.id.category_name);
-//    }
-//}
-
 
 //Recycler view to Handle each Category
 class CategoryPickerAdapter extends RecyclerView.Adapter<CategoryPickerAdapter.ViewHolder> {
@@ -108,7 +95,7 @@ class CategoryPickerAdapter extends RecyclerView.Adapter<CategoryPickerAdapter.V
         ImageView categoryIcon;
         TextView categoryName;
 
-        public ViewHolder(View catView) {
+        ViewHolder(View catView) {
             super(catView);
             cv = catView.findViewById(R.id.category_card);
             categoryIcon = catView.findViewById(R.id.category_image);
@@ -129,17 +116,17 @@ class CategoryPickerAdapter extends RecyclerView.Adapter<CategoryPickerAdapter.V
         }
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                         int viewType) {
         View v= LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_category,parent,false);
-        ViewHolder vh = new ViewHolder(v);
-        return vh;
+        return new ViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
 
         //Get the path to the file from the data set
         String path = "Home" + File.separator + "CategoryData" + File.separator +  mDataset.get(position).getCategoryIconName();

@@ -48,7 +48,7 @@ public class PointCloudRenderer {
     // was not changed.
     private PointCloud mLastPointCloud = null;
 
-    public PointCloudRenderer() {
+    PointCloudRenderer() {
     }
 
     /**
@@ -58,7 +58,7 @@ public class PointCloudRenderer {
      *
      * @param context Needed to access shader source.
      */
-    public void createOnGlThread(Context context) {
+    void createOnGlThread(Context context) {
         ShaderUtil.checkGLError(TAG, "before create");
 
         int[] buffers = new int[1];

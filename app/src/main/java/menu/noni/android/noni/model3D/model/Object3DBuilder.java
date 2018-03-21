@@ -512,8 +512,8 @@ public final class Object3DBuilder {
 
 
 
-	public static void loadV6AsyncParallel_Obj(final Activity parent, final File file, final String assetsDir, final String assetName,
-											   final Callback callback) {
+	private static void loadV6AsyncParallel_Obj(final Activity parent, final File file, final String assetsDir, final String assetName,
+												final Callback callback) {
 
 		String modelId = file != null ? file.getName() : assetName;
 		final File currentDir = file != null ? file.getParentFile() : null;
@@ -527,35 +527,35 @@ public final class Object3DBuilder {
 class BoundingBox {
 
 	public FloatBuffer vertices;
-	public FloatBuffer colors;
-	public IntBuffer drawOrder;
+	private FloatBuffer colors;
+	private IntBuffer drawOrder;
 	/**
 	 * Build a bounding box for the specified 3D object vertex buffer.
 	 *
 	 * @param vertexBuffer the 3D object vertex buffer
 	 * @param color        the color of the bounding box
 	 */
-	public BoundingBox(FloatBuffer vertexBuffer, float[] color) {
+	BoundingBox(FloatBuffer vertexBuffer, float[] color) {
 
 	}
 
-	public BoundingBox(String id, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
+	BoundingBox(String id, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
 	}
 
-	public IntBuffer getDrawOrder() {
+	IntBuffer getDrawOrder() {
 		return drawOrder;
 	}
 
-	public FloatBuffer getColors() {
+	FloatBuffer getColors() {
 		return colors;
 	}
 
-	public int getDrawMode() {
+	int getDrawMode() {
 		return GLES20.GL_LINE_LOOP;
 	}
 
-	public List<int[]> getDrawModeList() {
-		List<int[]> ret = new ArrayList<int[]>();
+	List<int[]> getDrawModeList() {
+		List<int[]> ret = new ArrayList<>();
 		int drawOrderPos = 0;
 		for (int i = 0; i < drawOrder.capacity(); i += 4) {
 			ret.add(new int[]{GLES20.GL_LINE_LOOP, drawOrderPos, 4});
