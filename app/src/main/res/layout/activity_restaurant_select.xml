@@ -37,7 +37,8 @@
             android:id="@+id/swiperefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/title">
+            android:layout_below="@id/title"
+            android:layout_marginTop="4dp">
 
             <!-- A RecyclerView with some commonly used attributes -->
             <android.support.v7.widget.RecyclerView
