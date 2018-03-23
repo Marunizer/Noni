@@ -103,6 +103,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         textView.setText(LocationHelper.getAddress());
         textView.setPaintFlags(textView.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
         searchText = findViewById(R.id.search_text);
+
+        //Made gif with https://loading.io/    pink: #f29ab2   blue: #32aee4
         gifView = findViewById(R.id.gif_view);
         GlideApp.with(this)
                 .load(R.drawable.double_ring)

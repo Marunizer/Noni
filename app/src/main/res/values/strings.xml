@@ -48,7 +48,7 @@
     <string name="zip_code">zip code</string>
     <string name="miles">miles</string>
     <string name="mile_s">mile(s)</string>
-    <string name="support_location_message">* Currently only supported within *  Orlando, Florida area.</string>
+    <string name="support_location_message">* Currently only supported within *  Orlando, Florida area</string>
     <string name="zipcode_query">Please enter a Zipcode</string>
     <string name="zipcode">Zipcode</string>
     <string name="search_settings">search settings</string>

@@ -246,16 +246,11 @@ public class ARModelFragment extends Fragment {
             // Create default config, check is supported, create session from that config.
             Config defaultConfig = new Config(session);
 
-            //I have reason to believe this will disable light estimation for the Model
-            //Need to test if it removes any extra lighting, if does not, then delete
-            //defaultConfig.setLightEstimationMode(Config.LightEstimationMode.DISABLED);
-
             if (!session.isSupported(defaultConfig)) {
                 Toast.makeText(getContext(), "This device does not support AR", Toast.LENGTH_LONG).show();
                 getActivity().finish();
                 return;
             }
-
             session.resume();
             scene.bind(session);
         } else {

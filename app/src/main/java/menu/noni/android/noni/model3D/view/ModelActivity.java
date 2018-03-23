@@ -26,7 +26,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.ar.core.Frame;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -59,9 +58,6 @@ import menu.noni.android.noni.model3D.util.Menu;
  * 	    - https://github.com/google-ar/arcore-android-sdk/issues/162#event-1489578234
  *
  * 	    + Further more within code
- *
- * 	    *Implement better use of transaction manager for fragment : Possible to retain their state, when you back to them
- * 	    https://developer.android.com/guide/components/fragments.html
  */
 public class ModelActivity extends FragmentActivity implements MyCircleAdapter.AdapterCallback, CategoryPickerAdapter.AdapterCallbackCategory{
 
@@ -107,6 +103,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private boolean firstDownloadAndLoad = true;
     //If viewFlag = false -> 3D viewer (default)|| If viewFlag = true -> AR viewer
     private boolean viewFlag = false;
+    private boolean firstAR = false;
 
 	private FragmentManager fragMgr;
 	private ModelFragment modelFragment;
@@ -283,14 +280,16 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         //START DOWNLOADING/LOADING FOR FIRST MODEL
         prepareDownload(modelItem);
 
-		//Start with 3D model Viwer upon firstAccess*******************************************
+		//Start with 3D model Viewer upon firstAccess*******************************************
 		modelFragment = new ModelFragment();
 		modelFragment.setArguments(b);
 
 		fragMgr = getSupportFragmentManager();
 		FragmentTransaction xact = fragMgr.beginTransaction();
-		if (null == fragMgr.findFragmentByTag(CONTENT_VIEW_TAG))
-			xact.add(R.id.modelFrame,  modelFragment ,CONTENT_VIEW_TAG).commit();
+		if (null == fragMgr.findFragmentByTag(CONTENT_VIEW_TAG)) {
+			System.out.println("FAM, DO WE GO HERE, PLEASE SAY WE DONE SO I CAN FIX STUFF");
+			xact.add(R.id.modelFrame, modelFragment, CONTENT_VIEW_TAG).commit();
+		}
 		//3D model Viwer***********************************************************************
 	}
 
@@ -408,13 +407,16 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	//Assume in 3D view: loads model selected
 	void beginLoadingModel()
 	{
+		ModelFragment temp = modelFragment;
+
 		Bundle b= new Bundle();
 		b.putString("assetDir",getParamAssetDir());
 		b.putString("fileName", getParamFilename());
 
 		modelFragment = new ModelFragment();
 		modelFragment.setArguments(b);
-		fragMgr.beginTransaction().replace(R.id.modelFrame, modelFragment).commit();
+		fragMgr.beginTransaction().add(R.id.modelFrame, modelFragment).commitNow();
+		fragMgr.beginTransaction().remove(temp).commit();
 	}
 
 	//Deletes entire folder, useful for testing
@@ -534,7 +536,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         }
         else
             Toast.makeText(ModelActivity.this,
-                    "Download in progress..", Toast.LENGTH_LONG).show();
+                    "Download in progress.. please wait and try again", Toast.LENGTH_LONG).show();
 	}
 
 	//For Back Button, go back to RestaurantViewActivity
@@ -544,10 +546,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		finish();
 	}
 
-	//Change AR view and 3D view
+	//Change between AR view and 3D view
 	public void onLoadMode(View view) {
-
-		//MARU - made a change here where AR now 'replaces' the 3d view frag instead of technically creating one over it.
 
         //Already in 3D view -> go to AR
 		if (!viewFlag)
@@ -561,25 +561,36 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				gradientFrameBottom.setVisibility(View.VISIBLE);
 				gradientFrameTop.setVisibility(View.VISIBLE);
 
-				Bundle bundle= new Bundle();
-				bundle.putString("fileName", getParamFilename());
-				bundle.putString("textureName", getTextureFilename());
-				bundle.putInt("modelIndex", menuIndex);
+				//This is the very first and only instance of the ARFragment we will have (:
+				if (!firstAR)
+				{
+					Bundle bundle= new Bundle();
+					bundle.putString("fileName", getParamFilename());
+					bundle.putString("textureName", getTextureFilename());
+					bundle.putInt("modelIndex", menuIndex);
 
-				//**********************************************************AR
-				arModelFragment = new ARModelFragment();
-				arModelFragment.setArguments(bundle);
-
-				fragMgr = getSupportFragmentManager();
-				fragMgr.beginTransaction().replace(R.id.modelFrame, arModelFragment, arModelFragment.getTag()).commit();
-				//***********************************************************AR
-
+					firstAR = true;
+					arModelFragment = new ARModelFragment();
+					arModelFragment.setArguments(bundle);
+					fragMgr = getSupportFragmentManager();
+					fragMgr.beginTransaction().setCustomAnimations(android.R.animator.fade_in,
+							android.R.animator.fade_out).replace(R.id.modelFrame, arModelFragment, arModelFragment.getTag()).commit();
+				}
+				else //AR Fragment has already been made ! So lets just keep it ;)
+				{
+					FragmentTransaction ft = fragMgr.beginTransaction();
+					ft.remove(modelFragment);
+					ft.show(arModelFragment);
+					arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
+					ft.commit();
+				}
 			} else
 				Toast.makeText(ModelActivity.this,
 						"Sorry, This Device does not support Augmented Reality", Toast.LENGTH_LONG).show();
 		}
 		else //We Are in AR View, go to 3DView
 		{
+			fragMgr.beginTransaction().hide(arModelFragment).commit();
 			viewFlag = false;
 			gradientFrameBottom.setVisibility(View.INVISIBLE);
 			gradientFrameTop.setVisibility(View.INVISIBLE);
