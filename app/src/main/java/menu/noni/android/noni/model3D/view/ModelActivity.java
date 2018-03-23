@@ -104,6 +104,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     //If viewFlag = false -> 3D viewer (default)|| If viewFlag = true -> AR viewer
     private boolean viewFlag = false;
     private boolean firstAR = false;
+    private boolean snackBarChange = false;
 
 	private FragmentManager fragMgr;
 	private ModelFragment modelFragment;
@@ -547,7 +548,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	}
 
 	//Change between AR view and 3D view
-	public void onLoadMode(View view) {
+	public void onViewChange(View view) {
 
         //Already in 3D view -> go to AR
 		if (!viewFlag)
@@ -578,6 +579,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				}
 				else //AR Fragment has already been made ! So lets just keep it ;)
 				{
+					if(snackBarChange)//we messed with this
+					{
+						snackBarChange = false;
+						arModelFragment.showLoadingMessage();
+					}
 					FragmentTransaction ft = fragMgr.beginTransaction();
 					ft.remove(modelFragment);
 					ft.show(arModelFragment);
@@ -591,6 +597,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		else //We Are in AR View, go to 3DView
 		{
 			fragMgr.beginTransaction().hide(arModelFragment).commit();
+			if(arModelFragment.loadingMessageSnackbar!= null)
+			{
+				snackBarChange = true;
+				arModelFragment.hideLoadingMessage();
+			}
 			viewFlag = false;
 			gradientFrameBottom.setVisibility(View.INVISIBLE);
 			gradientFrameTop.setVisibility(View.INVISIBLE);

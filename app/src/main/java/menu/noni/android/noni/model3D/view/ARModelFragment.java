@@ -80,7 +80,7 @@ public class ARModelFragment extends Fragment {
     private Scene scene;
     private Session session;
     //private GestureDetector gestureDetector;
-    private Snackbar loadingMessageSnackbar = null;
+    public Snackbar loadingMessageSnackbar = null;
 
     //Used to track the models to make sure whether they are rendered or not and then to draw them
     //I don't think we actually want to use this, Maybe a synchronized list of list ???????
@@ -92,8 +92,8 @@ public class ARModelFragment extends Fragment {
     // Tap handling and UI.
     private ArrayBlockingQueue<MotionEvent> queuedTaps = new ArrayBlockingQueue<>(16);
 
-    Menu menu;
-    Menu.Categories.MenuItem model_prototype;
+    private Menu menu;
+    private Menu.Categories.MenuItem model_prototype;
     private String objFile;
     private String textureFile;
     private int modelIndex;
@@ -363,7 +363,7 @@ public class ARModelFragment extends Fragment {
     }
 
 
-    private void showLoadingMessage() {
+    public void showLoadingMessage() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -376,7 +376,7 @@ public class ARModelFragment extends Fragment {
         });
     }
 
-    private void hideLoadingMessage() {
+   public void hideLoadingMessage() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

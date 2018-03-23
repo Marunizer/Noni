@@ -75,7 +75,7 @@
         android:layout_gravity="center"
         android:layout_marginEnd="12dp"
         android:layout_marginTop="25dp"
-        android:onClick="onLoadMode"
+        android:onClick="onViewChange"
         android:scaleType="centerCrop"
         android:src="@android:drawable/ic_menu_camera"
         app:sriv_border_color="#F29AB2"
