@@ -41,6 +41,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 
 import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.util.LocationHelper;
@@ -84,7 +85,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
     private SwipeRefreshLayout mySwipeRefreshLayout;
     Toolbar toolbar;
-    TextView textView;
+    TextView userLocation;
     TextView searchText;
     ImageView gifView;
 
@@ -99,9 +100,9 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         setSupportActionBar(toolbar);
 
         setContentView(R.layout.activity_restaurant_select);
-        textView = findViewById(R.id.address_text);
-        textView.setText(LocationHelper.getAddress());
-        textView.setPaintFlags(textView.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+        userLocation = findViewById(R.id.address_text);
+        userLocation.setText(LocationHelper.getStreetName());
+        userLocation.setPaintFlags(userLocation.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
         searchText = findViewById(R.id.search_text);
 
         //Made gif with https://loading.io/    pink: #f29ab2   blue: #32aee4
@@ -212,7 +213,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                 //If we have not already accounted for this restaurant, add it, else ignore
                                 if(!restaurantGeoChecker.contains(location)){
 
-                                    restaurant.add(new Restaurant(name, rest_location, item.getKey(),dollar_signs));
+                                    restaurant.add(new Restaurant(name, rest_location, item.getKey(),dollar_signs, LocationHelper.findStreedAddress(rest_location,getApplicationContext())));
                                     restaurantGeoChecker.add(location);
                                     System.out.println("RestaurantViewActivity: ADDING NEW RESTAURANT : " + name + ", " + item_lat + ", " + item_long + "  item.getKey() = " + item.getKey() + " location = " + location);
 
@@ -275,14 +276,16 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     //Fills Adapter (Recycler Card View) with data and displays it
     void reloadData()
     {
-        textView.setText(LocationHelper.getAddress());
+        //Checks if a proper location was acquired from user or if only zipcode was used
+        if (!Objects.equals(LocationHelper.getStreetName(), null))
+            userLocation.setText(LocationHelper.getStreetName());
+        else
+            userLocation.setText(LocationHelper.getAddress());
 
-        final Context context = this;
         if (mySwipeRefreshLayout.isRefreshing())
-        {
             mySwipeRefreshLayout.setRefreshing(false);
-        }
-        MyAdapter mAdapter = new MyAdapter(restaurant, context);
+
+        MyAdapter mAdapter = new MyAdapter(restaurant, this);
         mRecyclerView.setAdapter(mAdapter);
         gifView.setVisibility(View.GONE);
         searchText.setVisibility(View.GONE);
@@ -330,6 +333,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
          TextView restDistance;
          ImageView restImage;
          TextView restCost;
+         TextView streetAddress;
          String coordinateKey = " ";
 
          ViewHolder(final View itemView){
@@ -339,6 +343,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             restDistance = itemView.findViewById(R.id.restaurant_distance);
             restImage = itemView.findViewById(R.id.restaurant_image);
             restCost = itemView.findViewById(R.id.restaurant_cost);
+            streetAddress = itemView.findViewById(R.id.restaurant_location);
         }
     }
 
@@ -383,8 +388,6 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 .override(600,600)
                 .into(holder.restImage);
 
-        holder.restName.setText(((Restaurant) mDataset.get(position)).getName());
-
         //Add '$' based on the number provided
         int dollar_cost = ((Restaurant) mDataset.get(position)).getGeneralCost();
         StringBuilder cost = new StringBuilder("$");
@@ -395,7 +398,6 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 cost.append("$");
             }
         }
-        holder.restCost.setText(cost);
 
         //Handle possible cases for distance away and display
         float milesAway = metersToMiles(((Restaurant) mDataset.get(position)).getDistanceAway());
@@ -424,6 +426,10 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 adapterCallback.onMethodCallback(holder.coordinateKey, holder.restName.getText().toString());
             }}
         );
+
+        holder.restName.setText(((Restaurant) mDataset.get(position)).getName());
+        holder.restCost.setText(cost);
+        holder.streetAddress.setText(((Restaurant) mDataset.get(position)).getStreetAddress());
     }
 
     private float metersToMiles(float meters)

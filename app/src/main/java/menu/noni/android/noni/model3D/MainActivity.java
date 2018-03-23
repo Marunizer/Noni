@@ -217,6 +217,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 		LocationHelper.setLongitude((float)mLastLocation.getLongitude());
 		LocationHelper.setLatitude((float)mLastLocation.getLatitude());
 		LocationHelper.setAddress(addresses.get(0).getAddressLine(0));
+		LocationHelper.setStreetName(addresses.get(0).getThoroughfare());
 		LocationHelper.setState(addresses.get(0).getAdminArea());
 		LocationHelper.setCity(addresses.get(0).getLocality());
 		LocationHelper.setZipcode(addresses.get(0).getPostalCode());

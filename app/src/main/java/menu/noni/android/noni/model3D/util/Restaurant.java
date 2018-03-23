@@ -19,19 +19,19 @@ public class Restaurant {
     private String name;
     private String coordinateKey;
     private float distanceAway; //to be used when finally calculating distance from user
+    private int generalCost; //assigns number of '$'
+    private String streetAddress;
 
     //Will hold keywords that will be used for emojis, Just text for now
     private ArrayList emojiList = new ArrayList<String>() ;
 
-    //assigns number of '$'
-    private int generalCost;
-
-    public Restaurant(String name,Location location,String coordinateKey,int cost) {
+    public Restaurant(String name,Location location,String coordinateKey,int cost, String address) {
         this.name = name;
         this.coordinateKey  = coordinateKey;
         //TODO: Sometimes this causes crash in emulator due to getLocation being null in emulator??? I think
         this.distanceAway = location.distanceTo(LocationHelper.getLocation());
         this.generalCost = cost;
+        this.streetAddress = address;
     }
 
     public String getName() {
@@ -48,5 +48,9 @@ public class Restaurant {
 
     public int getGeneralCost(){
         return generalCost;
+    }
+
+    public String getStreetAddress() {
+        return streetAddress;
     }
 }

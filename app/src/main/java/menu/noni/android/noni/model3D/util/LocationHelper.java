@@ -16,7 +16,7 @@ import java.util.List;
  *   - research makes me think this is only an emulator problem and not a problem in real world, but something to keep in mind
  */
 
-public final class LocationHelper {
+public class LocationHelper {
 
     private static Location location;
     private static float latitude;
@@ -25,6 +25,7 @@ public final class LocationHelper {
     private static String city;
     private static String state;
     private static String zipcode;
+    private static String streetName;
     private static int radius = 8; //8 gathers the most restaurant , Not certain what 8 truly means 8 meters? 8 miles? Must look up Documentation that geoFire uses
 
     public static int getRadius() {
@@ -67,7 +68,30 @@ public final class LocationHelper {
             setLongitude((float) address.getLongitude());
             setLatitude((float) address.getLatitude());
             setAddress(address.getAddressLine(0));
+            setStreetName(address.getThoroughfare());
         }
+    }
+
+    public static String findStreedAddress(Location location, Context context){
+
+        final Geocoder geocoder = new Geocoder(context);
+
+        List<Address> addresses = null;
+        try {
+            addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
+                 //   geocoder.getFromLocationName(location.getP, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && !addresses.isEmpty())
+        {
+            Address address = addresses.get(0);
+
+            return address.getThoroughfare();
+                    //getAddressLine(0);
+        }
+        else
+            return null;
     }
 
     public static float getLatitude() {
@@ -116,5 +140,13 @@ public final class LocationHelper {
 
     public static void setLocation(Location location) {
         LocationHelper.location = location;
+    }
+
+    public static String getStreetName() {
+        return streetName;
+    }
+
+    public static void setStreetName(String streetName) {
+        LocationHelper.streetName = streetName;
     }
 }
