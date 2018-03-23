@@ -77,10 +77,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	// Storage Permissions
 	private static final int REQUEST_EXTERNAL_STORAGE = 1;
-	private static String[] PERMISSIONS_STORAGE = {
-			Manifest.permission.READ_EXTERNAL_STORAGE,
-			Manifest.permission.WRITE_EXTERNAL_STORAGE
-	};
 
     private Menu menu;
     private Menu.Categories.MenuItem modelItem;
@@ -96,13 +92,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private int categoryIndex;
     private int menuIndex;
 
-	//First time user is opening Activity / first time download AND load
-	private boolean firstAccess = true;
-    private boolean firstDownloadAndLoad = true;
-    //If viewFlag = false -> 3D viewer (default)|| If viewFlag = true -> AR viewer
-    private boolean viewFlag = false;
-    private boolean firstAR = false;
-    private boolean snackBarChange = false;
+	private boolean firstAccess = true; // first time opening Activity
+    private boolean firstDownloadAndLoad = true; //first time download AND load
+    private boolean viewFlag = false;//false -> 3D viewer (default)|| true -> AR viewer
+    private boolean firstAR = false;// first time going in to AR
+    private boolean snackBarChange = false; // Have we change AR views snack bar
 
 	private FragmentManager fragMgr;
 	private ModelFragment modelFragment;
@@ -143,25 +137,65 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         foodCost = findViewById(R.id.item_cost);
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
-        mRecyclerView = findViewById(R.id.model_recycler_view);
+
 		gradientFrameBottom = findViewById(R.id.gradient_frame_bottom);
 		gradientFrameBottom.getBackground().setAlpha(20);//50% at 128, transparent 0 -> 255
         gradientFrameTop = findViewById(R.id.gradient_frame_top);
         gradientFrameTop.getBackground().setAlpha(20);
 
         //Set up the recyclerView
+		mRecyclerView = findViewById(R.id.model_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-		//Check permission and request for storage options... Might not be necessary but expected of API 23+
-		//TODO: Properly ask for permission before downloading, so we atleast get firebase data, then wait
-        //TODO: Find out if device supports google ARCore : If not -> remove AR Button
-		// verifyStoragePermissions(this);
 
-        prepareMenu();
+		//Check permission and request for storage options... Then proceed with application
+		verifyStoragePermissions();
+	}
 
+	public void verifyStoragePermissions(){
+
+		//If Permissions are not granted, ask for permission
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+				!= PackageManager.PERMISSION_GRANTED
+				&& ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+				!= PackageManager.PERMISSION_GRANTED)
+		{
+			ActivityCompat.requestPermissions(ModelActivity.this,
+					new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+					REQUEST_EXTERNAL_STORAGE);
+
+			return;
+		}
+
+		prepareMenu();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(
+			int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+		switch (requestCode) {
+			case REQUEST_EXTERNAL_STORAGE:
+			{
+				if (grantResults.length > 0)
+				{
+					boolean storagePermisssion = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+					//Permission is granted, move on
+					if (storagePermisssion)
+						verifyStoragePermissions();
+					else //Permission not granted, Can't do anything
+					{
+						Toast.makeText(ModelActivity.this,
+								"Storage Permissions required to continue\nTurn on by going to your phones Settings->Apps->Noni->Permissions", Toast.LENGTH_LONG).show();
+						ModelActivity.this.finish();
+					}
+				}
+			}
+		}
 	}
 
 	//Prepares The Categories, and Menu items in that category. Fills the Menu class with data
@@ -594,48 +628,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		}
 	}
 
-	/**
-	 * Checks if the app has permission to write to device storage
-	 *
-	 * If the app does not has permission then the user will be prompted to grant permissions
-	 *
-	 * @param activity
-	 */
-	public static void verifyStoragePermissions(FragmentActivity activity) {
-		// Check if we have write permission
-		int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-		if (permission != PackageManager.PERMISSION_GRANTED) {
-			// We don't have permission so prompt the user
-			ActivityCompat.requestPermissions(
-					activity,
-					PERMISSIONS_STORAGE,
-					REQUEST_EXTERNAL_STORAGE
-			);
-		}
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode,
-										   @NonNull String permissions[], @NonNull int[] grantResults) {
-		switch (requestCode) {
-			case REQUEST_EXTERNAL_STORAGE: {
-				// If request is cancelled, the result arrays are empty.
-				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-					System.out.println("External Storage Permission granted");
-				else
-					finish();
-
-			}
-		}
-	}
-
     @Override
     public void onMethodCallbackCategory(int index) {
         onCategorySelect(index);
     }
 }
-
 
 
 //This adapter is for the recycler view holding all the circle buttons at bottom of screen

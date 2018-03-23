@@ -46,7 +46,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 	GoogleApiClient mGoogleApiClient;
 	Context context;
-	static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_AND_EXTERNAL_STORAGE = 3;
+	static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_AND_EXTERNAL_STORAGE = 6;
 
 	//Stores the Location of user, involving specific coordinates and such
 	Location mLastLocation;
@@ -79,7 +79,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 	//------------------------------------------------------------------------------
 	private void getMyLocation() {
 
-		//If Permissions are not granted, as for permission
+		//If Permissions are not granted, ask for permission
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 				!= PackageManager.PERMISSION_GRANTED
 				&& ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
