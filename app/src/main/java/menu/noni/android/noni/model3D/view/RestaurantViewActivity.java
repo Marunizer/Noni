@@ -36,7 +36,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -311,6 +314,34 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         prepareRestaurantArray();
+    }
+
+    public void deleteFiles()  {
+        File file = new File(getFilesDir().toString() + "/model");
+        try {
+            FileUtils.deleteDirectory(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        File file = new File(getFilesDir().toString() + "/model");
+        //We check if there are more than 7 models (7 model* 3 files each for now) and if so, start a new
+        if (file.exists() && file.listFiles().length > 21)
+            deleteFiles();
+    }
+    //Delete the folder if application is closed.
+    //TODO: Find different way to know if app has been  closed, on Destroy is Skipped when user closes application from Android app Manager
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+        //Lets get rid of that models folder for now (-:
+        deleteFiles();
     }
 }
 

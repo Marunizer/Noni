@@ -46,7 +46,8 @@ public class WavefrontLoader2 {
 					}
 				} catch (IOException ex) {
 					throw new RuntimeException(
-							"There was a problem opening file/asset '" + (currentDir != null ? currentDir : assetsDir) + "/" + modelId + "'");
+							"!");
+//					"There was a problem opening file/asset '" + (currentDir != null ? currentDir : assetsDir) + "/" + modelId + "'");
 				}
 			}
 

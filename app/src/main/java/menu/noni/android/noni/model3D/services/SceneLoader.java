@@ -127,7 +127,7 @@ public class SceneLoader {
 						public void onLoadError(Exception ex) {
 							Log.e("SceneLoader",ex.getMessage(),ex);
 							Toast.makeText(parent.getActivity().getApplicationContext(),
-									"There was a problem building the model: " + ex.getMessage(), Toast.LENGTH_LONG)
+									"Fetching Food..." + ex.getMessage(), Toast.LENGTH_LONG)
 									.show();
 						}
 					});

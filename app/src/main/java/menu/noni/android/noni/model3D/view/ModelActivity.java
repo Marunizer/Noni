@@ -36,10 +36,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.joooonho.SelectableRoundedImageView;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -54,6 +51,7 @@ import menu.noni.android.noni.model3D.util.Menu;
  * 	        or something else can lead to a nicer transition to new screen
  *
  * 	    *We should know by the onCreate() if the device supports AR at all, this way, we can hide the AR View option if not needed
+ *
  * 	    *If AR button is checked, we must check if user has ARCore installed on their phone, if not, lead them to the playstore
  * 	    - https://github.com/google-ar/arcore-android-sdk/issues/162#event-1489578234
  *
@@ -109,7 +107,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	private FragmentManager fragMgr;
 	private ModelFragment modelFragment;
 	private ARModelFragment arModelFragment;
-	//private CategoryFragment categoryFragment;
 	private CategoryDialogFragment categoryFragment;
     private static final String CONTENT_VIEW_TAG = "MODEL_FRAG";
     private static final String CATEGORY_VIEW_TAG = "CATEGORY_FRAG";
@@ -148,9 +145,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         categoryButton = findViewById(R.id.category_button);
         mRecyclerView = findViewById(R.id.model_recycler_view);
 		gradientFrameBottom = findViewById(R.id.gradient_frame_bottom);
-		gradientFrameBottom.getBackground().setAlpha(30);//50% at 128, transparent 0 -> 255
+		gradientFrameBottom.getBackground().setAlpha(20);//50% at 128, transparent 0 -> 255
         gradientFrameTop = findViewById(R.id.gradient_frame_top);
-        gradientFrameTop.getBackground().setAlpha(30);
+        gradientFrameTop.getBackground().setAlpha(20);
 
         //Set up the recyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -163,8 +160,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         //TODO: Find out if device supports google ARCore : If not -> remove AR Button
 		// verifyStoragePermissions(this);
 
-        //For testing, I delete my folder with all models on one run, then download them with prepareMenu on other run. One always commented
-        //deleteFiles();
         prepareMenu();
 
 	}
@@ -250,7 +245,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				// If a thread started here would interfere with first thread
 				//FINISHED MAKING LIST, Start downloading everything
                 //this would not be called here, I think It would be called onMethodCallBack with position of download
-                downloadAll(categoryIndex, menuIndex);
+                downloadAll(categoryIndex, menuIndex+1);
 			}
 
 			@Override
@@ -288,7 +283,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		fragMgr = getSupportFragmentManager();
 		FragmentTransaction xact = fragMgr.beginTransaction();
 		if (null == fragMgr.findFragmentByTag(CONTENT_VIEW_TAG)) {
-			System.out.println("FAM, DO WE GO HERE, PLEASE SAY WE DONE SO I CAN FIX STUFF");
 			xact.add(R.id.modelFrame, modelFragment, CONTENT_VIEW_TAG).commit();
 		}
 		//3D model Viwer***********************************************************************
@@ -375,7 +369,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
 					targetModel.incrementAtomicDownloadCheck();
 
-					if(targetModel.getAtomicDownloadCheck() == 3)
+					if(targetModel.getAtomicDownloadCheck()%3==0)
 					{
 					    //model fully downloaded, set reference to true
 						getModelItem().setDownloaded();
@@ -420,16 +414,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		fragMgr.beginTransaction().remove(temp).commit();
 	}
 
-	//Deletes entire folder, useful for testing
-	public void deleteFiles()  {
-		File file = new File(getFilesDir().toString() + "/model");
-        try {
-            FileUtils.deleteDirectory(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 	public String getParamAssetDir() {
 		return this.paramAssetDir;
 	}
@@ -460,6 +444,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     public ArrayList<Menu.Categories> getListOfCategories() {
         return listOfCategories;
     }
+
 	//  _   _ ___   _____                 _
 	// | | | |_ _| | ____|_   _____ _ __ | |_ ___
 	// | | | || |  |  _| \ \ / / _ \ '_ \| __/ __|
@@ -541,7 +526,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	}
 
 	//For Back Button, go back to RestaurantViewActivity
-	//TODO:Sometimes causes crash, probably because restaurant activity doesn't know what to do? Only on emulator so far
+	//TODO:Sometimes causes crash,, I think on emulator only though, if error reproduced, note here:
 	public void onBackPress(View view)
 	{
 		finish();
@@ -676,8 +661,8 @@ class MyCircleAdapter extends RecyclerView.Adapter<MyCircleAdapter.ViewHolder> {
 		}
 	}
 
-	// Provide a suitable constructor (depends on the kind of dataset)
-	MyCircleAdapter(Hashtable myDataset,ArrayList keyConverter, Context context) {
+	// Provide a suitable constructor (dependHashtables on the kind of dataset)
+	MyCircleAdapter(Hashtable<String, Menu.Categories.MenuItem> myDataset,ArrayList<String> keyConverter, Context context) {
 		this.modelDataSet = myDataset;
 		this.keyConverter = keyConverter;
 		this.context = context;
