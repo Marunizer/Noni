@@ -135,7 +135,7 @@ public class ARModelFragment extends Fragment {
             this.modelIndex = b.getInt("modelIndex");
         }
 
-        //what the F is this LOL make sure doesn't break
+        //what the F is this LOL make sure doesn't break - refering to assert
         assert getActivity() != null;
         this.menu =  ((ModelActivity)getActivity()).getMenuObject();
 
@@ -251,6 +251,7 @@ public class ARModelFragment extends Fragment {
                 getActivity().finish();
                 return;
             }
+
             session.resume();
             scene.bind(session);
         } else {

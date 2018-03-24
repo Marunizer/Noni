@@ -67,7 +67,7 @@
         android:textSize="24sp" />
 
     <com.joooonho.SelectableRoundedImageView
-        android:id="@+id/AR_image"
+        android:id="@+id/view_change"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_alignParentEnd="true"

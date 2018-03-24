@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.ar.core.ArCoreApk;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,18 +45,15 @@ import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.util.Menu;
 
 /**
- * This activity represents the container for our 3D viewer.
+ * This activity represents the container for our 3D and AR viewer fragments.
  * TODO List:
  *
  * 	    * Firebase gets accessed before UI is set up: result : ugly transition into activity, maybe re-arranging
  * 	        or something else can lead to a nicer transition to new screen
  *
- * 	    *We should know by the onCreate() if the device supports AR at all, this way, we can hide the AR View option if not needed
- *
  * 	    *If AR button is checked, we must check if user has ARCore installed on their phone, if not, lead them to the playstore
  * 	    - https://github.com/google-ar/arcore-android-sdk/issues/162#event-1489578234
  *
- * 	    + Further more within code
  */
 public class ModelActivity extends FragmentActivity implements MyCircleAdapter.AdapterCallback, CategoryPickerAdapter.AdapterCallbackCategory{
 
@@ -111,6 +109,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private TextView foodCost;
     private TextView menuTitle;
     private Button categoryButton;
+    private SelectableRoundedImageView viewChangeButton;
     private FrameLayout gradientFrameBottom;
     private FrameLayout gradientFrameTop;
 
@@ -137,6 +136,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         foodCost = findViewById(R.id.item_cost);
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
+        viewChangeButton = findViewById(R.id.view_change);
 
 		gradientFrameBottom = findViewById(R.id.gradient_frame_bottom);
 		gradientFrameBottom.getBackground().setAlpha(20);//50% at 128, transparent 0 -> 255
@@ -150,6 +150,12 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
+		// If Device does not support ARCore, remove access to Camera button
+		if (ArCoreApk.getInstance().checkAvailability(getApplicationContext()).isUnsupported()){
+			System.out.println("Device does not support ARCore");
+			viewChangeButton.setClickable(false);
+			viewChangeButton.setVisibility(View.INVISIBLE);
+		}
 
 		//Check permission and request for storage options... Then proceed with application
 		verifyStoragePermissions();
@@ -570,48 +576,37 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	public void onViewChange(View view) {
 
         //Already in 3D view -> go to AR
-		if (!viewFlag)
-		{
-			//TODO: Change how the check is done, don't even have a button there if phone does not support AR
-            //This check should not involve if phone is supported,  this check should instead involve it ARCore is downloaded
-			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N){
-				System.out.println(Build.VERSION.SDK_INT);
+		if (!viewFlag) {
+			viewFlag = true;
+			gradientFrameBottom.setVisibility(View.VISIBLE);
+			gradientFrameTop.setVisibility(View.VISIBLE);
 
-				viewFlag = true;
-				gradientFrameBottom.setVisibility(View.VISIBLE);
-				gradientFrameTop.setVisibility(View.VISIBLE);
+			//This is the very first and only instance of the ARFragment we will have (:
+			if (!firstAR) {
+				Bundle bundle = new Bundle();
+				bundle.putString("fileName", getParamFilename());
+				bundle.putString("textureName", getTextureFilename());
+				bundle.putInt("modelIndex", menuIndex);
 
-				//This is the very first and only instance of the ARFragment we will have (:
-				if (!firstAR)
+				firstAR = true;
+				arModelFragment = new ARModelFragment();
+				arModelFragment.setArguments(bundle);
+				fragMgr = getSupportFragmentManager();
+				fragMgr.beginTransaction().setCustomAnimations(android.R.animator.fade_in,
+						android.R.animator.fade_out).replace(R.id.modelFrame, arModelFragment, arModelFragment.getTag()).commit();
+			} else //AR Fragment has already been made ! So lets just keep it ;)
+			{
+				if (snackBarChange)//we messed with this
 				{
-					Bundle bundle= new Bundle();
-					bundle.putString("fileName", getParamFilename());
-					bundle.putString("textureName", getTextureFilename());
-					bundle.putInt("modelIndex", menuIndex);
-
-					firstAR = true;
-					arModelFragment = new ARModelFragment();
-					arModelFragment.setArguments(bundle);
-					fragMgr = getSupportFragmentManager();
-					fragMgr.beginTransaction().setCustomAnimations(android.R.animator.fade_in,
-							android.R.animator.fade_out).replace(R.id.modelFrame, arModelFragment, arModelFragment.getTag()).commit();
+					snackBarChange = false;
+					arModelFragment.showLoadingMessage();
 				}
-				else //AR Fragment has already been made ! So lets just keep it ;)
-				{
-					if(snackBarChange)//we messed with this
-					{
-						snackBarChange = false;
-						arModelFragment.showLoadingMessage();
-					}
-					FragmentTransaction ft = fragMgr.beginTransaction();
-					ft.remove(modelFragment);
-					ft.show(arModelFragment);
-					arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
-					ft.commit();
-				}
-			} else
-				Toast.makeText(ModelActivity.this,
-						"Sorry, This Device does not support Augmented Reality", Toast.LENGTH_LONG).show();
+				FragmentTransaction ft = fragMgr.beginTransaction();
+				ft.remove(modelFragment);
+				ft.show(arModelFragment);
+				arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
+				ft.commit();
+			}
 		}
 		else //We Are in AR View, go to 3DView
 		{
