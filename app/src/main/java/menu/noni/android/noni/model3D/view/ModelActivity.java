@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -16,11 +15,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -109,8 +110,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private TextView foodCost;
     private TextView menuTitle;
     private Button categoryButton;
-    private SelectableRoundedImageView viewChangeButton;
-    private FrameLayout gradientFrameBottom;
+	private FrameLayout gradientFrameBottom;
     private FrameLayout gradientFrameTop;
 
 	@Override
@@ -136,7 +136,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         foodCost = findViewById(R.id.item_cost);
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
-        viewChangeButton = findViewById(R.id.view_change);
 
 		gradientFrameBottom = findViewById(R.id.gradient_frame_bottom);
 		gradientFrameBottom.getBackground().setAlpha(20);//50% at 128, transparent 0 -> 255
@@ -153,8 +152,21 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		// If Device does not support ARCore, remove access to Camera button
 		if (ArCoreApk.getInstance().checkAvailability(getApplicationContext()).isUnsupported()){
 			System.out.println("Device does not support ARCore");
+			SelectableRoundedImageView viewChangeButton = findViewById(R.id.view_change);
 			viewChangeButton.setClickable(false);
 			viewChangeButton.setVisibility(View.INVISIBLE);
+
+			//If we want to have a different set up when there is no AR, do this stuff, still have to fix the relative restrictions
+//			RelativeLayout.LayoutParams layoutParams =
+//					new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+//			layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL,0);
+//			layoutParams.addRule(RelativeLayout.BELOW, menuTitle.getId());
+//			foodTitle.setGravity(Gravity.END);
+//			foodTitle.setLayoutParams(layoutParams);
+//
+//			layoutParams.addRule(RelativeLayout.BELOW, foodTitle.getId());
+//			foodCost.setGravity(Gravity.END);
+//			foodCost.setLayoutParams(layoutParams);
 		}
 
 		//Check permission and request for storage options... Then proceed with application
@@ -172,10 +184,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			ActivityCompat.requestPermissions(ModelActivity.this,
 					new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
 					REQUEST_EXTERNAL_STORAGE);
-
 			return;
 		}
-
 		prepareMenu();
 	}
 
@@ -282,7 +292,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 						}
 					}
 				}
-				// If a thread started here would interfere with first thread
 				//FINISHED MAKING LIST, Start downloading everything
                 //this would not be called here, I think It would be called onMethodCallBack with position of download
                 downloadAll(categoryIndex, menuIndex+1);
@@ -509,20 +518,15 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
             return;
 
         categoryChange = true;
-
         categoryKey = menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).getName();
 	    categoryIndex = categoryPosition;
         categoryButton.setText(categoryKey);
-
         modelItem = menu.allCategories.get(categoryKey).
                 allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(0));//index is 0 to start from beginning
-
         paramFilename = modelItem.getObjPath();
         textureFilename = modelItem.getJpgPath();
-
         mAdapter = new MyCircleAdapter(this.menu.allCategories.get(categoryKey).allItems,
                 this.menu.allCategories.get(categoryKey).keyConverter, this);
-
         mRecyclerView.setAdapter(mAdapter);
 
         downloadAll(categoryPosition,0);
