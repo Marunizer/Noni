@@ -92,6 +92,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         //Set up UI components
         toolbar= findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
+        deleteFiles();
 
         setContentView(R.layout.activity_restaurant_select);
         userLocation = findViewById(R.id.address_text);
