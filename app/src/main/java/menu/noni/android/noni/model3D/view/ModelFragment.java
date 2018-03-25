@@ -1,6 +1,7 @@
 package menu.noni.android.noni.model3D.view;
 
 import android.content.Context;
+import android.graphics.ColorSpace;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
@@ -115,6 +116,15 @@ public class ModelFragment extends Fragment {
 
     public GLSurfaceView getgLView() {
         return gLView;
+    }
+
+    public void beginDownloadGif() {
+        ((ModelActivity)getActivity()).onDownloadGifStart();
+    }
+
+    public  void endDownloadGif()
+    {
+        ((ModelActivity)getActivity()).onDownlaodGifEnd();
     }
 
     //FragmentCommunicator interface implementation

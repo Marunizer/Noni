@@ -64,15 +64,6 @@ import static android.content.ContentValues.TAG;
  *     * (High Priority) We actually don't want our real-time database to have a real-time listener. Right now if any change is made to database,
  *       app will crash because it noticed the change. Just make one call to a snapshot of data, do not remain listening
  *
- *     * When a default picture was added to the imageView inside card_view_restaurant,
- *      it seems to delay the process of showing items, and does it all at once instead.
- *          - Replace default image with a very small default picture unlike the one currently there (empty)
- *
- *    * Right now Location that is Displayed is the full Address, might be too specific and therefor creep users out, might instead want to
- *      only show city, and state
- *      OR
- *      ask for an address instead of asking for a zipcode so its not unwarranted.
- *
  *    Low priority Ideal functionality: Let user manage the order of what comes up based on average price, distance, alphabetical, etc...
  *    - Will need to make a UI change to add this
  *

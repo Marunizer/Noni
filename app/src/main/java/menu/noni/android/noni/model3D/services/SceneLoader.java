@@ -13,6 +13,7 @@ import java.util.List;
 import menu.noni.android.noni.model3D.model.Object3DBuilder;
 import menu.noni.android.noni.model3D.model.Object3DBuilder.Callback;
 import menu.noni.android.noni.model3D.model.Object3DData;
+import menu.noni.android.noni.model3D.view.ModelActivity;
 import menu.noni.android.noni.model3D.view.ModelFragment;
 import menu.noni.android.noni.util.url.android.Handler;
 
@@ -113,6 +114,7 @@ public class SceneLoader {
 						@Override
 						public void onBuildComplete(Object3DData data) {
 							final String elapsed = (SystemClock.uptimeMillis() - startTime)/1000+" secs";
+							parent.endDownloadGif();
 						//	makeToastText("Load complete ("+elapsed+")", Toast.LENGTH_LONG);
 						}
 
@@ -126,6 +128,7 @@ public class SceneLoader {
 						@Override
 						public void onLoadError(Exception ex) {
 							Log.e("SceneLoader",ex.getMessage(),ex);
+							parent.beginDownloadGif();
 							Toast.makeText(parent.getActivity().getApplicationContext(),
 									"Fetching Food..." + ex.getMessage(), Toast.LENGTH_LONG)
 									.show();

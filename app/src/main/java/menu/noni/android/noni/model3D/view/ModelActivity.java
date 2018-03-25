@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -106,6 +107,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
     private RecyclerView mRecyclerView;
+	private ImageView gifView;
     private TextView foodTitle;
     private TextView foodCost;
     private TextView menuTitle;
@@ -136,8 +138,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         foodCost = findViewById(R.id.item_cost);
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
-
-		Button button = new Button(this);
+		gifView = findViewById(R.id.download_gif);
+		GlideApp.with(this)
+				.load(R.drawable.watermelon_bites)
+				.override(600,600)
+				.into(gifView);
 
 		gradientFrameBottom = findViewById(R.id.gradient_frame_bottom);
 		gradientFrameBottom.getBackground().setAlpha(20);//50% at 128, transparent 0 -> 255
@@ -502,6 +507,16 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	// | |_| || |  | |___ \ V /  __/ | | | |_\__ \
 	//  \___/|___| |_____| \_/ \___|_| |_|\__|___/
 	//
+
+	public void onDownloadGifStart()
+	{
+		gifView.setVisibility(View.VISIBLE);
+	}
+
+	public void onDownlaodGifEnd()
+	{
+		gifView.setVisibility(View.INVISIBLE);
+	}
 
     //Category Button : Shows DialogFragment
     public void onCategoryClick(View v)
