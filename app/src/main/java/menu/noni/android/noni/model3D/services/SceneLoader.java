@@ -113,7 +113,7 @@ public class SceneLoader {
 						@Override
 						public void onBuildComplete(Object3DData data) {
 							final String elapsed = (SystemClock.uptimeMillis() - startTime)/1000+" secs";
-							makeToastText("Load complete ("+elapsed+")", Toast.LENGTH_LONG);
+						//	makeToastText("Load complete ("+elapsed+")", Toast.LENGTH_LONG);
 						}
 
 						@Override

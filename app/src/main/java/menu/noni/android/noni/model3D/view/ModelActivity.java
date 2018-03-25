@@ -137,6 +137,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
 
+		Button button = new Button(this);
+
 		gradientFrameBottom = findViewById(R.id.gradient_frame_bottom);
 		gradientFrameBottom.getBackground().setAlpha(20);//50% at 128, transparent 0 -> 255
         gradientFrameTop = findViewById(R.id.gradient_frame_top);
