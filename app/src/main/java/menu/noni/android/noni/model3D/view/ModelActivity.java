@@ -302,6 +302,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				//FINISHED MAKING LIST, Start downloading everything
                 //this would not be called here, I think It would be called onMethodCallBack with position of download
                 downloadAll(categoryIndex, menuIndex+1);
+				//Disconnect from firebase so sudden changes won't effect app
+				myRef.onDisconnect();
 			}
 
 			@Override

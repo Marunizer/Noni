@@ -179,7 +179,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
                 //A GeoFire GeoQuery takes in the latitude, longitude, and finally the radius based on kilometers.
                 //Probably want to make multiple queries incrementing the radius based on some calculation
-                GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude,longitude), radius);
+                final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude,longitude), radius);
+
                 geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                     @Override
                     public void onKeyEntered(String key, GeoLocation location) {
@@ -245,6 +246,10 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                         //Reload list with appropriate distance order
                         reloadData();
                         System.out.println("All initial data has been loaded and events have been fired!");
+
+                        //Disconnect from firebase so sudden changes won't effect app
+                        geoQuery.removeAllListeners();
+                        myRef.onDisconnect();
                     }
 
                     @Override
@@ -326,6 +331,13 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         if (file.exists() && file.listFiles().length > 21)
             deleteFiles();
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        prepareRestaurantArray();
+    }
+
     //Delete the folder if application is closed.
     //TODO: Find different way to know if app has been  closed, on Destroy is Skipped when user closes application from Android app Manager
     @Override
