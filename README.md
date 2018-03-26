@@ -55,24 +55,18 @@ unless you either follow special instructions provided by google ARCore on setti
 an AR capable emulator, OR if you have a physical phone that supports ARCore
 
 # Bugs and Tasks:
-- Models are not dynamically scaled in AR view. (High Priority)
+- Models are not dynamically scaled in AR view. (Low Priority, models can just be initially made smaller)
 
 - AR not capable of rendering files with no smooth groups or normal vectors
 (Low Priority) - can just make files differently
 
 - Geocoder in LocationHelper.java sometimes times out and stops app completely
-(Low Priority) - I believe this is only an issue for emulators. Reset Emulator
+(Mid Priority) - I believe this is only an issue for emulators. Reset Emulator
 
-- I'm not certain if I ask for permission to use external storage orrr if I just activate it manually
-(Low Priority) - For testing, adjusting manually is enough
-
-- Set up a proper rendering system for AR view to have all models rendered
+- (Mid Priority + Includes a LOT of work)Set up a proper rendering system for AR view to have all models rendered
 before user clicks on model without disrupting the main UI thread
 
-- Set up a proper model downloading managing system that takes into account all cases
-Probz a good idea to reference Farza downloading and rendering as well
-
-- Implement Draco decompression:
+- (High Priority) Implement Draco decompression:
 Looks like C++ might not be able to access internal storage, may need to write draco and obj file to external storage
 
 
@@ -89,7 +83,7 @@ JavaGL                           : https://github.com/javagl/Obj
 
 Google ARCore                    : https://github.com/google-ar/arcore-android-sdk
 
-Draco                            : https://github.com/google/draco
+Draco (working on it)            : https://github.com/google/draco
 
 Material Library(s):
 https://github.com/pungrue26/SelectableRoundedImageView
