@@ -61,9 +61,6 @@ import static android.content.ContentValues.TAG;
  *     * (IGNORE FOR NOW) When checking if the restaurant found is already within the ArrayList, check based on
  *      2 parameters (name AND location) instead of just one. (Just in case for the future, multiple restaurants with same geoLocation)
  *
- *     * (High Priority) We actually don't want our real-time database to have a real-time listener. Right now if any change is made to database,
- *       app will crash because it noticed the change. Just make one call to a snapshot of data, do not remain listening
- *
  *    Low priority Ideal functionality: Let user manage the order of what comes up based on average price, distance, alphabetical, etc...
  *    - Will need to make a UI change to add this
  *
@@ -169,7 +166,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                 double latitude = LocationHelper.getLatitude();
                 double longitude  = LocationHelper.getLongitude();
 
-                //this will be the initial radius always at 5-10 or some standard, and then whatever changed to after
+                //Will be to a standard 8 km = 5 miles, unless changed by the user
                 double radius = LocationHelper.getRadius();
 
                 //hardcoded values for testing purposes, eventually remove
@@ -204,7 +201,6 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                 Location rest_location = new Location(String.valueOf(location));
                                 rest_location.setLongitude(Double.parseDouble(item_long));
                                 rest_location.setLatitude(Double.parseDouble(item_lat));
-
 
                                 //If we have not already accounted for this restaurant, add it, else ignore
                                 if(!restaurantGeoChecker.contains(location)){
@@ -265,12 +261,6 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
-    }
-
-    //Set new list of restaurants
-    void setRestaurant(ArrayList<Restaurant> restaurant)
-    {
-        this.restaurant = restaurant;
     }
 
     //Fills Adapter (Recycler Card View) with data and displays it
@@ -346,6 +336,12 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         super.onDestroy();
         //Lets get rid of that models folder for now (-:
         deleteFiles();
+    }
+
+    //Set new list of restaurants
+    void setRestaurant(ArrayList<Restaurant> restaurant)
+    {
+        this.restaurant = restaurant;
     }
 }
 

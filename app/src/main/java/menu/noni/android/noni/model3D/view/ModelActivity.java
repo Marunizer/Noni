@@ -39,7 +39,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.joooonho.SelectableRoundedImageView;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -302,8 +305,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				//FINISHED MAKING LIST, Start downloading everything
                 //this would not be called here, I think It would be called onMethodCallBack with position of download
                 downloadAll(categoryIndex, menuIndex+1);
-				//Disconnect from firebase so sudden changes won't effect app
-				myRef.onDisconnect();
+				//TODO: Check if this interferes with download reference
+                // Disconnect from firebase so sudden changes won't effect app
+				//myRef.onDisconnect();
 			}
 
 			@Override
@@ -517,7 +521,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 	public void onDownlaodGifEnd()
 	{
-		gifView.setVisibility(View.INVISIBLE);
+		gifView.setVisibility(View.GONE);
 	}
 
     //Category Button : Shows DialogFragment
@@ -649,6 +653,21 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     @Override
     public void onMethodCallbackCategory(int index) {
         onCategorySelect(index);
+    }
+
+    public void deleteFiles()  {
+        File file = new File(getFilesDir().toString() + "/model");
+        try {
+            FileUtils.deleteDirectory(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        deleteFiles();
     }
 }
 

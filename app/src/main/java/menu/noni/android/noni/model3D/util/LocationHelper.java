@@ -26,14 +26,17 @@ public class LocationHelper {
     private static String state;
     private static String zipcode;
     private static String streetName;
-    private static int radius = 8; //8 gathers the most restaurant , Not certain what 8 truly means 8 meters? 8 miles? Must look up Documentation that geoFire uses
+    private static double radius = 8; //In Kilometers = 5 miles
 
-    public static int getRadius() {
+    public static double getRadius() {
         return radius;
     }
 
-    public static void setRadius(int radius) {
-        LocationHelper.radius = radius;
+    public static void setRadius(double radius) {
+
+        double milesToKm = 1.621;
+
+        LocationHelper.radius = milesToKm*radius;
     }
 
     public static String getZipcode() {
@@ -79,7 +82,6 @@ public class LocationHelper {
         List<Address> addresses = null;
         try {
             addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
-                 //   geocoder.getFromLocationName(location.getP, 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,7 +90,6 @@ public class LocationHelper {
             Address address = addresses.get(0);
 
             return address.getThoroughfare();
-                    //getAddressLine(0);
         }
         else
             return null;

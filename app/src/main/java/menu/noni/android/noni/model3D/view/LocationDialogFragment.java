@@ -58,7 +58,7 @@ public class LocationDialogFragment extends DialogFragment {
     }
 
     /** The system calls this only when creating the layout in a dialog. */
-    //TODO: make the radius change a bar that's scrolled for better user interaction, Max : 100 miles or something that makes sense lol
+    //TODO: make the radius change a bar that's scrolled for better user interaction, Max : 25 miles or something that makes sense lol
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -67,11 +67,13 @@ public class LocationDialogFragment extends DialogFragment {
         //better but title doesn't appear in right place
         //Theme_Holo_Light_Dialog
 
+        double kmToMiles = .621;
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
         @SuppressLint("InflateParams")
         View rootView = inflater.inflate(R.layout.fragment_dialog_location,null);
         newRadius = rootView.findViewById(R.id.newRadius);
-        newRadius.setText(String.valueOf(LocationHelper.getRadius()));
+        newRadius.setText(String.valueOf(LocationHelper.getRadius()*kmToMiles));
         newZip = rootView.findViewById(R.id.newAddress);
         newZip.setText(LocationHelper.getZipcode());
 
@@ -112,7 +114,7 @@ public class LocationDialogFragment extends DialogFragment {
             }
             //if we have a new radius
             if (!Objects.equals(newRadius.getText().toString(), "")) {
-                LocationHelper.setRadius(Integer.parseInt(newRadius.getText().toString()));
+                LocationHelper.setRadius(Double.parseDouble(newRadius.getText().toString()));
             }
             dismiss();
         } catch (IOException e) {
