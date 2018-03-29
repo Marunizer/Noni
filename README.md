@@ -87,5 +87,6 @@ Draco (working on it)            : https://github.com/google/draco
 
 Material Library(s):
 https://github.com/pungrue26/SelectableRoundedImageView
+https://github.com/woxingxiao/BubbleSeekBar
 
 AND more, will add later...

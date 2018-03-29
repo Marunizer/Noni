@@ -9,11 +9,14 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.EditText;
+
+import com.xw.repo.BubbleSeekBar;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -30,8 +33,8 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
 
 public class LocationDialogFragment extends DialogFragment {
 
-    EditText newRadius;
     EditText newZip;
+    BubbleSeekBar seekRadius;
     Context context;
 
     public interface NoticeDialogListener {
@@ -72,8 +75,10 @@ public class LocationDialogFragment extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         @SuppressLint("InflateParams")
         View rootView = inflater.inflate(R.layout.fragment_dialog_location,null);
-        newRadius = rootView.findViewById(R.id.newRadius);
-        newRadius.setText(String.valueOf(LocationHelper.getRadius()*kmToMiles));
+        seekRadius = rootView.findViewById(R.id.location_seek_bar);
+        seekRadius.setProgress((int) (LocationHelper.getRadius()*kmToMiles));
+//        newRadius = rootView.findViewById(R.id.newRadius);
+//        newRadius.setText(String.valueOf(LocationHelper.getRadius()*kmToMiles));
         newZip = rootView.findViewById(R.id.newAddress);
         newZip.setText(LocationHelper.getZipcode());
 
@@ -113,8 +118,8 @@ public class LocationDialogFragment extends DialogFragment {
                 editor.apply();
             }
             //if we have a new radius
-            if (!Objects.equals(newRadius.getText().toString(), "")) {
-                LocationHelper.setRadius(Double.parseDouble(newRadius.getText().toString()));
+            if (!Objects.equals(String.valueOf(seekRadius.getProgress()), "")) {
+                LocationHelper.setRadius((seekRadius.getProgress()));
             }
             dismiss();
         } catch (IOException e) {
