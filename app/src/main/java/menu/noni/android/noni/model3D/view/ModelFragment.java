@@ -35,7 +35,8 @@ import menu.noni.android.noni.model3D.services.SceneLoader;
 
 public class ModelFragment extends Fragment {
 
-    private float[] backgroundColor = new float[]{0.2f, 0.2f, 0.2f, 1.0f};
+    private float[] backgroundColor = new float[]{0.0f, 0.0f, 0.0f, 0.0f};// new float[]{0.2f, 0.2f, 0.2f, 1.0f};
+    //TODO: Make this a white color background, If I do this, I also need to add a gradient layer to the model frame
 
     private ModelSurfaceView gLView;
     private SceneLoader scene;
@@ -122,9 +123,9 @@ public class ModelFragment extends Fragment {
         ((ModelActivity)getActivity()).onDownloadGifStart();
     }
 
-    public  void endDownloadGif()
+    public void endDownloadGif()
     {
-        ((ModelActivity)getActivity()).onDownlaodGifEnd();
+        ((ModelActivity)getActivity()).onDownloadGifEnd();
     }
 
     //FragmentCommunicator interface implementation

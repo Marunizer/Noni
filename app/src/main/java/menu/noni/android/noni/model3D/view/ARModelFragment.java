@@ -96,7 +96,6 @@ public class ARModelFragment extends Fragment {
     private Menu.Categories.MenuItem model_prototype;
     private String objFile;
     private String textureFile;
-    private int modelIndex;
 
     private final View.OnTouchListener tapListener = new View.OnTouchListener() {
         @Override
@@ -132,14 +131,13 @@ public class ARModelFragment extends Fragment {
         {
             this.objFile = b.getString("fileName");
             this.textureFile = b.getString("textureName");
-            this.modelIndex = b.getInt("modelIndex");
         }
 
         //what the F is this LOL make sure doesn't break - refering to assert
         assert getActivity() != null;
         this.menu =  ((ModelActivity)getActivity()).getMenuObject();
 
-        model_prototype = ((ModelActivity)getActivity()).getModelItem();
+        this.model_prototype = ((ModelActivity)getActivity()).getModelItem();
 
         View v= inflater.inflate(R.layout.fragment_model_view_ar, container, false);
 
@@ -168,22 +166,6 @@ public class ARModelFragment extends Fragment {
 
         String extPath = getContext().getExternalFilesDir(null).getAbsolutePath();
         objectFactory = new ObjectRendererFactory(getContext().getFilesDir().getAbsolutePath()+"/model/", extPath);
-
-        // first model - assume is downloaded
-        // Sets up Factory, does not render or draw
-        Thread setUpFactoryModelThread = new Thread(){
-            public void run(){
-                ObjectRenderer object;
-
-                object = objectFactory.create(objFile, textureFile);
-
-                model_prototype.setModelAR(object);
-                model_prototype.setFactory();
-            }
-        };
-
-        //Run thread
-        setUpFactoryModelThread.start();
 
         //TODO: Implement a version of this: to set up factory ready models (wont take up too much processing) then, can focus on rendering
 //        Thread renderRemainingModelsThread = new Thread(){
@@ -251,7 +233,6 @@ public class ARModelFragment extends Fragment {
                 getActivity().finish();
                 return;
             }
-
             session.resume();
             scene.bind(session);
         } else {
@@ -300,18 +281,15 @@ public class ARModelFragment extends Fragment {
                      *        - Handle a case where not yet downloaded or not yet rendered, usually the solution will be to wait
                      *
                      *********************************************************/
-
-                    System.out.println(TAG + " ATTEMPT TO DRAW OBJECT");
-
                     Menu.Categories.MenuItem model = model_prototype;
 
                     ObjectRenderer object;
 
+                    Log.i(TAG, "Attempt to Draw model :" + model.isDownloaded() +  " " + model.isFactory() +  " " + model.isDrawn());
                     if(model.isDownloaded() && model.isFactory() && !model.isDrawn())
                     {
                         object = model.getModelAR();
                         if (object != null) {
-
                             scene.removeModel();
                             //This is what draws a model to the screen! Allots an anchor point to the model
                             scene.addRenderer(
@@ -441,27 +419,21 @@ public class ARModelFragment extends Fragment {
     //will need: maybe some type of 2D structure to make sure model is already rendered,
     //a check to make sure it's downloaded, and if not, do something about it  - communicate back to start download, show animation
     public void passData(Menu.Categories.MenuItem menuItem,String obj, String texture) {
-
         this.model_prototype = menuItem;
         this.objFile = obj;
         this.textureFile = texture;
 
+
         if (!model_prototype.isFactory())
         {
-            //Makes no sense to have this done within a thread, going to keep it for a while though just in case
-//            Thread setUpFactoryModelThread = new Thread(){
-//                public void run(){
-                    ObjectRenderer object;
+            System.out.println(TAG+"  the factory should be hit at this point");
 
-                    object = objectFactory.create(objFile, textureFile);
+            ObjectRenderer object;
 
-                    model_prototype.setModelAR(object);
-                    model_prototype.setFactory();
-//                }
-//            };
-//
-//            //Run thread
-//            setUpFactoryModelThread.start();
+            object = objectFactory.create(objFile, textureFile);
+
+            model_prototype.setModelAR(object);
+            model_prototype.setFactory();
         }
     }
 }

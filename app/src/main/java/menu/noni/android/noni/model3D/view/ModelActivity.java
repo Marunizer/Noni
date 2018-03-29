@@ -15,14 +15,12 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,18 +86,21 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private String paramFilename;
     private String paramAssetDir;
 	private String textureFilename;
-	private boolean categoryChange = false;
 	private String coordinateKey;
 	private String restaurantName;
     private String categoryKey;
     private int categoryIndex;
     private int menuIndex;
+    private int category_MostPopular;
+	int check = 0;
 
 	private boolean firstAccess = true; // first time opening Activity
     private boolean firstDownloadAndLoad = true; //first time download AND load
     private boolean viewFlag = false;//false -> 3D viewer (default)|| true -> AR viewer
     private boolean firstAR = false;// first time going in to AR
     private boolean snackBarChange = false; // Have we change AR views snack bar
+	private boolean categoryChange = false; // Keeps track if we have changed Category when changing items and views
+	private boolean categoryOrganized = false; //lets us know if we have started organizing items by categories to not repeat
 
 	private FragmentManager fragMgr;
 	private ModelFragment modelFragment;
@@ -130,6 +131,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
             this.storageFile = new File(getFilesDir() + File.separator + "model");
 			this.coordinateKey = b.getString("coordinateKey");
 			this.restaurantName = b.getString("restaurantName");
+
+			//Go to AR Mode instantly if AR is requested
+			String mode = b.getString("mode");
+			if(mode.equals("AR MENU"))
+				this.viewFlag = true;
 		}
 
 		//Initiate the Menu class to be used that will hold all the menu items
@@ -162,9 +168,10 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		// If Device does not support ARCore, remove access to Camera button
 		if (ArCoreApk.getInstance().checkAvailability(getApplicationContext()).isUnsupported()){
 			System.out.println("Device does not support ARCore");
-			SelectableRoundedImageView viewChangeButton = findViewById(R.id.view_change);
-			viewChangeButton.setClickable(false);
-			viewChangeButton.setVisibility(View.INVISIBLE);
+			//THIS IS HERE FOR POSSIBLE Button to change between views !
+//			SelectableRoundedImageView viewChangeButton = findViewById(R.id.view_change);
+//			viewChangeButton.setClickable(false);
+//			viewChangeButton.setVisibility(View.INVISIBLE);
 
 			//If we want to have a different set up when there is no AR, do this stuff, still have to fix the relative restrictions
 //			RelativeLayout.LayoutParams layoutParams =
@@ -179,11 +186,15 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 //			foodCost.setLayoutParams(layoutParams);
 		}
 
+		if (!storageFile.exists())
+			storageFile.mkdirs();
+
 		//Check permission and request for storage options... Then proceed with application
-		verifyStoragePermissions();
+		if(verifyStoragePermissions())
+			prepareMenu();
 	}
 
-	public void verifyStoragePermissions(){
+	public boolean verifyStoragePermissions(){
 
 		//If Permissions are not granted, ask for permission
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -194,9 +205,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			ActivityCompat.requestPermissions(ModelActivity.this,
 					new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
 					REQUEST_EXTERNAL_STORAGE);
-			return;
+			return false;
 		}
-		prepareMenu();
+		return true;
 	}
 
 	@Override
@@ -247,8 +258,14 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					menu.allCategories.put(categories.getKey(),category);
 
 					//Add category to our list to be able to easily traverse list by index
-
                     listOfCategories.add(category);
+
+                    //If we have not yet organized category and taken a look at Most popular, do so once
+					if(categories.getKey().equals("Most Popular") && !categoryOrganized)
+					{
+						categoryOrganized = true;
+						category_MostPopular = listOfCategories.indexOf(category);
+					}
 
 					//get the icon name for the category, we go in one level deeper
 					category.setCategoryIconName(categories.child("category_icon_name").getValue().toString());
@@ -286,8 +303,10 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 						System.out.println(TAG + " Adding item : " + menuItem.getName());
 
 						//If first item to even be looked at, Begin Activity progress
-						if(firstAccess)
+						if(firstAccess && categoryOrganized)
 						{
+							Log.i(TAG,"\nBegin firstAccess method\n");
+							organizeCategories();
 							firstAccess = false;
 							categoryKey = categories.getKey();
 							categoryIndex = 0;
@@ -302,12 +321,15 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 						}
 					}
 				}
+
+				//TODO: Check if this interferes with download reference
+				// Disconnect from firebase so sudden changes won't effect app
+				//myRef.onDisconnect();
+
 				//FINISHED MAKING LIST, Start downloading everything
                 //this would not be called here, I think It would be called onMethodCallBack with position of download
-                downloadAll(categoryIndex, menuIndex+1);
-				//TODO: Check if this interferes with download reference
-                // Disconnect from firebase so sudden changes won't effect app
-				//myRef.onDisconnect();
+				beginBackroundDownload();
+               // downloadAll(categoryIndex, menuIndex+1);
 			}
 
 			@Override
@@ -318,6 +340,27 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		});
 	}
 
+	//When called twice, we are ready to download the rest of the models the first time
+	public void beginBackroundDownload()
+	{
+		check++;
+		Log.i(TAG,"Should we begin??? " + check );
+		if (check == 2)
+		{
+			downloadAll(categoryIndex, menuIndex+1);
+		}
+	}
+
+	//For now the only purpose of this function is to make sure Most Popular Category pops up before anything else
+	//Might want to make this a linked list so the operation isn't so heavy, but there won't ever be
+	//too many categories so it doesn't matter that much lol
+	private void organizeCategories()
+	{
+		Menu.Categories cat = listOfCategories.get(category_MostPopular);
+		listOfCategories.remove(category_MostPopular);
+		listOfCategories.add(0, cat);
+	}
+
     //very first instructions called when Activity is accessed
 	private void firstAccess() {
 
@@ -326,38 +369,61 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
                 this.menu.allCategories.get(categoryKey).keyConverter, this);
         mRecyclerView.setAdapter(mAdapter);
 
-
         this.paramFilename = modelItem.getObjPath();
         this.textureFilename = modelItem.getJpgPath();
 
-        //Prepare bundle to pass on to 3DViewer
-		Bundle b= new Bundle();
-		b.putString("assetDir",getParamAssetDir());
-		b.putString("fileName", getParamFilename());
+		//START DOWNLOADING/LOADING FOR FIRST MODEL
+		prepareDownload(modelItem);
 
-        //START DOWNLOADING/LOADING FOR FIRST MODEL
-        prepareDownload(modelItem);
+        if(!viewFlag)
+		{
+			//Prepare bundle to pass on to 3DViewer
+			Bundle b= new Bundle();
+			b.putString("assetDir",getParamAssetDir());
+			b.putString("fileName", getParamFilename());
 
-		//Start with 3D model Viewer upon firstAccess*******************************************
-		modelFragment = new ModelFragment();
-		modelFragment.setArguments(b);
+			//Start with 3D model Viewer upon firstAccess*******************************************
+			modelFragment = new ModelFragment();
+			modelFragment.setArguments(b);
 
-		fragMgr = getSupportFragmentManager();
-		FragmentTransaction xact = fragMgr.beginTransaction();
-		if (null == fragMgr.findFragmentByTag(CONTENT_VIEW_TAG)) {
-			xact.add(R.id.modelFrame, modelFragment, CONTENT_VIEW_TAG).commit();
+			fragMgr = getSupportFragmentManager();
+			FragmentTransaction xact = fragMgr.beginTransaction();
+			if (null == fragMgr.findFragmentByTag(CONTENT_VIEW_TAG)) {
+				xact.add(R.id.modelFrame, modelFragment, CONTENT_VIEW_TAG).commit();
+			}
+			//3D model Viwer***********************************************************************
 		}
-		//3D model Viwer***********************************************************************
+		else
+		{
+			gradientFrameBottom.setVisibility(View.VISIBLE);
+			gradientFrameTop.setVisibility(View.VISIBLE);
+
+			//This is the very first and only instance of the ARFragment we will have (:
+			if (!firstAR) {
+				Bundle bundle = new Bundle();
+				bundle.putString("fileName", getParamFilename());
+				bundle.putString("textureName", getTextureFilename());
+				bundle.putInt("modelIndex", menuIndex);
+
+				firstAR = true;
+				arModelFragment = new ARModelFragment();
+				arModelFragment.setArguments(bundle);
+				fragMgr = getSupportFragmentManager();
+				if (null == fragMgr.findFragmentByTag(arModelFragment.getTag()))
+					fragMgr.beginTransaction().setCustomAnimations(android.R.animator.fade_in,
+							android.R.animator.fade_out).add(R.id.modelFrame, arModelFragment, arModelFragment.getTag()).commit();
+			}
+		}
 	}
 
-	//Download System that goes through and downloads menu item on + next 3 items
+	//Download System that goes through and downloads menu item on + next 2 items
 	private void downloadAll(int categoryPosition, int menuPosition){
 
         ArrayList<String> allItemsList = menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter;
 
-        //goes through 4 times, 1 for current position, then the next 3 positions
-        //j makes sure we go through 4 times, k makes sure we don't go to a null item
-        for (int j = 0, k = menuPosition; j < 5 && k < allItemsList.size(); j++,k++)
+        //goes through 3 times, 1 for current position, then the next 2 positions
+        //j makes sure we go through 3 times, k makes sure we don't go to a null item
+        for (int j = 0, k = menuPosition; j < 4 && k < allItemsList.size(); j++,k++)
         {
             Menu.Categories.MenuItem models = menu.allCategories.get(listOfCategories.get(categoryPosition).getName())
                     .allItems.get(menu.allCategories.get(listOfCategories.get(categoryPosition).getName()).keyConverter.get(k));
@@ -368,7 +434,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         }
 	}
 
-	//Prepares and checks Downloads to be done, then starts eahc download in a thread if necessary
+	//Prepares and checks Downloads to be done, then starts eaCH download in a thread if necessary
 	private void prepareDownload(final Menu.Categories.MenuItem modelToDownload){
 
 		// TODO: Do not download obj, instead download draco, then convert to obj, Implement AFTER Draco use is finished
@@ -382,7 +448,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		final File mtlFile = new File(mtlPath);
 		final File jpgFile = new File(jpgPath);
 
-		if(!objFile.exists() && !mtlFile.exists() && !jpgFile.exists())
+		if(!objFile.exists() || !mtlFile.exists() || !jpgFile.exists())
 		{
 		  //  dracoDownload(drcFile, modelToDownload.getDrcPath());
 
@@ -408,7 +474,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
             downloadJpgThread.start();
 		}
 		else
-			modelToDownload.setDownloaded();
+        {
+            modelToDownload.setDownloaded();
+            if(viewFlag)
+          	  arModelFragment.passData(modelItem, paramFilename, textureFilename);
+        }
 	}
 
 	//Final download stage: Downloads requested file from Firebase storage
@@ -422,9 +492,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 			final StorageReference fileToDownload = fbStorageReference.child(path);
 
-			if (!storageFile.exists())
-				    storageFile.mkdirs();
-
 			//File has finished downloading, atomic variable lets us keep track of the separate downloads for each model
 			fileToDownload.getFile(files_folder).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
 				@Override
@@ -434,17 +501,20 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					if(targetModel.getAtomicDownloadCheck()%3==0)
 					{
 					    //model fully downloaded, set reference to true
-						getModelItem().setDownloaded();
+						targetModel.setDownloaded();
 
+						beginBackroundDownload();
 						// First model to be downloaded, load ASAP
                         if (firstDownloadAndLoad)
                         {
-                            beginLoadingModel();
+                        	if (!viewFlag)//3D view
+                            	beginLoadingModel();
+                        	else
+								arModelFragment.passData(modelItem, paramFilename, textureFilename);
                             setFirstDownloadAndLoad();
                         }
 					}
-					System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName()+ "    downlaodCheck = " + targetModel.getAtomicDownloadCheck());
-
+					System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName()+ "    downloadCheck = " + targetModel.getAtomicDownloadCheck());
 				}
 			}).addOnFailureListener(new OnFailureListener() {
 				@Override
@@ -452,6 +522,27 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					System.out.println("DOWNLOAD FAILED for item:" + targetModel.getName());
 				}
 			});
+		}
+		else //KINDA MADE THIS OUT OFFER, RE- GO THROUGH THIS TO SEE TO SEE IF NECESSARY, IN CASE FINAL FILE IS FOUND WITHOUT NEEDING DOWNLOAD
+		{
+			targetModel.incrementAtomicDownloadCheck();
+			//Even if does not exist, should still increment if other files rely on it
+			if(targetModel.getAtomicDownloadCheck()%3==0)
+			{
+				//model fully downloaded, set reference to true
+				targetModel.setDownloaded();
+				//getModelItem().setDownloaded();
+				beginBackroundDownload();
+				// First model to be downloaded, load ASAP
+				if (firstDownloadAndLoad)
+				{
+					if (!viewFlag)//3D view
+						beginLoadingModel();
+					else
+						arModelFragment.passData(modelItem, paramFilename, textureFilename);
+					setFirstDownloadAndLoad();
+				}
+			}
 		}
 	}
 
@@ -519,9 +610,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		gifView.setVisibility(View.VISIBLE);
 	}
 
-	public void onDownlaodGifEnd()
+	public void onDownloadGifEnd()
 	{
 		gifView.setVisibility(View.GONE);
+		//Apperantly this get's called a million times???? so not a good idea tO do this VVV
+		//beginLoadingModel();
 	}
 
     //Category Button : Shows DialogFragment
@@ -560,15 +653,15 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	@Override
 	public void onMethodCallback(int key) {
 
-        //User hit same item, don't do anything  | We compare keys because index may be the same
-        if (!categoryChange && menuIndex == key)
-            return;
+		//User hit same item, don't do anything  | We compare keys because index may be the same
+		if (!categoryChange && menuIndex == key)
+			return;
 
-        this.categoryChange = false;
-	    //Set all our new important references to the model selected
+		this.categoryChange = false;
+		//Set all our new important references to the model selected
 		this.menuIndex = key;
 		this.modelItem = menu.allCategories.get(categoryKey).
-                allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
+				allItems.get(menu.allCategories.get(categoryKey).keyConverter.get(menuIndex));
 
 		this.paramFilename = modelItem.getObjPath();
 		this.textureFilename = modelItem.getJpgPath();
@@ -580,16 +673,16 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		downloadAll(categoryIndex, menuIndex);
 
 		if(modelItem.isDownloaded())
-        {
-            //We are in AR, so pass data
-            if (viewFlag)
-                arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
-            else //Recreate 3D environment. Might want to consider just passing in new information.
-                beginLoadingModel();
-        }
-        else
-            Toast.makeText(ModelActivity.this,
-                    "Download in progress.. please wait and try again", Toast.LENGTH_LONG).show();
+		{
+			//We are in AR, so pass data
+			if (viewFlag)
+				arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
+			else //Recreate 3D environment. Might want to consider just passing in new information.
+				beginLoadingModel();
+		}
+		else
+			Toast.makeText(ModelActivity.this,
+					"Download in progress.. please wait and try again", Toast.LENGTH_LONG).show();
 	}
 
 	//For Back Button, go back to RestaurantViewActivity
@@ -613,7 +706,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				Bundle bundle = new Bundle();
 				bundle.putString("fileName", getParamFilename());
 				bundle.putString("textureName", getTextureFilename());
-				bundle.putInt("modelIndex", menuIndex);
 
 				firstAR = true;
 				arModelFragment = new ARModelFragment();
@@ -656,12 +748,15 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     }
 
     public void deleteFiles()  {
+    	Log.i(TAG, "Deleting all files within model folder");
         File file = new File(getFilesDir().toString() + "/model");
-        try {
-            FileUtils.deleteDirectory(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if(file.exists()){
+			try {
+				FileUtils.deleteDirectory(file);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
     }
 
     @Override
@@ -695,7 +790,6 @@ class MyCircleAdapter extends RecyclerView.Adapter<MyCircleAdapter.ViewHolder> {
 		}
 	}
 
-	// Provide a suitable constructor (dependHashtables on the kind of dataset)
 	MyCircleAdapter(Hashtable<String, Menu.Categories.MenuItem> myDataset,ArrayList<String> keyConverter, Context context) {
 		this.modelDataSet = myDataset;
 		this.keyConverter = keyConverter;

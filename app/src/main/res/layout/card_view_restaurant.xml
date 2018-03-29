@@ -4,7 +4,7 @@
     android:id="@+id/restaurant_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
+    android:layout_marginBottom="8dp"
     android:clickable="true"
     android:focusable="true"
     app:cardCornerRadius="10dp"

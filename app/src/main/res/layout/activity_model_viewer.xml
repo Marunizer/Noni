@@ -19,7 +19,6 @@
         android:layout_height="match_parent"
         android:background="@drawable/cast_expanded_controller_bg_gradient_light"
         android:visibility="invisible">
-
     </FrameLayout>
 
     <FrameLayout
@@ -28,7 +27,6 @@
         android:layout_height="match_parent"
         android:background="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"
         android:visibility="invisible">
-
     </FrameLayout>
 
     <TextView
@@ -66,21 +64,21 @@
         android:textColor="@android:color/white"
         android:textSize="24sp" />
 
-    <com.joooonho.SelectableRoundedImageView
-        android:id="@+id/view_change"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_gravity="center"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="25dp"
-        android:onClick="onViewChange"
-        android:scaleType="centerCrop"
-        android:src="@android:drawable/ic_menu_camera"
-        app:sriv_border_color="#F29AB2"
-        app:sriv_border_width="2dp"
-        app:sriv_oval="true" />
+    <!--<com.joooonho.SelectableRoundedImageView-->
+        <!--android:id="@+id/view_change"-->
+        <!--android:layout_width="64dp"-->
+        <!--android:layout_height="64dp"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_marginEnd="12dp"-->
+        <!--android:layout_marginTop="25dp"-->
+        <!--android:onClick="onViewChange"-->
+        <!--android:scaleType="centerCrop"-->
+        <!--android:src="@android:drawable/ic_menu_camera"-->
+        <!--app:sriv_border_color="#F29AB2"-->
+        <!--app:sriv_border_width="2dp"-->
+        <!--app:sriv_oval="true" />-->
 
     <com.joooonho.SelectableRoundedImageView
         android:id="@+id/backButton"
@@ -130,8 +128,8 @@
 
     <ImageView
         android:id="@+id/download_gif"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="150dp"

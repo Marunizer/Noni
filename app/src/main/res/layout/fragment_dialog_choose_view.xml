@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.CardView
+        android:id="@+id/selection_3d"
+        android:layout_width="match_parent"
+        android:layout_height="279dp"
+        android:background="@color/black_overlay">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/three_d_view_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@color/black_overlay"
+            android:fontFamily="@font/avenir"
+            android:text="3D MENU"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textColor="@color/cast_expanded_controller_text_color"
+            android:textSize="30sp" />
+
+        <!--android:background="#CC000000"-->
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
+
+    <View
+        android:id="@+id/splitter"
+        android:layout_below="@id/selection_3d"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="#000000">
+    </View>
+
+    <android.support.v7.widget.CardView
+        android:layout_below="@id/splitter"
+        android:id="@+id/selection_ar"
+        android:layout_width="match_parent"
+        android:layout_height="279dp"
+        android:background="@color/black_overlay">
+
+        <RelativeLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/ar_view_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:background="@color/black_overlay"
+                android:fontFamily="@font/avenir"
+                android:text="AR MENU"
+                android:gravity="center"
+                android:maxLines="2"
+                android:textColor="@color/cast_expanded_controller_text_color"
+                android:textSize="30sp" />
+
+            <!--android:background="#CC000000"-->
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+</RelativeLayout>

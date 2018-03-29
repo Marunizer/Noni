@@ -283,11 +283,18 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
     public void onRestaurantClick(String key, String restName){
 
+        DialogFragment viewDialogFragment = new SelectViewDialogFragment(key,restName);
+        viewDialogFragment.show(getFragmentManager(), "chooseView");
+    }
+
+    public void selectView(String key, String restName, String view)
+    {
         Intent intent = new Intent(RestaurantViewActivity.this.getApplicationContext(), ModelActivity.class);
         Bundle b = new Bundle();
         b.putString("assetDir", getFilesDir().getAbsolutePath());
         b.putString("coordinateKey", key);
         b.putString("restaurantName", restName);
+        b.putString("mode", view);
         intent.putExtras(b);
         RestaurantViewActivity.this.startActivity(intent);
     }
@@ -298,17 +305,22 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         newFragment.show(getFragmentManager(), "locationMenu");
     }
 
+    //If new information was saved for location settings, then reset list
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         prepareRestaurantArray();
     }
 
     public void deleteFiles()  {
+        Log.i(TAG, "Deleting all files within model folder");
+
         File file = new File(getFilesDir().toString() + "/model");
-        try {
-            FileUtils.deleteDirectory(file);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (file.exists()) {
+            try {
+                FileUtils.deleteDirectory(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

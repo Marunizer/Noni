@@ -138,7 +138,7 @@ class CategoryPickerAdapter extends RecyclerView.Adapter<CategoryPickerAdapter.V
         //Can change withCrossFade timer to change fade in time, in milliseconds.
         GlideApp.with(context)
                 .load(image)
-                .transition(DrawableTransitionOptions.withCrossFade(1000))
+                .transition(DrawableTransitionOptions.withCrossFade(800))
                 .override(600,600)
                 .into(holder.categoryIcon);
 
