@@ -165,27 +165,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-		// If Device does not support ARCore, remove access to Camera button
-		if (ArCoreApk.getInstance().checkAvailability(getApplicationContext()).isUnsupported()){
-			System.out.println("Device does not support ARCore");
-			//THIS IS HERE FOR POSSIBLE Button to change between views !
-//			SelectableRoundedImageView viewChangeButton = findViewById(R.id.view_change);
-//			viewChangeButton.setClickable(false);
-//			viewChangeButton.setVisibility(View.INVISIBLE);
-
-			//If we want to have a different set up when there is no AR, do this stuff, still have to fix the relative restrictions
-//			RelativeLayout.LayoutParams layoutParams =
-//					new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-//			layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL,0);
-//			layoutParams.addRule(RelativeLayout.BELOW, menuTitle.getId());
-//			foodTitle.setGravity(Gravity.END);
-//			foodTitle.setLayoutParams(layoutParams);
-//
-//			layoutParams.addRule(RelativeLayout.BELOW, foodTitle.getId());
-//			foodCost.setGravity(Gravity.END);
-//			foodCost.setLayoutParams(layoutParams);
-		}
-
 		if (!storageFile.exists())
 			storageFile.mkdirs();
 

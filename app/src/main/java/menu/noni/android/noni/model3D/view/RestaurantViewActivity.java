@@ -28,6 +28,7 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.ar.core.ArCoreApk;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -289,6 +290,26 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
     public void selectView(String key, String restName, String view)
     {
+        if(view.equals("AR MENU"))
+        {
+            // If Device does not support ARCore, remove access to Camera button
+            if (ArCoreApk.getInstance().checkAvailability(getApplicationContext()).isUnsupported()){
+                System.out.println("Device does not support ARCore");
+                Toast.makeText(getApplicationContext(),"Sorry, Device does not support ARCore",Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Intent intent = new Intent(RestaurantViewActivity.this.getApplicationContext(), ModelActivity.class);
+                Bundle b = new Bundle();
+                b.putString("assetDir", getFilesDir().getAbsolutePath());
+                b.putString("coordinateKey", key);
+                b.putString("restaurantName", restName);
+                b.putString("mode", view);
+                intent.putExtras(b);
+                RestaurantViewActivity.this.startActivity(intent);
+            }
+
+        }
         Intent intent = new Intent(RestaurantViewActivity.this.getApplicationContext(), ModelActivity.class);
         Bundle b = new Bundle();
         b.putString("assetDir", getFilesDir().getAbsolutePath());

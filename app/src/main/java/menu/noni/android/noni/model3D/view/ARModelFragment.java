@@ -67,8 +67,6 @@ import menu.noni.android.noni.model3D.util.Menu;
  *
  *       *Provide first time special on screen instructions on what to do with your camera and when to click phone for new users to learn!
  *        - This should probably be implemented within ModelActivity.
- *
- *        * When you finish with this Fragment, if the references does not save, reset all render booleans to false
  */
 
 public class ARModelFragment extends Fragment {
