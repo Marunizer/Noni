@@ -16,6 +16,7 @@ import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
+import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.NotTrackingException;
 
 import java.io.IOException;
@@ -98,7 +99,13 @@ import menu.noni.android.noni.model3D.util.DisplayRotationHelper;
       mDisplayRotationHelper.updateSessionIfNeeded(session);
       session.setCameraTextureName(cameraFeedRenderer.getTextureId());
 
-      final Frame frame = session.update();
+      Frame frame = null;
+      try {
+        frame = session.update();
+      } catch (CameraNotAvailableException e) {
+        e.printStackTrace();
+      }
+
       if (callback != null) {
         callback.onDraw(frame);
       }

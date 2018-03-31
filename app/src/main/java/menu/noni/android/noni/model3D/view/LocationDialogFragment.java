@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatSeekBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -77,8 +76,7 @@ public class LocationDialogFragment extends DialogFragment {
         View rootView = inflater.inflate(R.layout.fragment_dialog_location,null);
         seekRadius = rootView.findViewById(R.id.location_seek_bar);
         seekRadius.setProgress((int) (LocationHelper.getRadius()*kmToMiles));
-//        newRadius = rootView.findViewById(R.id.newRadius);
-//        newRadius.setText(String.valueOf(LocationHelper.getRadius()*kmToMiles));
+
         newZip = rootView.findViewById(R.id.newAddress);
         newZip.setText(LocationHelper.getZipcode());
 

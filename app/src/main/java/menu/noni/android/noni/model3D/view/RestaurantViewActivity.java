@@ -67,6 +67,9 @@ import static android.content.ContentValues.TAG;
  *
  *    *Scale Concern (low priority - for now) Do not show all options at same time, but only show maybe 15,
  *     then keep showing more, the farther down a user goes
+ *
+ *     *Currently we connect to firebase here,disconnect, and reconnect for model download.
+ *     Move firebase functionality to firebaseHelper class and access from here.
  */
 
 public class RestaurantViewActivity extends AppCompatActivity implements MyAdapter.AdapterCallback, LocationDialogFragment.NoticeDialogListener {
@@ -90,6 +93,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         //Set up UI components
         toolbar= findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
+        //Delete when not testing
         deleteFiles();
 
         setContentView(R.layout.activity_restaurant_select);
@@ -310,14 +314,16 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
             }
 
         }
-        Intent intent = new Intent(RestaurantViewActivity.this.getApplicationContext(), ModelActivity.class);
-        Bundle b = new Bundle();
-        b.putString("assetDir", getFilesDir().getAbsolutePath());
-        b.putString("coordinateKey", key);
-        b.putString("restaurantName", restName);
-        b.putString("mode", view);
-        intent.putExtras(b);
-        RestaurantViewActivity.this.startActivity(intent);
+        else {
+            Intent intent = new Intent(RestaurantViewActivity.this.getApplicationContext(), ModelActivity.class);
+            Bundle b = new Bundle();
+            b.putString("assetDir", getFilesDir().getAbsolutePath());
+            b.putString("coordinateKey", key);
+            b.putString("restaurantName", restName);
+            b.putString("mode", view);
+            intent.putExtras(b);
+            RestaurantViewActivity.this.startActivity(intent);
+        }
     }
 
     @SuppressLint("WrongConstant")
@@ -351,8 +357,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         super.onResume();
         File file = new File(getFilesDir().toString() + "/model");
         //We check if there are more than 7 models (7 model* 3 files each for now) and if so, start a new
-        if (file.exists() && file.listFiles().length > 21)
-            deleteFiles();
+      //  if (file.exists() && file.listFiles().length > 21)
+          //  deleteFiles();
     }
 
     @Override
@@ -368,7 +374,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
         super.onDestroy();
         //Lets get rid of that models folder for now (-:
-        deleteFiles();
+      //  deleteFiles();
     }
 
     //Set new list of restaurants

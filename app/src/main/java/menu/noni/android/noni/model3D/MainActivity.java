@@ -116,14 +116,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 		//Location exists, set it as our used location, move on to Restaurant View
 		if (mLastLocation != null) {
-			try {
-				sendLocation();
-				Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-				MainActivity.this.startActivity(intent);
-				finish();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+
+			sendLocation();
+			Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+			MainActivity.this.startActivity(intent);
+			finish();
 		}
 		//Location could not be accessed, therefor try using zipcode.
 		else{
@@ -197,21 +194,25 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 	//Assuming we have a known live location, set the data to our LocationHelper
 	//way want to consider having to pass mLastLocation as a parameter instead of accessing global one
-	void sendLocation() throws IOException {
+	void sendLocation() {
 		Geocoder geocoder;
 		List<Address> addresses;
 		geocoder = new Geocoder(this, Locale.getDefault());
 
-		addresses = geocoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1);
-
-		LocationHelper.setLocation(mLastLocation);
-		LocationHelper.setLongitude((float)mLastLocation.getLongitude());
-		LocationHelper.setLatitude((float)mLastLocation.getLatitude());
-		LocationHelper.setAddress(addresses.get(0).getAddressLine(0));
-		LocationHelper.setStreetName(addresses.get(0).getThoroughfare());
-		LocationHelper.setState(addresses.get(0).getAdminArea());
-		LocationHelper.setCity(addresses.get(0).getLocality());
-		LocationHelper.setZipcode(addresses.get(0).getPostalCode());
+		try {
+			addresses = geocoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1);
+			LocationHelper.setLocation(mLastLocation);
+			LocationHelper.setLongitude((float)mLastLocation.getLongitude());
+			LocationHelper.setLatitude((float)mLastLocation.getLatitude());
+			LocationHelper.setAddress(addresses.get(0).getAddressLine(0));
+			LocationHelper.setStreetName(addresses.get(0).getThoroughfare());
+			LocationHelper.setState(addresses.get(0).getAdminArea());
+			LocationHelper.setCity(addresses.get(0).getLocality());
+			LocationHelper.setZipcode(addresses.get(0).getPostalCode());
+		} catch (IOException e) {
+			sendLocation();
+			e.printStackTrace();
+		}
 	}
 
 	@Override

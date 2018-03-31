@@ -26,6 +26,11 @@ import com.google.ar.core.Point;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 
 import org.apache.commons.io.IOUtils;
 
@@ -139,19 +144,6 @@ public class ARModelFragment extends Fragment {
 
         View v= inflater.inflate(R.layout.fragment_model_view_ar, container, false);
 
-        init(v);
-
-        return v;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void init(View v) {
-
         //Here we set up necessary UI components
 
         GLSurfaceView surfaceView = v.findViewById(R.id.surfaceview);
@@ -164,6 +156,27 @@ public class ARModelFragment extends Fragment {
 
         String extPath = getContext().getExternalFilesDir(null).getAbsolutePath();
         objectFactory = new ObjectRendererFactory(getContext().getFilesDir().getAbsolutePath()+"/model/", extPath);
+
+        ObjectRenderer object;
+        object = objectFactory.create(objFile, textureFile);
+        //creatubg is DEFZ what causes lag ! Good news ! Try to find out why (: maybe is cause of shaders
+
+        model_prototype.setModelAR(object);
+        model_prototype.setFactory();
+
+       //a little useless right now
+        init(v);
+
+        return v;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void init(View v) {
 
         //TODO: Implement a version of this: to set up factory ready models (wont take up too much processing) then, can focus on rendering
 //        Thread renderRemainingModelsThread = new Thread(){
@@ -209,32 +222,60 @@ public class ARModelFragment extends Fragment {
         super.onResume();
 
         // Check if AR Core is installed
-        switch (ArCoreApk.getInstance().requestInstall(getActivity(), !installRequested)) {
-            case INSTALL_REQUESTED:
-                installRequested = true;
-                return;
-            case INSTALLED:
-                break;
-        }
+        if (session == null) {
+            Exception exception;
+            String message;
+            try {
+                switch (ArCoreApk.getInstance().requestInstall(getActivity(), !installRequested)) {
+                    case INSTALL_REQUESTED:
+                        installRequested = true;
+                        return;
+                    case INSTALLED:
+                        break;
+                }
 
-        // ARCore requires camera permissions to operate. If we did not yet obtain runtime
-        // permission on Android M and above, now is a good time to ask the user for it.
-        if (CameraPermissionHelper.hasCameraPermission(getActivity())) {
-            showLoadingMessage();
-            // Note that order matters - see the note in onPause(), the reverse applies here.
-            session = new Session(getContext());
-            // Create default config, check is supported, create session from that config.
-            Config defaultConfig = new Config(session);
+                // ARCore requires camera permissions to operate. If we did not yet obtain runtime
+                // permission on Android M and above, now is a good time to ask the user for it.
+                if (CameraPermissionHelper.hasCameraPermission(getActivity())) {
+                    showLoadingMessage();
 
-            if (!session.isSupported(defaultConfig)) {
-                Toast.makeText(getContext(), "This device does not support AR", Toast.LENGTH_LONG).show();
-                getActivity().finish();
-                return;
+                    // Note that order matters - see the note in onPause(), the reverse applies here.
+                    session = new Session(getContext());
+                    // Create default config, check is supported, create session from that config.
+                    Config defaultConfig = new Config(session);
+
+                    if (!session.isSupported(defaultConfig)) {
+                        Toast.makeText(getContext(), "This device does not support AR", Toast.LENGTH_LONG).show();
+                        getActivity().finish();
+                        return;
+                    }
+                    session.resume();
+                    scene.bind(session);
+                } else {
+                    CameraPermissionHelper.requestCameraPermission(getActivity());
+                }
+            } catch (UnavailableArcoreNotInstalledException
+                    | UnavailableUserDeclinedInstallationException e) {
+                message = "Please install ARCore";
+                exception = e;
+                Log.e(TAG,exception + message);
+            } catch (UnavailableApkTooOldException e) {
+                message = "Please update ARCore";
+                exception = e;
+                Log.e(TAG,exception + message);
+            } catch (UnavailableSdkTooOldException e) {
+                message = "Please update this app";
+                exception = e;
+                Log.e(TAG,exception + message);
+            } catch (UnavailableDeviceNotCompatibleException e) {
+                message = "This device does not support AR";
+                exception = e;
+                Log.e(TAG,exception + message);
+            } catch (Exception e) {
+                message = "Failed to create AR session";
+                exception = e;
+                Log.e(TAG,exception + message);
             }
-            session.resume();
-            scene.bind(session);
-        } else {
-            CameraPermissionHelper.requestCameraPermission(getActivity());
         }
     }
 
@@ -416,22 +457,21 @@ public class ARModelFragment extends Fragment {
     //if possible, make it replace, the current model displayed
     //will need: maybe some type of 2D structure to make sure model is already rendered,
     //a check to make sure it's downloaded, and if not, do something about it  - communicate back to start download, show animation
-    public void passData(Menu.Categories.MenuItem menuItem,String obj, String texture) {
+    public void passData(Menu.Categories.MenuItem menuItem,String obj, String texture, boolean justDownloaded) {
         this.model_prototype = menuItem;
         this.objFile = obj;
         this.textureFile = texture;
 
 
-        if (!model_prototype.isFactory())
+        if (justDownloaded || !model_prototype.isFactory())
         {
-            System.out.println(TAG+"  the factory should be hit at this point");
+            System.out.println(TAG+"  the factory should be hit at this point " + objFile + "  and  " + textureFile);
 
             ObjectRenderer object;
-
             object = objectFactory.create(objFile, textureFile);
 
-            model_prototype.setModelAR(object);
-            model_prototype.setFactory();
+            this.model_prototype.setModelAR(object);
+            this.model_prototype.setFactory();
         }
     }
 }

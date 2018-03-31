@@ -52,15 +52,17 @@
             android:textSize="20sp" />
 
         <com.xw.repo.BubbleSeekBar
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
             android:id="@+id/location_seek_bar"
             android:layout_marginTop="36dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:bsb_max="20"
-            app:bsb_auto_adjust_section_mark="true"
+            app:bsb_auto_adjust_section_mark="false"
             app:bsb_second_track_color="@color/noni_theme"
             app:bsb_section_count="10"
-            app:bsb_section_text_position="below_section_mark"
+            app:bsb_section_text_position="bottom_sides"
             app:bsb_show_section_mark="false"
             app:bsb_show_section_text="false"
             app:bsb_show_thumb_text="false"
