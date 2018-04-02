@@ -47,20 +47,19 @@ public class LocationDialogFragment extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
-        Activity activity = getActivity();
+
         // Verify that the host activity implements the callback interface
         try {
             // Instantiate the NoticeDialogListener so we can send events to the host
-            mListener = (NoticeDialogListener) activity;
+            mListener = (NoticeDialogListener) getActivity();
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(getActivity().toString()
                     + " must implement NoticeDialogListener");
         }
     }
 
     /** The system calls this only when creating the layout in a dialog. */
-    //TODO: make the radius change a bar that's scrolled for better user interaction, Max : 25 miles or something that makes sense lol
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -81,7 +80,7 @@ public class LocationDialogFragment extends DialogFragment {
         newZip.setText(LocationHelper.getZipcode());
 
         // Set the dialog title
-        builder.setTitle("Search Settings")
+        builder.setTitle("Settings")
                 // Specify the list array, the items to be selected by default (null for none),
                 // and the listener through which to receive callbacks when items are selected
                 // Set the action buttons
@@ -89,7 +88,6 @@ public class LocationDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         submitButton();
-                        mListener.onDialogPositiveClick(LocationDialogFragment.this);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -106,23 +104,48 @@ public class LocationDialogFragment extends DialogFragment {
 
     public void submitButton()
     {
-        try {
-            //if we have a new zip code -> change current location AND change shared pref
-            if (!Objects.equals(newZip.getText().toString(), "")) {
-                LocationHelper.setZipcodeAndAll(newZip.getText().toString(), context);
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    //if we have a new zip code -> change current location AND change shared pref
+                    if (!Objects.equals(newZip.getText().toString(), "")) {
+                        LocationHelper.setZipcodeAndAll(newZip.getText().toString(), context);
 
-                SharedPreferences.Editor editor = context.getSharedPreferences("ZIP_PREF", Context.MODE_PRIVATE).edit();
-                editor.putString("zipCode", newZip.getText().toString());
-                editor.apply();
+                        SharedPreferences.Editor editor = context.getSharedPreferences("ZIP_PREF", Context.MODE_PRIVATE).edit();
+                        editor.putString("zipCode", newZip.getText().toString());
+                        editor.apply();
+                    }
+                    //if we have a new radius
+                    if (!Objects.equals(String.valueOf(seekRadius.getProgress()), "")) {
+                        LocationHelper.setRadius((seekRadius.getProgress()));
+                    }
+                    mListener.onDialogPositiveClick(LocationDialogFragment.this);
+                    dismiss();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            //if we have a new radius
-            if (!Objects.equals(String.valueOf(seekRadius.getProgress()), "")) {
-                LocationHelper.setRadius((seekRadius.getProgress()));
-            }
-            dismiss();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        };
+        thread.start();
+//        try {
+//            //if we have a new zip code -> change current location AND change shared pref
+//            if (!Objects.equals(newZip.getText().toString(), "")) {
+//                LocationHelper.setZipcodeAndAll(newZip.getText().toString(), context);
+//
+//                SharedPreferences.Editor editor = context.getSharedPreferences("ZIP_PREF", Context.MODE_PRIVATE).edit();
+//                editor.putString("zipCode", newZip.getText().toString());
+//                editor.apply();
+//            }
+//            //if we have a new radius
+//            if (!Objects.equals(String.valueOf(seekRadius.getProgress()), "")) {
+//                LocationHelper.setRadius((seekRadius.getProgress()));
+//            }
+//            dismiss();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

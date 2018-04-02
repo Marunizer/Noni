@@ -46,7 +46,7 @@ public class LocationActivity  extends Activity{
         @Override
         public void onClick(final View v) {
 
-            String zip = zipcodeText.getText().toString();
+            final String zip = zipcodeText.getText().toString();
 
             if (zip.length() == 0)
                 Toast.makeText(LocationActivity.this, "Field is empty", Toast.LENGTH_SHORT).show();
@@ -54,21 +54,43 @@ public class LocationActivity  extends Activity{
                 Toast.makeText(LocationActivity.this, "Please enter a full zip code", Toast.LENGTH_LONG).show();
             else
             {
-                try {
-                    LocationHelper.setZipcodeAndAll(zip, context);
+                Thread thread = new Thread(){
+                    @Override
+                    public void run() {
+                        super.run();
+                        try {
+                            LocationHelper.setZipcodeAndAll(zip, context);
 
-                    SharedPreferences.Editor editor = getSharedPreferences("ZIP_PREF", MODE_PRIVATE).edit();
-                    editor.putString("zipCode", zip);
-                    editor.apply();
+                            SharedPreferences.Editor editor = getSharedPreferences("ZIP_PREF", MODE_PRIVATE).edit();
+                            editor.putString("zipCode", zip);
+                            editor.apply();
 
-                    Intent intent = new Intent(LocationActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-                    LocationActivity.this.startActivity(intent);
-                }
-                catch (IOException e) {
-                    Toast.makeText(LocationActivity.this, "Unable to find location with zipcode, Please allow the noni to access location",
-                            Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
+                            Intent intent = new Intent(LocationActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+                            LocationActivity.this.startActivity(intent);
+                        }
+                        catch (IOException e) {
+                            Toast.makeText(LocationActivity.this, "Unable to find location with zipcode, Please allow the noni to access location",
+                                    Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                thread.start();
+//                try {
+//                    LocationHelper.setZipcodeAndAll(zip, context);
+//
+//                    SharedPreferences.Editor editor = getSharedPreferences("ZIP_PREF", MODE_PRIVATE).edit();
+//                    editor.putString("zipCode", zip);
+//                    editor.apply();
+//
+//                    Intent intent = new Intent(LocationActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+//                    LocationActivity.this.startActivity(intent);
+//                }
+//                catch (IOException e) {
+//                    Toast.makeText(LocationActivity.this, "Unable to find location with zipcode, Please allow the noni to access location",
+//                            Toast.LENGTH_LONG).show();
+//                    e.printStackTrace();
+//                }
             }
         }
     };

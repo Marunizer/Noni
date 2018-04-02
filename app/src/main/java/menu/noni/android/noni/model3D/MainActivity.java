@@ -131,14 +131,31 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             //If user has a saved zipcode, move on to Restaurant View
             if (restoredZip != null)
             {
-				try {
-				LocationHelper.setZipcodeAndAll(restoredZip,context);
-				Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-				MainActivity.this.startActivity(intent);
-				finish();
-					} catch (IOException e) {
-						e.printStackTrace();
+				Thread thread = new Thread(){
+					@Override
+					public void run() {
+						super.run();
+						try
+						{
+							LocationHelper.setZipcodeAndAll(restoredZip,context);
+							Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+							MainActivity.this.startActivity(intent);
+							finish();
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
+					}
+				};
+				thread.start();
+//				try
+//				{
+//					LocationHelper.setZipcodeAndAll(restoredZip,context);
+//					Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+//					MainActivity.this.startActivity(intent);
+//					finish();
+//				} catch (IOException e) {
+//						e.printStackTrace();
+//						}
             }
             //No saved zipcode, go to LocationActivity to ask for one
             else
@@ -172,14 +189,29 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 					final String restoredZip = sharedZip.getString("zipCode", null);
 					if (restoredZip != null)
 					{
-						try {
-							LocationHelper.setZipcodeAndAll(restoredZip,context);
-							Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-							MainActivity.this.startActivity(intent);
-							finish();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+						Thread thread = new Thread(){
+							@Override
+							public void run() {
+								super.run();
+								try {
+									LocationHelper.setZipcodeAndAll(restoredZip,context);
+									Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+									MainActivity.this.startActivity(intent);
+									finish();
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						};
+						thread.start();
+//						try {
+//							LocationHelper.setZipcodeAndAll(restoredZip,context);
+//							Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+//							MainActivity.this.startActivity(intent);
+//							finish();
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//						}
 					}
 					else
 					{
