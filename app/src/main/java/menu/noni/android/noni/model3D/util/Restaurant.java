@@ -1,6 +1,7 @@
 package menu.noni.android.noni.model3D.util;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -28,8 +29,13 @@ public class Restaurant {
     public Restaurant(String name,Location location,String coordinateKey,int cost, String address) {
         this.name = name;
         this.coordinateKey  = coordinateKey;
-        //TODO: Sometimes this causes crash in emulator due to getLocation being null in emulator??? I think
+        //TODO: Sometimes this causes crash in emulator due to getLocation being null in emulator??? APP BREAKING FIX ASAP
+        Log.w("RestaurantClass.java", "This is the value of LocationHelper.getLocation(): " + LocationHelper.getLocation());
+        //if(LocationHelper.getLocation() == null)
+
         this.distanceAway = location.distanceTo(LocationHelper.getLocation());
+
+
         this.generalCost = cost;
         this.streetAddress = address;
     }

@@ -94,7 +94,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         toolbar= findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
         //Delete when not testing
-        deleteFiles();
+        //deleteFiles();
 
         setContentView(R.layout.activity_restaurant_select);
         userLocation = findViewById(R.id.address_text);
@@ -210,6 +210,8 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                 //If we have not already accounted for this restaurant, add it, else ignore
                                 if(!restaurantGeoChecker.contains(location)){
 
+                                    //TODO: App breaking error started from here, rest_location MIGHT BE NULL
+                                    Log.w(TAG, "This is the value of rest_location: " + rest_location);
                                     restaurant.add(new Restaurant(name, rest_location, item.getKey(),dollar_signs, LocationHelper.findStreedAddress(rest_location,getApplicationContext())));
                                     restaurantGeoChecker.add(location);
                                     System.out.println("RestaurantViewActivity: ADDING NEW RESTAURANT : " + name + ", " + item_lat + ", " + item_long + "  item.getKey() = " + item.getKey() + " location = " + location);

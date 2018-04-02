@@ -14,14 +14,6 @@
 
     <!--Works as a way to let me give the UI a gradient frame or design-->
     <FrameLayout
-        android:id="@+id/gradient_frame_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/cast_expanded_controller_bg_gradient_light"
-        android:visibility="invisible">
-    </FrameLayout>
-
-    <FrameLayout
         android:id="@+id/gradient_frame_top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

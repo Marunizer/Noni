@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -110,6 +111,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private static final String CATEGORY_VIEW_TAG = "CATEGORY_FRAG";
 
 	private StorageReference fbStorageReference = FirebaseStorage.getInstance().getReference();
+	private FrameLayout gradientFrameTop;
 	LinearLayout recyclerLayout;
     private RecyclerView mRecyclerView;
 	private ImageView gifView;
@@ -155,7 +157,10 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 		recyclerLayout = findViewById(R.id.recycler_layout);
 		recyclerLayout.setVisibility(View.GONE);
-		recyclerLayout.getBackground().setAlpha(40);//50% at 128, transparent 0% -> 255
+		gradientFrameTop = findViewById(R.id.gradient_frame_top);
+		gradientFrameTop.getBackground().setAlpha(20);
+		categoryButton.setVisibility(View.GONE);
+		recyclerLayout.getBackground().setAlpha(100);//50% at 128, transparent 0% -> 255
 
         //Set up the recyclerView
 		mRecyclerView = findViewById(R.id.model_recycler_view);
@@ -373,6 +378,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			bundle.putString("fileName", getParamFilename());
 			bundle.putString("textureName", getTextureFilename());
 
+			foodTitle.setTextColor(Color.WHITE);
+			foodCost.setTextColor(Color.WHITE);
+			menuTitle.setTextColor(Color.WHITE);
+			gradientFrameTop.setVisibility(View.VISIBLE);
+
 			arModelFragment = new ARModelFragment();
 			arModelFragment.setArguments(bundle);
 			fragMgr = getSupportFragmentManager();
@@ -446,6 +456,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
             modelToDownload.setDownloaded();
 			onDownloadGifEnd();
 			recyclerLayout.setVisibility(View.VISIBLE);
+			categoryButton.setVisibility(View.VISIBLE);
         }
 	}
 
@@ -482,6 +493,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
                             setFirstDownloadAndLoad();
                             onDownloadGifEnd();
 							recyclerLayout.setVisibility(View.VISIBLE);
+							categoryButton.setVisibility(View.VISIBLE);
                         }
 					}
 					System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName() + imageKey  + "    downloadCheck = " + targetModel.getAtomicDownloadCheck());
@@ -513,6 +525,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					setFirstDownloadAndLoad();
 					onDownloadGifEnd();
 					recyclerLayout.setVisibility(View.VISIBLE);
+					categoryButton.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -671,7 +684,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 //        //Already in 3D view -> go to AR
 //		if (!viewFlag) {
 //			viewFlag = true;
-//			gradientFrameBottom.setVisibility(View.VISIBLE);
 //			gradientFrameTop.setVisibility(View.VISIBLE);
 //
 //			//This is the very first and only instance of the ARFragment we will have (:
@@ -709,7 +721,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 //				arModelFragment.hideLoadingMessage();
 //			}
 //			viewFlag = false;
-//			gradientFrameBottom.setVisibility(View.INVISIBLE);
 //			gradientFrameTop.setVisibility(View.INVISIBLE);
 //			beginLoadingModel();
 //		}

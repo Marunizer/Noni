@@ -462,16 +462,32 @@ public class ARModelFragment extends Fragment {
         this.objFile = obj;
         this.textureFile = texture;
 
-
+        //putting this in a thread does not seem to enact any significant results, the camera thread still stalls.
+        //need to go deeper in to stop stall,
+        //App only stalls the FIRST time a model needs to be drawn, Probably because of the createobjectrenderer when first created
+        // without this factory check(to make sure we don't create same model twice) there is a stall every time, meaning the stall happens within the create line
         if (justDownloaded || !model_prototype.isFactory())
         {
-            System.out.println(TAG+"  the factory should be hit at this point " + objFile + "  and  " + textureFile);
+            Thread renderBackround = new Thread(){
+                public void run(){
+                    System.out.println(TAG+"  the factory should be hit at this point " + objFile + "  and  " + textureFile);
 
-            ObjectRenderer object;
-            object = objectFactory.create(objFile, textureFile);
+                    ObjectRenderer object;
+                    object = objectFactory.create(objFile, textureFile);
 
-            this.model_prototype.setModelAR(object);
-            this.model_prototype.setFactory();
+                    model_prototype.setModelAR(object);
+                    model_prototype.setFactory();
+                }
+            };
+            renderBackround.start();
+
+//            System.out.println(TAG+"  the factory should be hit at this point " + objFile + "  and  " + textureFile);
+//
+//            ObjectRenderer object;
+//            object = objectFactory.create(objFile, textureFile);
+//
+//            this.model_prototype.setModelAR(object);
+//            this.model_prototype.setFactory();
         }
     }
 }
