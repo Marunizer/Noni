@@ -26,16 +26,10 @@ public class Restaurant {
     //Will hold keywords that will be used for emojis, Just text for now
     private ArrayList emojiList = new ArrayList<String>() ;
 
-    public Restaurant(String name,Location location,String coordinateKey,int cost, String address) {
+    public Restaurant(String name,Location location,String coordinateKey,int cost, String address, Location userLocation) {
         this.name = name;
         this.coordinateKey  = coordinateKey;
-        //TODO: Sometimes this causes crash in emulator due to getLocation being null in emulator??? APP BREAKING FIX ASAP
-        Log.w("RestaurantClass.java", "This is the value of LocationHelper.getLocation(): " + LocationHelper.getLocation());
-        //if(LocationHelper.getLocation() == null)
-
-        this.distanceAway = location.distanceTo(LocationHelper.getLocation());
-
-
+        this.distanceAway = location.distanceTo(userLocation);
         this.generalCost = cost;
         this.streetAddress = address;
     }

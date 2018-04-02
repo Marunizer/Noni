@@ -76,21 +76,6 @@ public class LocationActivity  extends Activity{
                     }
                 };
                 thread.start();
-//                try {
-//                    LocationHelper.setZipcodeAndAll(zip, context);
-//
-//                    SharedPreferences.Editor editor = getSharedPreferences("ZIP_PREF", MODE_PRIVATE).edit();
-//                    editor.putString("zipCode", zip);
-//                    editor.apply();
-//
-//                    Intent intent = new Intent(LocationActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-//                    LocationActivity.this.startActivity(intent);
-//                }
-//                catch (IOException e) {
-//                    Toast.makeText(LocationActivity.this, "Unable to find location with zipcode, Please allow the noni to access location",
-//                            Toast.LENGTH_LONG).show();
-//                    e.printStackTrace();
-//                }
             }
         }
     };

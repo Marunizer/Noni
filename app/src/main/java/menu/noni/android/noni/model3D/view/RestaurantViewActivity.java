@@ -29,6 +29,7 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.ar.core.ArCoreApk;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -150,6 +151,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     void prepareRestaurantArray()
     {
         //Prepare Firebase references and keys
+        FirebaseApp.initializeApp(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference myRef = database.getReference();
         final String NAME_KEY = "restaurant_name";
@@ -210,9 +212,9 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                 //If we have not already accounted for this restaurant, add it, else ignore
                                 if(!restaurantGeoChecker.contains(location)){
 
-                                    //TODO: App breaking error started from here, rest_location MIGHT BE NULL
+                                    //TODO: App breaking error started from here, getLocation() MIGHT BE NULL
                                     Log.w(TAG, "This is the value of rest_location: " + rest_location);
-                                    restaurant.add(new Restaurant(name, rest_location, item.getKey(),dollar_signs, LocationHelper.findStreedAddress(rest_location,getApplicationContext())));
+                                    restaurant.add(new Restaurant(name, rest_location, item.getKey(),dollar_signs, LocationHelper.findStreedAddress(rest_location,getApplicationContext()), LocationHelper.getLocation()));
                                     restaurantGeoChecker.add(location);
                                     System.out.println("RestaurantViewActivity: ADDING NEW RESTAURANT : " + name + ", " + item_lat + ", " + item_long + "  item.getKey() = " + item.getKey() + " location = " + location);
 

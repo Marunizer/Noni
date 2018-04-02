@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import menu.noni.android.noni.Manifest;
 import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.rendering.ObjectRenderer;
 import menu.noni.android.noni.model3D.rendering.ObjectRendererFactory;
@@ -62,16 +63,14 @@ import menu.noni.android.noni.model3D.util.Menu;
  *        - https://github.com/google-ar/arcore-android-sdk/issues/136#issuecomment-364857183
  *
  *    Current Issues/Tasks:
- *       * AR Models are not being dynamically sized.
- *        - I believe there is a dynamic sizing algorithm in the 3D model view renderer but requires quite a bit of the obj
- *          data to be kept and calculated, Probably can be found in 'model3D/model' folder
- *               - This can also be solved by having a standard on how the object files are created
  *
  *       * Low priority : Make an mtl reader and use that information in renderer instead of the hardcoded mtl information
  *                        Provide a different png to detect planes as to not use ARCores sample plane, a make it more transparent
  *
  *       *Provide first time special on screen instructions on what to do with your camera and when to click phone for new users to learn!
  *        - This should probably be implemented within ModelActivity.
+ *
+ *       *Provide better Permission requests and permission request flow, right now, it just keeps asking for Camera until you force close :(
  */
 
 public class ARModelFragment extends Fragment {
@@ -233,7 +232,6 @@ public class ARModelFragment extends Fragment {
                     case INSTALLED:
                         break;
                 }
-
                 // ARCore requires camera permissions to operate. If we did not yet obtain runtime
                 // permission on Android M and above, now is a good time to ask the user for it.
                 if (CameraPermissionHelper.hasCameraPermission(getActivity())) {
@@ -252,7 +250,7 @@ public class ARModelFragment extends Fragment {
                     session.resume();
                     scene.bind(session);
                 } else {
-                    CameraPermissionHelper.requestCameraPermission(getActivity());
+                   CameraPermissionHelper.requestCameraPermission(getActivity());
                 }
             } catch (UnavailableArcoreNotInstalledException
                     | UnavailableUserDeclinedInstallationException e) {
@@ -367,20 +365,6 @@ public class ARModelFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] results) {
-        if (!CameraPermissionHelper.hasCameraPermission(getActivity())) {
-            Toast.makeText(getActivity(), "Camera permission is needed to run this application", Toast.LENGTH_LONG)
-                    .show();
-            if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(getActivity())) {
-                // Permission denied with checking "Do not ask again".
-                CameraPermissionHelper.launchPermissionSettings(getActivity());
-            }
-            getActivity().finish();
-        }
-    }
-
-
     public void showLoadingMessage() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -446,6 +430,19 @@ public class ARModelFragment extends Fragment {
                     Log.i(TAG, "Could not open asset file: '" + file + "'.");
                 }
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        if (!CameraPermissionHelper.hasCameraPermission(getActivity())) {
+            Toast.makeText(getContext(), "Camera permission is needed to run this application", Toast.LENGTH_LONG)
+                    .show();
+            if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(getActivity())) {
+                // Permission denied with checking "Do not ask again".
+                CameraPermissionHelper.launchPermissionSettings(getActivity());
+            }
+            getActivity().finish();
         }
     }
 

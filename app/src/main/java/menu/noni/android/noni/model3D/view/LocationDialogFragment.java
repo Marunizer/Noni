@@ -28,6 +28,8 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
  *
  * Purpose of this class is to serve as a mini settings menu where user can change search preferences
  *
+ * TODO:Have the option to not use zipcode, and instead use phone location, will change flow to first decide that, then depending on the option, show text for zip
+ *
  */
 
 public class LocationDialogFragment extends DialogFragment {
@@ -129,23 +131,6 @@ public class LocationDialogFragment extends DialogFragment {
             }
         };
         thread.start();
-//        try {
-//            //if we have a new zip code -> change current location AND change shared pref
-//            if (!Objects.equals(newZip.getText().toString(), "")) {
-//                LocationHelper.setZipcodeAndAll(newZip.getText().toString(), context);
-//
-//                SharedPreferences.Editor editor = context.getSharedPreferences("ZIP_PREF", Context.MODE_PRIVATE).edit();
-//                editor.putString("zipCode", newZip.getText().toString());
-//                editor.apply();
-//            }
-//            //if we have a new radius
-//            if (!Objects.equals(String.valueOf(seekRadius.getProgress()), "")) {
-//                LocationHelper.setRadius((seekRadius.getProgress()));
-//            }
-//            dismiss();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
     @Override

@@ -206,7 +206,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 					//Permission is granted, move on
 					if (storagePermisssion)
-						verifyStoragePermissions();
+						prepareMenu();
 					else //Permission not granted, Can't do anything
 					{
 						Toast.makeText(ModelActivity.this,
@@ -461,7 +461,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	}
 
 	//Final download stage: Downloads requested file from Firebase storage
-	private void downloadModel(File files_folder, final String imageKey, final  Menu.Categories.MenuItem targetModel) {
+	private void downloadModel(final File files_folder, final String imageKey, final  Menu.Categories.MenuItem targetModel) {
 
 		//If file already exists, Do nothing
 		if(!files_folder.exists())
@@ -502,6 +502,14 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				@Override
 				public void onFailure(@NonNull Exception exception) {
 					System.out.println("DOWNLOAD FAILED for item:" + targetModel.getName() + imageKey);
+					if(files_folder.exists()){
+						try {
+							FileUtils.deleteDirectory(files_folder);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+
 				}
 			});
 		}

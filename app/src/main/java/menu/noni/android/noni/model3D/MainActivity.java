@@ -11,13 +11,14 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.view.Window;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,42 +42,37 @@ import menu.noni.android.noni.model3D.view.RestaurantViewActivity;
  *        - counter argument: we would stay on this screen for far too long ! At least in the next Activity we have an animation to keep user content
  */
 
-public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,
-		GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends Activity {
 
-	GoogleApiClient mGoogleApiClient;
-	Context context;
-	static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_AND_EXTERNAL_STORAGE = 6;
+    FusedLocationProviderClient mFusedLocationClient;
+    Context context;
+    static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_AND_EXTERNAL_STORAGE = 6;
 
-	//Stores the Location of user, involving specific coordinates and such
-	Location mLastLocation;
+    //Stores the Location of user, involving specific coordinates and such
+    Location mLastLocation;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		context = this;
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        context = this;
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		// Create an instance of GoogleAPIClient.
-		createGoogleAPIClient();
+        //Create instance of Client
+        if (mFusedLocationClient == null) {
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                System.out.println("Lets do stuff!");
+                getMyLocation();
+            }
+            else
+                getMyLocation();
+        }
+        else
+            getMyLocation();
+
 	}
 
-
-	private void createGoogleAPIClient() {
-		// Create an instance of GoogleAPIClient.
-		if (mGoogleApiClient == null) {
-			mGoogleApiClient = new GoogleApiClient.Builder(this)
-					.addConnectionCallbacks(this)
-					.addOnConnectionFailedListener(this)
-					.addApi(LocationServices.API)
-					.build();
-		}
-	}
-	//------------------------------------------------------------------------------
-	//ref: Requesting Permissions at Run Time
-	//http://developer.android.com/training/permissions/requesting.html
-	//------------------------------------------------------------------------------
 	private void getMyLocation() {
 
 		//If Permissions are not granted, ask for permission
@@ -97,74 +93,94 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 			return;
 		}
 
-		//TODO: FusedLocationApi might be deprecated in the future, Google is being very hot and cold about this, works for now
-		//https://stackoverflow.com/questions/46481789/android-locationservices-fusedlocationapi-deprecated
-		//Possible fix code, or at least a start to it
-//		 FusedLocationProviderClient client =  LocationServices.getFusedLocationProviderClient(this);
-//		 client.getLastLocation()
-//				.addOnSuccessListener(this, new OnSuccessListener<Location>() {
-//					@Override
-//					public void onSuccess(Location location) {
-//						// Got last known location. In some rare situations this can be null.
-//						if (location != null) {
-//							mLastLocation = location;
-//						}
-//					}
-//				});
+		FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-		this.mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+		mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                // Got last known location. In some rare situations, this can be null.
+                if (location != null) {
+                    mLastLocation = location;
+                    sendLocation();
+                    Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+                    MainActivity.this.startActivity(intent);
+                    finish();
+                }
+                //Location could not be accessed, therefor try using zipcode.
+                else{
+                    //This variable keeps last used zipcode user has used in the past
+                    SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
+                    final String restoredZip = sharedZip.getString("zipCode", null);
 
-		//Location exists, set it as our used location, move on to Restaurant View
-		if (mLastLocation != null) {
-
-			sendLocation();
-			Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-			MainActivity.this.startActivity(intent);
-			finish();
-		}
-		//Location could not be accessed, therefor try using zipcode.
-		else{
-			//This variable keeps last used zipcode user has used in the past
-            SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
-            final String restoredZip = sharedZip.getString("zipCode", null);
-
-            //If user has a saved zipcode, move on to Restaurant View
-            if (restoredZip != null)
-            {
-				Thread thread = new Thread(){
-					@Override
-					public void run() {
-						super.run();
-						try
-						{
-							LocationHelper.setZipcodeAndAll(restoredZip,context);
-							Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-							MainActivity.this.startActivity(intent);
-							finish();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				};
-				thread.start();
-//				try
-//				{
-//					LocationHelper.setZipcodeAndAll(restoredZip,context);
-//					Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-//					MainActivity.this.startActivity(intent);
-//					finish();
-//				} catch (IOException e) {
-//						e.printStackTrace();
-//						}
+                    //If user has a saved zipcode, move on to Restaurant View
+                    if (restoredZip != null)
+                    {
+                        Thread thread = new Thread(){
+                            @Override
+                            public void run() {
+                                super.run();
+                                try
+                                {
+                                    LocationHelper.setZipcodeAndAll(restoredZip,context);
+                                    Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+                                    MainActivity.this.startActivity(intent);
+                                    finish();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        thread.start();
+                    }
+                    //No saved zipcode, go to LocationActivity to ask for one
+                    else
+                    {
+                        Intent intent = new Intent(MainActivity.this.getApplicationContext(), LocationActivity.class);
+                        MainActivity.this.startActivity(intent);
+                        finish();
+                    }
+                }
             }
-            //No saved zipcode, go to LocationActivity to ask for one
-            else
-            {
-                Intent intent = new Intent(MainActivity.this.getApplicationContext(), LocationActivity.class);
-                MainActivity.this.startActivity(intent);
-                finish();
+
+        }).addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof ResolvableApiException) {
+
+                    //This variable keeps last used zipcode user has used in the past
+                    SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
+                    final String restoredZip = sharedZip.getString("zipCode", null);
+
+                    //If user has a saved zipcode, move on to Restaurant View
+                    if (restoredZip != null)
+                    {
+                        Thread thread = new Thread(){
+                            @Override
+                            public void run() {
+                                super.run();
+                                try
+                                {
+                                    LocationHelper.setZipcodeAndAll(restoredZip,context);
+                                    Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
+                                    MainActivity.this.startActivity(intent);
+                                    finish();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        thread.start();
+                    }
+                    //No saved zipcode, go to LocationActivity to ask for one
+                    else
+                    {
+                        Intent intent = new Intent(MainActivity.this.getApplicationContext(), LocationActivity.class);
+                        MainActivity.this.startActivity(intent);
+                        finish();
+                    }
+                }
             }
-		}
+        });
 	}
 
 	@Override
@@ -174,13 +190,20 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 		switch (requestCode) {
 			case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_AND_EXTERNAL_STORAGE:
 			{
-				if (grantResults.length > 0)
+				if (grantResults.length > 1)
 				{
 					boolean locationPermisssion = grantResults[0] == PackageManager.PERMISSION_GRANTED;
 
 					//Permission is granted, move on
 					if (locationPermisssion)
 						getMyLocation();
+					else
+					    {
+                        Intent intent = new Intent(MainActivity.this.getApplicationContext(), LocationActivity.class);
+                        MainActivity.this.startActivity(intent);
+                        finish();
+                        }
+
 				}
 				else
 				{
@@ -204,14 +227,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 							}
 						};
 						thread.start();
-//						try {
-//							LocationHelper.setZipcodeAndAll(restoredZip,context);
-//							Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
-//							MainActivity.this.startActivity(intent);
-//							finish();
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//						}
 					}
 					else
 					{
@@ -249,26 +264,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 	@Override
 	protected void onStart() {
-		mGoogleApiClient.connect();
 		super.onStart();
 	}
 
 	@Override
 	protected void onStop() {
-		mGoogleApiClient.disconnect();
 		super.onStop();
-	}
-
-	@Override
-	public void onConnected(@Nullable Bundle bundle) {
-		getMyLocation();
-	}
-
-	@Override
-	public void onConnectionSuspended(int i) {
-	}
-
-	@Override
-	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 	}
 }
