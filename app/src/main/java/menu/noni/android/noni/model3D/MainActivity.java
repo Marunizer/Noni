@@ -248,6 +248,7 @@ public class MainActivity extends Activity {
 
 		try {
 			addresses = geocoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1);
+			LocationHelper.setLocationMethod(true);
 			LocationHelper.setLocation(mLastLocation);
 			LocationHelper.setLongitude((float)mLastLocation.getLongitude());
 			LocationHelper.setLatitude((float)mLastLocation.getLatitude());

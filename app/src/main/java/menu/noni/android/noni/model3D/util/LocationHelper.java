@@ -18,6 +18,8 @@ import java.util.List;
 
 public class LocationHelper {
 
+    //False: User is using zipcode   True: User has allowed location permissions
+    private static boolean LocationMethod = false;
     private static Location location;
     private static float latitude;
     private static float longitude;
@@ -68,6 +70,7 @@ public class LocationHelper {
             mLastLocation[0].setLongitude((float) address.getLongitude());
 
             setLocation(mLastLocation[0]);
+            setLocationMethod(false);
             setLongitude((float) address.getLongitude());
             setLatitude((float) address.getLatitude());
             setAddress(address.getAddressLine(0));
@@ -93,6 +96,14 @@ public class LocationHelper {
         }
         else
             return null;
+    }
+
+    public static boolean isLocationMethod() {
+        return LocationMethod;
+    }
+
+    public static void setLocationMethod(boolean locationMethod) {
+        LocationMethod = locationMethod;
     }
 
     public static float getLatitude() {

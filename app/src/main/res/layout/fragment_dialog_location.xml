@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center"
     android:gravity="center"
     android:orientation="vertical">
@@ -18,23 +19,45 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-
-            android:text="Zip code:         "
-            android:textSize="20sp" />
-
-        <EditText
-            android:id="@+id/newAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:digits="0123456789+"
-            android:hint="@string/zip_code"
-            android:inputType="textPostalAddress"
-            android:lines="1"
-            android:maxLength="5"
+            android:text="Location Preferences"
             android:textSize="20sp" />
 
     </LinearLayout>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:buttonTint="@color/noni_theme"
+            android:id="@+id/radio_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:textSize="20sp"
+            android:text="@string/location" />
+        <RadioButton
+            android:buttonTint="@color/noni_theme"
+            android:id="@+id/radio_zipcode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:textSize="20sp"
+            android:text="@string/zipcode"/>
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/newAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:digits="0123456789+"
+        android:hint="@string/zip_code"
+        android:inputType="textPostalAddress"
+        android:lines="1"
+        android:maxLength="5"
+        android:textSize="20sp" />
 
     <LinearLayout
         android:layout_width="match_parent"

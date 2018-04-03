@@ -21,7 +21,7 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
  * Purpose of this Activity is to extract location information from user since it will be required
  * to find any restaurants around them or around where they want to check
  *
- * Idea: Be able to accept a zipcode OR an Address, and user can choose whichever they prefer
+ * Idea: Be able to accept a zipcode OR an Address, and we will auto detect what was used + tell user either or
  */
 
 public class LocationActivity  extends Activity{
