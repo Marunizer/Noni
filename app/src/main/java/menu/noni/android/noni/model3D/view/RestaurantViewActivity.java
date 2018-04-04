@@ -29,11 +29,9 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.ar.core.ArCoreApk;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -49,6 +47,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import menu.noni.android.noni.R;
+import menu.noni.android.noni.model3D.util.FireBaseHelper;
 import menu.noni.android.noni.model3D.util.LocationHelper;
 import menu.noni.android.noni.model3D.util.Restaurant;
 import menu.noni.android.noni.util.Utils;
@@ -84,7 +83,6 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     TextView userLocation;
     TextView searchText;
     ImageView gifView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,9 +149,10 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     void prepareRestaurantArray()
     {
         //Prepare Firebase references and keys
-        FirebaseApp.initializeApp(this);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference();
+        FireBaseHelper fireBaseHelper = new FireBaseHelper();
+        fireBaseHelper.createInstance(getApplicationContext());
+
+        final DatabaseReference myRef = fireBaseHelper.getMyRef();
         final String NAME_KEY = "restaurant_name";
         final String LAT_KEY = "lat";
         final String LONG_KEY = "long";

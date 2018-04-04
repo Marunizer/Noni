@@ -32,7 +32,6 @@ import com.google.ar.core.ArCoreApk;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
@@ -47,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import menu.noni.android.noni.R;
+import menu.noni.android.noni.model3D.util.FireBaseHelper;
 import menu.noni.android.noni.model3D.util.Menu;
 
 /**
@@ -219,10 +219,12 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	}
 
 	//Prepares The Categories, and Menu items in that category. Fills the Menu class with data
-	private void prepareMenu() {
+	private void prepareMenu()
+	{
+		FireBaseHelper fireBaseHelper = new FireBaseHelper();
+		fireBaseHelper.createInstance(getApplicationContext());
 
-		FirebaseDatabase database = FirebaseDatabase.getInstance();
-		final DatabaseReference myRef = database.getReference();
+		final DatabaseReference myRef = fireBaseHelper.getMyRef();
 		final String databaseTitle = "menus";
 		final String databaseSubTitle = "Categories";
 
