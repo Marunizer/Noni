@@ -39,11 +39,11 @@ import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.util.LocationHelper;
 
 /**
- * Created by mende on 2/8/2018.
+ * Created by marunizer on 2/8/2018.
  *
  * Purpose of this class is to serve as a mini settings menu where user can change search preferences
  *
- * TODO:Have the option to not use zipcode, and instead use phone location, will change flow to first decide that, then depending on the option, show text for zip
+ * Feature to include: Have the option to not use zipcode, and instead use phone location, will change flow to first decide that, then depending on the option, show text for zip
  *
  */
 
@@ -193,16 +193,12 @@ public class LocationDialogFragment extends DialogFragment {
             @Override
             public void onSuccess(Location location) {
                 // Got last known location. In some rare situations, this can be null.
-                if (location != null) {
+                if (location != null)
                     mLastLocation = location;
-                    //We don't actually need to send until the submit
-//                    sendLocation();
-                }
                 //Location could not be accessed
-                else{
-                    //Failed using Location, use zipcode
+                else //Failed using Location, use zipcode
                     abortUsingLccation();
-                }
+
             }
 
         }).addOnFailureListener(getActivity(), new OnFailureListener() {

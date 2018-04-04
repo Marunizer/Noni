@@ -9,11 +9,14 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by mende on 10/30/2017.
+ * Created by marunizer on 10/30/2017.
  * Purpose of this Class is to always keep track of our users location data
  *
  * Concern: Geocoder sometimes times out and stops whole app - should do on a separate thread
  *   - research makes me think this is only an emulator problem and not a problem in real world, but something to keep in mind
+ *
+ *   Idea: as firebaseHelper does, keep an instance of location provider.
+ *   I attempted this already but had problems with leaks since an instance of the client is tied to a single Activity... So could not be static
  */
 
 public class LocationHelper {

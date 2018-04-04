@@ -55,7 +55,7 @@ import menu.noni.android.noni.util.Utils;
 import static android.content.ContentValues.TAG;
 
 /**
- * Created by mende on 12/16/2017.
+ * Created by marunizer on 12/16/2017.
  *
  * In this Activity, the list of available restaurants nea the user is displayed
  * TODO List:
@@ -68,8 +68,6 @@ import static android.content.ContentValues.TAG;
  *    *Scale Concern (low priority - for now) Do not show all options at same time, but only show maybe 15,
  *     then keep showing more, the farther down a user goes
  *
- *     *Currently we connect to firebase here,disconnect, and reconnect for model download.
- *     Move firebase functionality to firebaseHelper class and access from here.
  */
 
 public class RestaurantViewActivity extends AppCompatActivity implements MyAdapter.AdapterCallback, LocationDialogFragment.NoticeDialogListener {

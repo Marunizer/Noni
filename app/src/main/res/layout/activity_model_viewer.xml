@@ -23,12 +23,13 @@
 
     <TextView
         android:id="@+id/store_name"
-        android:layout_width="190dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
         android:fontFamily="@font/avenir"
-        android:gravity="center"
+        android:gravity="end"
         android:maxLines="2"
         android:textColor="#000000"
         android:textSize="24sp"
@@ -36,23 +37,25 @@
 
     <TextView
         android:id="@+id/title_text"
-        android:layout_width="200dp"
+        android:gravity="end"
+        android:layout_marginEnd="16dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_below="@id/store_name"
-        android:layout_centerHorizontal="true"
         android:fontFamily="@font/avenir"
-        android:gravity="center"
         android:textColor="#000000"
         android:textSize="24sp" />
 
     <TextView
         android:id="@+id/item_cost"
-        android:layout_width="190dp"
+        android:gravity="end"
+        android:layout_marginEnd="16dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_text"
-        android:layout_centerHorizontal="true"
         android:fontFamily="@font/avenir"
-        android:gravity="center"
+        android:layout_alignParentEnd="true"
         android:textColor="#000000"
         android:textSize="24sp" />
 
@@ -128,5 +131,16 @@
         android:layout_marginTop="150dp"
         android:visibility="invisible"
         android:contentDescription="@string/loading_progress_circle" />
+
+    <TextView
+        android:id="@+id/loading_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/download_gif"
+        android:text="Fetching your meal..."
+        android:textColor="@color/noni_theme"
+        android:textSize="36sp"
+        android:fontFamily="@font/avenir"
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

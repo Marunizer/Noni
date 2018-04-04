@@ -30,7 +30,7 @@ import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.util.Menu;
 
 /**
- * Created by mende on 3/10/2018.
+ * Created by marunizer on 3/10/2018.
  *
  * Purpose of this class is to let user select a different Category to view from a Menu
  */

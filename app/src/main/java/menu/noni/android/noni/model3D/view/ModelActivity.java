@@ -50,6 +50,9 @@ import menu.noni.android.noni.model3D.util.FireBaseHelper;
 import menu.noni.android.noni.model3D.util.Menu;
 
 /**
+ *
+ *  * Created by marunizer on 2017 - 2018.
+ *
  * This activity represents the container for our 3D and AR viewer fragments.
  * TODO List:
  *
@@ -115,6 +118,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	LinearLayout recyclerLayout;
     private RecyclerView mRecyclerView;
 	private ImageView gifView;
+	private TextView downloadText;
     private TextView foodTitle;
     private TextView foodCost;
     private TextView menuTitle;
@@ -148,6 +152,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         foodCost = findViewById(R.id.item_cost);
         menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
+        downloadText = findViewById(R.id.loading_text);
 		gifView = findViewById(R.id.download_gif);
 		GlideApp.with(this)
 				.load(R.drawable.watermelon_bites)
@@ -603,11 +608,13 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	public void onDownloadGifStart()
 	{
 		gifView.setVisibility(View.VISIBLE);
+		downloadText.setVisibility(View.VISIBLE);
 	}
 
 	public void onDownloadGifEnd()
 	{
 		gifView.setVisibility(View.GONE);
+		downloadText.setVisibility(View.GONE);
 		//Apperantly this get's called a million times???? so not a good idea tO do this VVV
 		//beginLoadingModel();
 	}

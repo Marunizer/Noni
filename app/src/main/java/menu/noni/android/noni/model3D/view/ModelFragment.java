@@ -17,7 +17,7 @@ import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.services.SceneLoader;
 
 /**
- * Created by mende on 1/24/2018.
+ * Created by marunizer on 1/24/2018.
  *
  * The purpose of this class is to be hold the scene which in turn holds the surface
  * view of the 3D modeling screen

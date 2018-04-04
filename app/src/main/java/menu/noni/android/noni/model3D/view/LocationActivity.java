@@ -16,7 +16,7 @@ import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.util.LocationHelper;
 
 /**
- * Created by mauricio mendez on 10/20/2017.
+ * Created by marunizer on 10/20/2017.
  *
  * Purpose of this Activity is to extract location information from user since it will be required
  * to find any restaurants around them or around where they want to check

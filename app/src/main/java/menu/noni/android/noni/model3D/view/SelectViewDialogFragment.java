@@ -17,7 +17,13 @@ import android.widget.TextView;
 
 import menu.noni.android.noni.R;
 
-@SuppressLint("ValidFragment")
+/**
+ *
+ *  Created by marunizer on 2017 - 2018.
+ *
+ */
+
+ @SuppressLint("ValidFragment")
 public class SelectViewDialogFragment extends DialogFragment {
 
     CardView select3DCardView;

@@ -29,6 +29,9 @@ import menu.noni.android.noni.model3D.view.LocationActivity;
 import menu.noni.android.noni.model3D.view.RestaurantViewActivity;
 
 /**
+ *
+ * Created by marunizer on 2017 - 2018.
+ *
  * The purpose of this Activity is to be the very first Screen the user see's and find location or choose to include their own.
  *
  * TODO:

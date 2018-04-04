@@ -44,7 +44,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import menu.noni.android.noni.Manifest;
 import menu.noni.android.noni.R;
 import menu.noni.android.noni.model3D.rendering.ObjectRenderer;
 import menu.noni.android.noni.model3D.rendering.ObjectRendererFactory;
@@ -54,7 +53,7 @@ import menu.noni.android.noni.model3D.util.CameraPermissionHelper;
 import menu.noni.android.noni.model3D.util.Menu;
 
 /**
- * Created by mende on 1/24/2018.
+ * Created by marunizer on 1/24/2018.
  *
  * Purpose of this Class is to be the entry point and Manager for models to be rendered and drawn on Camera
  * while using ARCore to track its position in space, and provide 'natural' lighting
