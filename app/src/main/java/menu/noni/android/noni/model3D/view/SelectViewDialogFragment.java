@@ -84,10 +84,16 @@ public class SelectViewDialogFragment extends DialogFragment {
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
 
+        double widthTrim = width / 9.6;
+        double heightTrim = height /4.3;
+
+        System.out.println("Maru testing: width: " + width + "   height: " + height + "   In pixels !");
+
+        //w:1440 h:2712
         Window window = getDialog().getWindow();
         //TODO:Concern: This may not look well for any/all screens. Must Test !
         assert window != null;
-        window.setLayout(width-150, height-630);
+        window.setLayout((int) (width-widthTrim), (int) (height-heightTrim));
         window.setGravity(Gravity.CENTER);
     }
 }

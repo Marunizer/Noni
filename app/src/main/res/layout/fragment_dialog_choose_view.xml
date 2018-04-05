@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
     <android.support.v7.widget.CardView
         android:id="@+id/selection_3d"
         android:layout_width="match_parent"
-        android:layout_height="279dp"
+        android:layout_height="0dp"
+        android:layout_weight="4"
         android:background="@color/black_overlay">
 
     <RelativeLayout
@@ -39,17 +42,16 @@
 
     <View
         android:id="@+id/splitter"
-        android:layout_below="@id/selection_3d"
         android:layout_width="match_parent"
-        android:layout_height="4dp"
+        android:layout_height="8dp"
         android:background="#000000">
     </View>
 
     <android.support.v7.widget.CardView
-        android:layout_below="@id/splitter"
+        android:layout_weight="4"
         android:id="@+id/selection_ar"
         android:layout_width="match_parent"
-        android:layout_height="279dp"
+        android:layout_height="0dp"
         android:background="@color/black_overlay">
 
         <RelativeLayout
@@ -83,4 +85,4 @@
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
-</RelativeLayout>
+</LinearLayout>

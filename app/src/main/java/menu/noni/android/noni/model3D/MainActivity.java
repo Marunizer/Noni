@@ -114,6 +114,7 @@ public class MainActivity extends Activity {
                     //This variable keeps last used zipcode user has used in the past
                     SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
                     final String restoredZip = sharedZip.getString("zipCode", null);
+                    LocationHelper.setLocationAccessible(false);
 
                     //If user has a saved zipcode, move on to Restaurant View
                     if (restoredZip != null)
@@ -153,6 +154,7 @@ public class MainActivity extends Activity {
                     //This variable keeps last used zipcode user has used in the past
                     SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
                     final String restoredZip = sharedZip.getString("zipCode", null);
+                    LocationHelper.setLocationAccessible(false);
 
                     //If user has a saved zipcode, move on to Restaurant View
                     if (restoredZip != null)
@@ -213,6 +215,7 @@ public class MainActivity extends Activity {
 					SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF",MODE_PRIVATE);
 
 					final String restoredZip = sharedZip.getString("zipCode", null);
+                    LocationHelper.setLocationAccessible(false);
 					if (restoredZip != null)
 					{
 						Thread thread = new Thread(){
@@ -251,7 +254,8 @@ public class MainActivity extends Activity {
 
 		try {
 			addresses = geocoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1);
-			LocationHelper.setLocationMethod(true);
+			LocationHelper.setLocationAccessible(true);
+			LocationHelper.setUsingLocation(true);
 			LocationHelper.setLocation(mLastLocation);
 			LocationHelper.setLongitude((float)mLastLocation.getLongitude());
 			LocationHelper.setLatitude((float)mLastLocation.getLatitude());

@@ -2,7 +2,6 @@ package menu.noni.android.noni.model3D.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -43,22 +42,24 @@ import menu.noni.android.noni.model3D.util.LocationHelper;
  *
  * Purpose of this class is to serve as a mini settings menu where user can change search preferences
  *
- * Feature to include: Have the option to not use zipcode, and instead use phone location, will change flow to first decide that, then depending on the option, show text for zip
- *
  */
 
 public class LocationDialogFragment extends DialogFragment {
 
     static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    FusedLocationProviderClient mFusedLocationClient;
+    private FusedLocationProviderClient mFusedLocationClient;
     //Stores the Location of user, involving specific coordinates and such
-    Location mLastLocation;
+    private Location mLastLocation;
+    //This may be slightly redundant since we have a variable in LocationHelper to keep track
+    //but when replaced, no longer works, Fix later so we can avoid having redundant variables
+    private boolean wasLocationAvailable = false;
 
-    EditText newZip;
-    BubbleSeekBar seekRadius;
-    Context context;
-    RadioButton locationRadio;
-    RadioButton zipcodeRadio;
+    private EditText newZip;
+    private BubbleSeekBar seekRadius;
+    private Context context;
+    private RadioButton locationRadio;
+    private RadioButton zipcodeRadio;
+
 
     public interface NoticeDialogListener {
         void onDialogPositiveClick(DialogFragment dialog);
@@ -107,22 +108,25 @@ public class LocationDialogFragment extends DialogFragment {
         newZip = rootView.findViewById(R.id.newAddress);
         newZip.setText(LocationHelper.getZipcode());
 
-        if (LocationHelper.isLocationMethod())
+        if (LocationHelper.isLocationAccessible() && LocationHelper.isUsingLocation())
         {
             locationRadio.toggle();
-            newZip.setVisibility(View.GONE);
+            newZip.setVisibility(View.INVISIBLE);
+            wasLocationAvailable = true;
         }
         else
         {
             zipcodeRadio.toggle();
-            newZip.setVisibility(View.GONE);
+            newZip.setVisibility(View.INVISIBLE);
         }
 
         locationRadio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 newZip.setVisibility(View.INVISIBLE);
-                checkLocationSettings();
+                //If location was already known to be true, then we don't need to check permissions and find new location
+                if (!wasLocationAvailable)
+                    checkLocationSettings();
             }
         });
         zipcodeRadio.setOnClickListener(new View.OnClickListener() {
@@ -157,17 +161,17 @@ public class LocationDialogFragment extends DialogFragment {
 
     private void checkLocationSettings()
     {
-        //Create instance of Client
+        //Create instance of Client if not already created
         if (mFusedLocationClient == null) {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                System.out.println("Lets do stuff!");
+                System.out.println("Client was not created and permission has not been granted");
                 getMyLocation();
             }
             else
                 getMyLocation();
         }
-        else
+        else //client is already created, feel free to use
             getMyLocation();
     }
 
@@ -196,16 +200,15 @@ public class LocationDialogFragment extends DialogFragment {
                 if (location != null)
                     mLastLocation = location;
                 //Location could not be accessed
-                else //Failed using Location, use zipcode
-                    abortUsingLccation();
+                else
+                    abortUsingLocation();
 
             }
 
         }).addOnFailureListener(getActivity(), new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                //FAILED TO GET LOCATION, USE ZIPCODE BUTTON INSTEAD
-                abortUsingLccation();
+                abortUsingLocation();
             }
         });
 
@@ -218,7 +221,8 @@ public class LocationDialogFragment extends DialogFragment {
 
         try {
             addresses = geocoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1);
-            LocationHelper.setLocationMethod(true);
+            LocationHelper.setLocationAccessible(true);
+            LocationHelper.setUsingLocation(true);
             LocationHelper.setLocation(mLastLocation);
             LocationHelper.setLongitude((float)mLastLocation.getLongitude());
             LocationHelper.setLatitude((float)mLastLocation.getLatitude());
@@ -240,13 +244,13 @@ public class LocationDialogFragment extends DialogFragment {
             @Override
             public void run() {
                 super.run();
-                if (zipcodeRadio.isActivated())
+
+                if (zipcodeRadio.isChecked())
                 {
                     try{
                         //if we have a new zip code -> change current location AND change shared pref
                         if (!Objects.equals(newZip.getText().toString(), "")) {
                             LocationHelper.setZipcodeAndAll(newZip.getText().toString(), context);
-
                             SharedPreferences.Editor editor = context.getSharedPreferences("ZIP_PREF", Context.MODE_PRIVATE).edit();
                             editor.putString("zipCode", newZip.getText().toString());
                             editor.apply();
@@ -261,10 +265,18 @@ public class LocationDialogFragment extends DialogFragment {
                         e.printStackTrace();
                     }
                 }
-                //Assuming Permission allows the use of location
-                else if (locationRadio.isActivated())//use Location GPS
+                else//use Location GPS
                 {
-                    sendLocation();
+                    //We had to Access location for very first time, so let's send over the new location found!
+                    if (!wasLocationAvailable)
+                        sendLocation();
+
+                    //if we have a new radius
+                    if (seekRadius.getProgress() != 0) {
+                        LocationHelper.setRadius((seekRadius.getProgress()));
+                    }
+                    mListener.onDialogPositiveClick(LocationDialogFragment.this);
+                    dismiss();
                 }
             }
         };
@@ -288,23 +300,24 @@ public class LocationDialogFragment extends DialogFragment {
                     else
                     {
                         //permission not granted use zip
-                        abortUsingLccation();
+                        abortUsingLocation();
                     }
 
                 }
                 else
                 {
                     System.out.println("We shouldn't have come to this line, fix grantresults.length");
-                    abortUsingLccation();
+                    abortUsingLocation();
                 }
             }
         }
     }
 
-    private void abortUsingLccation()
+    //This method is to be used when we fail on either finding the location, or we have no permission to use location
+    private void abortUsingLocation()
     {
         zipcodeRadio.toggle();
-        Toast.makeText(getContext(),"Location Permission are not granted",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(),"Location Permissions are not granted or process failed",Toast.LENGTH_SHORT).show();
     }
 
     @Override

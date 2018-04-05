@@ -21,8 +21,9 @@ import java.util.List;
 
 public class LocationHelper {
 
-    //False: User is using zipcode   True: User has allowed location permissions
-    private static boolean LocationMethod = false;
+    private static boolean locationAccessible = false;
+    private static boolean usingLocation = false; //if false, we are using zipcode, if true we are currently using the location
+
     private static Location location;
     private static float latitude;
     private static float longitude;
@@ -73,7 +74,7 @@ public class LocationHelper {
             mLastLocation[0].setLongitude((float) address.getLongitude());
 
             setLocation(mLastLocation[0]);
-            setLocationMethod(false);
+            setUsingLocation(false);
             setLongitude((float) address.getLongitude());
             setLatitude((float) address.getLatitude());
             setAddress(address.getAddressLine(0));
@@ -101,12 +102,20 @@ public class LocationHelper {
             return null;
     }
 
-    public static boolean isLocationMethod() {
-        return LocationMethod;
+    public static boolean isLocationAccessible() {
+        return locationAccessible;
     }
 
-    public static void setLocationMethod(boolean locationMethod) {
-        LocationMethod = locationMethod;
+    public static void setLocationAccessible(boolean locationAccessible) {
+        LocationHelper.locationAccessible = locationAccessible;
+    }
+
+    public static boolean isUsingLocation() {
+        return usingLocation;
+    }
+
+    public static void setUsingLocation(boolean usingLocation) {
+        LocationHelper.usingLocation = usingLocation;
     }
 
     public static float getLatitude() {

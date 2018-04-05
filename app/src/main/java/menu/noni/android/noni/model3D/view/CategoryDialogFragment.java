@@ -71,6 +71,8 @@ public class CategoryDialogFragment extends DialogFragment {
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
 
+        System.out.println("Maru testing: width: " + width + "   height: " + height + "   In pixels !");
+
         Window window = getDialog().getWindow();
         //TODO:Concern: This may not look well for any/all screens. Must Test !
         assert window != null;
