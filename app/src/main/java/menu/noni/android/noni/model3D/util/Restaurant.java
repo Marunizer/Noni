@@ -27,6 +27,7 @@ public class Restaurant {
     private ArrayList emojiList = new ArrayList<String>() ;
 
     public Restaurant(String name,Location location,String coordinateKey,int cost, String address, Location userLocation) {
+
         this.name = name;
         this.coordinateKey  = coordinateKey;
         this.distanceAway = location.distanceTo(userLocation);

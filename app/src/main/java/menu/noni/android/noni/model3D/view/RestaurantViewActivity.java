@@ -1,13 +1,17 @@
 package menu.noni.android.noni.model3D.view;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -28,6 +32,9 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.ar.core.ArCoreApk;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -88,22 +95,20 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         super.onCreate(savedInstanceState);
 
         //Set up UI components
-        toolbar= findViewById(R.id.app_bar);
+        toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
-        //Delete when not testing
-        //deleteFiles();
 
         setContentView(R.layout.activity_restaurant_select);
         userLocation = findViewById(R.id.address_text);
         userLocation.setText(LocationHelper.getStreetName());
-        userLocation.setPaintFlags(userLocation.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+        userLocation.setPaintFlags(userLocation.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         searchText = findViewById(R.id.search_text);
 
         //Made gif with https://loading.io/    pink: #f29ab2   blue: #32aee4
         gifView = findViewById(R.id.gif_view);
         GlideApp.with(this)
                 .load(R.drawable.double_ring)
-                .override(600,600)
+                .override(600, 600)
                 .into(gifView);
 
         mRecyclerView = findViewById(R.id.restaurant_recycler_view);
@@ -129,9 +134,9 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     }
 
     //When user swipes down at top of screen, update information
-    public void swipeUpdate(){
+    public void swipeUpdate() {
         //Toast to notify a refresh has started, calls the prepareRestaurantArray() method again
-        Toast.makeText(getApplicationContext(),"Refreshing",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Refreshing", Toast.LENGTH_SHORT).show();
         prepareRestaurantArray();
     }
 
@@ -144,8 +149,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     //  Access Firebase
     //  Access GeoFire
     //  Prepare List to display
-    void prepareRestaurantArray()
-    {
+    void prepareRestaurantArray() {
         //Prepare Firebase references and keys
         FireBaseHelper fireBaseHelper = new FireBaseHelper();
         fireBaseHelper.createInstance(getApplicationContext());
@@ -168,7 +172,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
                 //Purpose of this is to know what area to look around for finding restaurants
                 double latitude = LocationHelper.getLatitude();
-                double longitude  = LocationHelper.getLongitude();
+                double longitude = LocationHelper.getLongitude();
 
                 //Will be to a standard 8 km = 5 miles, unless changed by the user
                 double radius = LocationHelper.getRadius();
@@ -180,7 +184,7 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
                 //A GeoFire GeoQuery takes in the latitude, longitude, and finally the radius based on kilometers.
                 //Probably want to make multiple queries incrementing the radius based on some calculation
-                final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude,longitude), radius);
+                final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), radius);
 
                 geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                     @Override
@@ -188,29 +192,68 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
 
                         //Set the lat,long to compare to, geofire will help us figure out what restaurants
                         //are closest to us using geo-coordinates and radius
-                        String myLat = String.format(java.util.Locale.US,"%.6f", location.latitude);
-                        String myLong =  String.format(java.util.Locale.US,"%.6f", location.longitude);
+                        String myLat = String.format(java.util.Locale.US, "%.6f", location.latitude);
+                        String myLong = String.format(java.util.Locale.US, "%.6f", location.longitude);
                         String locationKey = myLat + myLong;
                         locationKey = Utils.cleanLatLongKey(locationKey);
 
                         System.out.println("Looking for Location Key : " + locationKey);
 
-                        for (DataSnapshot item: dataSnapshot.getChildren()) {
-                            if (item.getKey().compareTo(locationKey) >= 0)
-                            {
+                        for (DataSnapshot item : dataSnapshot.getChildren()) {
+                            if (item.getKey().compareTo(locationKey) >= 0) {
                                 String name = item.child(NAME_KEY).getValue().toString();
                                 String item_lat = item.child(LAT_KEY).getValue().toString();
                                 String item_long = item.child(LONG_KEY).getValue().toString();
-                                int dollar_signs =Integer.valueOf(item.child(COST_KEY).getValue().toString());
+                                int dollar_signs = Integer.valueOf(item.child(COST_KEY).getValue().toString());
                                 Location rest_location = new Location(String.valueOf(location));
                                 rest_location.setLongitude(Double.parseDouble(item_long));
                                 rest_location.setLatitude(Double.parseDouble(item_lat));
 
                                 //If we have not already accounted for this restaurant, add it, else ignore
-                                if(!restaurantGeoChecker.contains(location)){
+                                if (!restaurantGeoChecker.contains(location))
+                                {
 
-                                    //TODO: App breaking error started from here, getLocation() MIGHT BE NULL
-                                    Log.w(TAG, "This is the value of rest_location: " + rest_location);
+                                    //TODO:Check if this actually works or breaks. Access app after like n hour of not using without ending task
+                                    //Just in case user is re-accessing location services from an odd point in time, re do the process so user location is not null
+                                    if (LocationHelper.getLocation() == null)
+                                    {
+                                        final Location[] mLastLocation = new Location[1];
+                                        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+
+                                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                            return;
+                                        }
+                                        mFusedLocationClient.getLastLocation().addOnSuccessListener(getParent(), new OnSuccessListener<Location>() {
+                                            @Override
+                                            public void onSuccess(Location location) {
+                                                // Got last known location. In some rare situations, this can be null.
+                                                if (location != null) {
+                                                    mLastLocation[0] = location;
+
+                                                }
+                                                //Location could not be accessed, therefor try using zipcode.
+                                                else {
+                                                    //This variable keeps last used zipcode user has used in the past
+                                                    SharedPreferences sharedZip = getSharedPreferences("ZIP_PREF", MODE_PRIVATE);
+                                                    final String restoredZip = sharedZip.getString("zipCode", null);
+                                                    LocationHelper.setLocationAccessible(false);
+
+                                                    //If user has a saved zipcode, move on to Restaurant View
+                                                    if (restoredZip != null) {
+                                                        try {
+                                                            LocationHelper.setZipcodeAndAll(restoredZip, getApplicationContext());
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        });
+                                    }
+
+                                    //Now do actual calculations
+
                                     restaurant.add(new Restaurant(name, rest_location, item.getKey(),dollar_signs, LocationHelper.findStreedAddress(rest_location,getApplicationContext()), LocationHelper.getLocation()));
                                     restaurantGeoChecker.add(location);
                                     System.out.println("RestaurantViewActivity: ADDING NEW RESTAURANT : " + name + ", " + item_lat + ", " + item_long + "  item.getKey() = " + item.getKey() + " location = " + location);
@@ -358,24 +401,14 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
         super.onResume();
         File file = new File(getFilesDir().toString() + "/model");
         //We check if there are more than 7 models (7 model* 3 files each for now) and if so, start a new
-      //  if (file.exists() && file.listFiles().length > 21)
-          //  deleteFiles();
+        if (file.exists() && file.listFiles().length > 21)
+           deleteFiles();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
         prepareRestaurantArray();
-    }
-
-    //Delete the folder if application is closed.
-    //TODO: Find different way to know if app has been  closed, on Destroy is Skipped when user closes application from Android app Manager
-    @Override
-    protected void onDestroy() {
-
-        super.onDestroy();
-        //Lets get rid of that models folder for now (-:
-      //  deleteFiles();
     }
 
     //Set new list of restaurants

@@ -52,18 +52,20 @@
         </activity>
 
         <activity
+            android:name="menu.noni.android.noni.model3D.view.RestaurantViewActivity"
+            android:label="@string/title_activity_menu"
+            android:parentActivityName="menu.noni.android.noni.model3D.MainActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <activity
             android:name="menu.noni.android.noni.model3D.view.ModelActivity"
             android:label="@string/title_activity_model"
             android:parentActivityName="menu.noni.android.noni.model3D.MainActivity"
             android:screenOrientation="portrait" >
         </activity>
 
-        <activity
-            android:name="menu.noni.android.noni.model3D.view.RestaurantViewActivity"
-            android:label="@string/title_activity_menu"
-            android:parentActivityName="menu.noni.android.noni.model3D.MainActivity"
-            android:screenOrientation="portrait" >
-        </activity>
+        <service android:name=".OnClearFromRecentService" />
     </application>
 
 </manifest>

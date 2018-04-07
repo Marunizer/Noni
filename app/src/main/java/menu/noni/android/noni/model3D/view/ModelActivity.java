@@ -419,7 +419,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         }
 	}
 
-	//Prepares and checks Downloads to be done, then starts eaCH download in a thread if necessary
+	//Prepares and checks Downloads to be done, then starts eaCH download in a thread if necessary//basically a factory
 	private void prepareDownload(final Menu.Categories.MenuItem modelToDownload){
 
 		// TODO: Do not download obj, instead download draco, then convert to obj, Implement AFTER Draco use is finished
@@ -746,24 +746,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     @Override
     public void onMethodCallbackCategory(int index) {
         onCategorySelect(index);
-    }
-
-    public void deleteFiles()  {
-    	Log.i(TAG, "Deleting all files within model folder");
-        File file = new File(getFilesDir().toString() + "/model");
-        if(file.exists()){
-			try {
-				FileUtils.deleteDirectory(file);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-      //  deleteFiles();
     }
 }
 

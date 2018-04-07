@@ -159,6 +159,7 @@ public class LocationHelper {
     }
 
     public static Location getLocation() {
+
         return location;
     }
 

@@ -14,6 +14,8 @@ public class SplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
+
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
