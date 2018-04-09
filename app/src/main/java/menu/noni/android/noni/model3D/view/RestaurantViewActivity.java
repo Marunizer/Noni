@@ -177,11 +177,6 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                 //Will be to a standard 8 km = 5 miles, unless changed by the user
                 double radius = LocationHelper.getRadius();
 
-                //hardcoded values for testing purposes, eventually remove
-                //Set to My/Farzas house
-                latitude = 28.546373;
-                longitude = -81.162192;
-
                 //A GeoFire GeoQuery takes in the latitude, longitude, and finally the radius based on kilometers.
                 //Probably want to make multiple queries incrementing the radius based on some calculation
                 final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), radius);
