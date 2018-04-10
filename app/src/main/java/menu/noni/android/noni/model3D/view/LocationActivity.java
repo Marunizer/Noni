@@ -67,6 +67,7 @@ public class LocationActivity  extends Activity{
 
                             Intent intent = new Intent(LocationActivity.this.getApplicationContext(), RestaurantViewActivity.class);
                             LocationActivity.this.startActivity(intent);
+                            finish();
                         }
                         catch (IOException e) {
                             Toast.makeText(LocationActivity.this, "Unable to find location with zipcode, Please allow the noni to access location",

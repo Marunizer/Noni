@@ -18,16 +18,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"
-        android:visibility="invisible">
-    </FrameLayout>
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/store_name"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="12dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="12dp"
         android:fontFamily="@font/avenir"
         android:gravity="end"
         android:maxLines="2"
@@ -37,43 +36,43 @@
 
     <TextView
         android:id="@+id/title_text"
-        android:gravity="end"
-        android:layout_marginEnd="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/store_name"
+        android:layout_marginEnd="16dp"
         android:fontFamily="@font/avenir"
+        android:gravity="end"
         android:textColor="#000000"
         android:textSize="24sp" />
 
     <TextView
         android:id="@+id/item_cost"
-        android:gravity="end"
-        android:layout_marginEnd="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title_text"
-        android:fontFamily="@font/avenir"
         android:layout_alignParentEnd="true"
+        android:layout_below="@id/title_text"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/avenir"
+        android:gravity="end"
         android:textColor="#000000"
         android:textSize="24sp" />
 
     <!--<com.joooonho.SelectableRoundedImageView-->
-        <!--android:id="@+id/view_change"-->
-        <!--android:layout_width="64dp"-->
-        <!--android:layout_height="64dp"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:layout_marginEnd="12dp"-->
-        <!--android:layout_marginTop="25dp"-->
-        <!--android:onClick="onViewChange"-->
-        <!--android:scaleType="centerCrop"-->
-        <!--android:src="@android:drawable/ic_menu_camera"-->
-        <!--app:sriv_border_color="#F29AB2"-->
-        <!--app:sriv_border_width="2dp"-->
-        <!--app:sriv_oval="true" />-->
+    <!--android:id="@+id/view_change"-->
+    <!--android:layout_width="64dp"-->
+    <!--android:layout_height="64dp"-->
+    <!--android:layout_alignParentEnd="true"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:layout_marginEnd="12dp"-->
+    <!--android:layout_marginTop="25dp"-->
+    <!--android:onClick="onViewChange"-->
+    <!--android:scaleType="centerCrop"-->
+    <!--android:src="@android:drawable/ic_menu_camera"-->
+    <!--app:sriv_border_color="#F29AB2"-->
+    <!--app:sriv_border_width="2dp"-->
+    <!--app:sriv_oval="true" />-->
 
     <com.joooonho.SelectableRoundedImageView
         android:id="@+id/backButton"
@@ -108,9 +107,9 @@
     <LinearLayout
         android:id="@+id/recycler_layout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@drawable/cast_expanded_controller_bg_gradient_light"
+        android:layout_height="106dp"
         android:layout_alignParentBottom="true"
+        android:background="@drawable/cast_expanded_controller_bg_gradient_light"
         android:orientation="horizontal">
 
         <android.support.v7.widget.RecyclerView
@@ -126,21 +125,21 @@
         android:id="@+id/download_gif"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="150dp"
-        android:visibility="invisible"
-        android:contentDescription="@string/loading_progress_circle" />
+        android:contentDescription="@string/loading_progress_circle"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/loading_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/download_gif"
-        android:text="Fetching your meal..."
-        android:textColor="@color/noni_theme"
-        android:textSize="36sp"
+        android:layout_centerHorizontal="true"
         android:fontFamily="@font/avenir"
-        android:layout_centerHorizontal="true"/>
+        android:text="@string/fetching_your_meal"
+        android:textColor="@color/noni_theme"
+        android:textSize="36sp" />
 
 </RelativeLayout>

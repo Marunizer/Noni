@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center"
     android:gravity="center"
     android:orientation="vertical">
@@ -11,15 +10,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginStart="4dp"
         android:gravity="center">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:text="Location Preferences"
+            android:text="@string/location_preferences"
             android:textSize="20sp" />
 
     </LinearLayout>
@@ -30,21 +29,22 @@
         android:orientation="horizontal">
 
         <RadioButton
-            android:buttonTint="@color/noni_theme"
             android:id="@+id/radio_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:textSize="20sp"
-            android:text="@string/location" />
-        <RadioButton
             android:buttonTint="@color/noni_theme"
+            android:text="@string/location"
+            android:textSize="20sp" />
+
+        <RadioButton
             android:id="@+id/radio_zipcode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:textSize="20sp"
-            android:text="@string/zipcode"/>
+            android:buttonTint="@color/noni_theme"
+            android:text="@string/zipcode"
+            android:textSize="20sp" />
     </RadioGroup>
 
     <EditText
@@ -62,27 +62,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
         android:layout_marginEnd="4dp"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_marginStart="4dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:text="Max Distance: (miles) "
+            android:text="@string/max_distance_miles"
             android:textSize="20sp" />
 
         <com.xw.repo.BubbleSeekBar
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
             android:id="@+id/location_seek_bar"
-            android:layout_marginTop="36dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:bsb_max="20"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="36dp"
             app:bsb_auto_adjust_section_mark="false"
+            app:bsb_max="20"
             app:bsb_second_track_color="@color/noni_theme"
             app:bsb_section_count="10"
             app:bsb_section_text_position="bottom_sides"
@@ -90,7 +90,7 @@
             app:bsb_show_section_text="false"
             app:bsb_show_thumb_text="false"
             app:bsb_thumb_text_size="18sp"
-            app:bsb_touch_to_seek="true"/>
+            app:bsb_touch_to_seek="true" />
 
     </LinearLayout>
 

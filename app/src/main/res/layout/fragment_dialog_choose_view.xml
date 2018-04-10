@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
@@ -11,47 +11,55 @@
         android:layout_weight="4"
         android:background="@color/black_overlay">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:scaleType="centerCrop" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/three_d_view_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:background="@color/black_overlay"
-            android:fontFamily="@font/avenir"
-            android:text="3D MENU"
-            android:gravity="center"
-            android:maxLines="2"
-            android:textColor="@color/cast_expanded_controller_text_color"
-            android:textSize="30sp" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:contentDescription="@string/_3d_selection_image"
+                android:scaleType="centerCrop" />
 
-        <!--android:background="#CC000000"-->
+            <TextView
+                android:id="@+id/three_d_view_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:background="@color/black_overlay"
+                android:fontFamily="@font/avenir"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="@string/_3d_menu"
+                android:textColor="@color/cast_expanded_controller_text_color"
+                android:textSize="30sp" />
 
-    </RelativeLayout>
-</android.support.v7.widget.CardView>
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
-    <View
-        android:id="@+id/splitter"
+    <!--<View-->
+    <!--android:id="@+id/splitter"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="12dp"-->
+    <!--android:background="#000000" />-->
+
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:background="#000000">
-    </View>
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:gravity="center"
+        android:text="@string/or"
+        android:textColor="@color/cast_expanded_controller_text_color"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <android.support.v7.widget.CardView
-        android:layout_weight="4"
         android:id="@+id/selection_ar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="4"
         android:background="@color/black_overlay">
 
         <RelativeLayout
@@ -64,6 +72,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
+                android:contentDescription="@string/ar_selection_image"
                 android:scaleType="centerCrop" />
 
             <TextView
@@ -74,13 +83,11 @@
                 android:layout_centerVertical="true"
                 android:background="@color/black_overlay"
                 android:fontFamily="@font/avenir"
-                android:text="AR MENU"
                 android:gravity="center"
                 android:maxLines="2"
+                android:text="@string/ar_menu"
                 android:textColor="@color/cast_expanded_controller_text_color"
                 android:textSize="30sp" />
-
-            <!--android:background="#CC000000"-->
 
         </RelativeLayout>
 
