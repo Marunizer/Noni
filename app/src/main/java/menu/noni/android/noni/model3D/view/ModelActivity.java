@@ -93,6 +93,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	int check = 0;
 
 	private boolean firstAccess = true; // first time opening Activity
+	private boolean firstAR = false; //Used on very first instance of AR
     private boolean firstDownloadAndLoad = true; //first time download AND load
     private boolean viewFlag = false;//false -> 3D viewer (default)|| true -> AR viewer
     private boolean snackBarChange = false; // Have we change AR views snack bar only for when we have a button allwing a change between views
@@ -114,8 +115,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	private TextView downloadText;
     private TextView foodTitle;
     private TextView foodCost;
-    private TextView menuTitle;
+   // private TextView menuTitle;
     private Button categoryButton;
+    private Button arButton;
 
 	public native void stringFromJNI(String dracoFile, String objFile);
 	static {
@@ -149,8 +151,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         setContentView(R.layout.activity_model_viewer);
         foodTitle = findViewById(R.id.title_text);
         foodCost = findViewById(R.id.item_cost);
-        menuTitle = findViewById(R.id.store_name);
+       // menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
+        arButton = findViewById(R.id.view_change);
         downloadText = findViewById(R.id.loading_text);
 		gifView = findViewById(R.id.download_gif);
 		GlideApp.with(this)
@@ -164,6 +167,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		gradientFrameTop = findViewById(R.id.gradient_frame_top);
 		gradientFrameTop.getBackground().setAlpha(20);
 		categoryButton.setVisibility(View.GONE);
+		arButton.setVisibility(View.GONE);
 		recyclerLayout.getBackground().setAlpha(100);//50% at 128, transparent 0% -> 255
 
         //Set up the recyclerView
@@ -311,7 +315,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 								categoryIndex = 0;
 								foodTitle.setText(menuItem.getName());
 								foodCost.setText(menuItem.getCost());
-								menuTitle.setText(restaurantName);
+								//menuTitle.setText(restaurantName);
 								categoryButton.setText(categoryKey);
 								setModelItem(menuItem);
 
@@ -398,7 +402,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 			foodTitle.setTextColor(Color.WHITE);
 			foodCost.setTextColor(Color.WHITE);
-			menuTitle.setTextColor(Color.WHITE);
+			//menuTitle.setTextColor(Color.WHITE);
 			gradientFrameTop.setVisibility(View.VISIBLE);
 
 			arModelFragment = new ARModelFragment();
@@ -477,6 +481,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			onDownloadGifEnd();
 			recyclerLayout.setVisibility(View.VISIBLE);
 			categoryButton.setVisibility(View.VISIBLE);
+			arButton.setVisibility(View.VISIBLE);
         }
 	}
 
@@ -543,6 +548,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
                             onDownloadGifEnd();
 							recyclerLayout.setVisibility(View.VISIBLE);
 							categoryButton.setVisibility(View.VISIBLE);
+							arButton.setVisibility(View.VISIBLE);
                         }
 					}
 						System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName() + imageKey  + "    downloadCheck = " + targetModel.getAtomicDownloadCheck());
@@ -594,6 +600,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					onDownloadGifEnd();
 					recyclerLayout.setVisibility(View.VISIBLE);
 					categoryButton.setVisibility(View.VISIBLE);
+					arButton.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -664,6 +671,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		downloadText.setVisibility(View.GONE);
 		recyclerLayout.setVisibility(View.VISIBLE);
 		categoryButton.setVisibility(View.VISIBLE);
+		arButton.setVisibility(View.VISIBLE);
 	}
 
     //Category Button : Shows DialogFragment
@@ -742,53 +750,53 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		this.finish();
 	}
 
-//	//Change between AR view and 3D view
-//	public void onViewChange(View view) {
-//
-//        //Already in 3D view -> go to AR
-//		if (!viewFlag) {
-//			viewFlag = true;
-//			gradientFrameTop.setVisibility(View.VISIBLE);
-//
-//			//This is the very first and only instance of the ARFragment we will have (:
-//			if (!firstAR) {
-//				Bundle bundle = new Bundle();
-//				bundle.putString("fileName", getParamFilename());
-//				bundle.putString("textureName", getTextureFilename());
-//
-//				firstAR = true;
-//				arModelFragment = new ARModelFragment();
-//				arModelFragment.setArguments(bundle);
-//				fragMgr = getSupportFragmentManager();
-//				fragMgr.beginTransaction().setCustomAnimations(android.R.animator.fade_in,
-//						android.R.animator.fade_out).replace(R.id.modelFrame, arModelFragment, arModelFragment.getTag()).commit();
-//			} else //AR Fragment has already been made ! So lets just keep it ;)
-//			{
-//				if (snackBarChange)//we messed with this
-//				{
-//					snackBarChange = false;
-//					arModelFragment.showLoadingMessage();
-//				}
-//				FragmentTransaction ft = fragMgr.beginTransaction();
-//				ft.remove(modelFragment);
-//				ft.show(arModelFragment);
-//				arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename);
-//				ft.commit();
-//			}
-//		}
-//		else //We Are in AR View, go to 3DView
-//		{
-//			fragMgr.beginTransaction().hide(arModelFragment).commit();
-//			if(arModelFragment.loadingMessageSnackbar!= null)
-//			{
-//				snackBarChange = true;
-//				arModelFragment.hideLoadingMessage();
-//			}
-//			viewFlag = false;
-//			gradientFrameTop.setVisibility(View.INVISIBLE);
-//			beginLoadingModel();
-//		}
-//	}
+	//Change between AR view and 3D view
+	public void onViewChange(View view) {
+
+        //Already in 3D view -> go to AR
+		if (!viewFlag) {
+			viewFlag = true;
+			gradientFrameTop.setVisibility(View.VISIBLE);
+
+			//This is the very first and only instance of the ARFragment we will have (:
+			if (!firstAR) {
+				Bundle bundle = new Bundle();
+				bundle.putString("fileName", getParamFilename());
+				bundle.putString("textureName", getTextureFilename());
+
+				firstAR = true;
+				arModelFragment = new ARModelFragment();
+				arModelFragment.setArguments(bundle);
+				fragMgr = getSupportFragmentManager();
+				fragMgr.beginTransaction().setCustomAnimations(android.R.animator.fade_in,
+						android.R.animator.fade_out).replace(R.id.modelFrame, arModelFragment, arModelFragment.getTag()).commit();
+			} else //AR Fragment has already been made ! So lets just keep it ;)
+			{
+				if (snackBarChange)//we messed with this
+				{
+					snackBarChange = false;
+					arModelFragment.showLoadingMessage();
+				}
+				FragmentTransaction ft = fragMgr.beginTransaction();
+				ft.remove(modelFragment);
+				ft.show(arModelFragment);
+				arModelFragment.passData(this.modelItem, this.paramFilename, this.textureFilename, false);
+				ft.commit();
+			}
+		}
+		else //We Are in AR View, go to 3DView
+		{
+			fragMgr.beginTransaction().hide(arModelFragment).commit();
+			if(arModelFragment.loadingMessageSnackbar!= null)
+			{
+				snackBarChange = true;
+				arModelFragment.hideLoadingMessage();
+			}
+			viewFlag = false;
+			gradientFrameTop.setVisibility(View.INVISIBLE);
+			beginLoadingModel();
+		}
+	}
 
     @Override
     public void onMethodCallbackCategory(int index) {
