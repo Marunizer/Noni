@@ -37,7 +37,6 @@ public class ModelFragment extends Fragment {
 
     private float[] backgroundColor = new float[]{1.0f,1.0f,1.0f,1.0f};// new float[]{0.2f, 0.2f, 0.2f, 1.0f}; //gray
     //new float[] {0.0f, 0.0f, 0.0f, 0.0f}; //black
-    //TODO: Make this a white color background, If I do this, I also need to add a gradient layer to the model frame
 
     private ModelSurfaceView gLView;
     private SceneLoader scene;

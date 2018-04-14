@@ -12,12 +12,13 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
+                arguments "-DANDROID_STL=c++_shared"
                 cppFlags "-std=c++11"
-                arguments "-DANDROID_STL=c++_shared", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_CPP_FEATURES=rtti exceptions", "-DANDROID_UNIFIED_HEADERS=ON"
-                cppFlags "-DDRACO_POINT_CLOUD_COMPRESSION_SUPPORTED"
-                cppFlags "-DDRACO_MESH_COMPRESSION_SUPPORTED"
-                cppFlags "-DDRACO_STANDARD_EDGEBREAKER_SUPPORTED"
-                cppFlags "-DDRACO_PREDICTIVE_EDGEBREAKER_SUPPORTED"
+                //arguments "-DANDROID_STL=c++_shared", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_CPP_FEATURES=rtti exceptions", "-DANDROID_UNIFIED_HEADERS=ON"
+//                cppFlags "-DDRACO_POINT_CLOUD_COMPRESSION_SUPPORTED"
+//                cppFlags "-DDRACO_MESH_COMPRESSION_SUPPORTED"
+//                cppFlags "-DDRACO_STANDARD_EDGEBREAKER_SUPPORTED"
+//                cppFlags "-DDRACO_PREDICTIVE_EDGEBREAKER_SUPPORTED"
             }
         }
     }
@@ -27,9 +28,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            // let gradle pack the shared library into apk
+            jniLibs.srcDirs = ['../distribution/gperf/lib']
+        }
+    }
     externalNativeBuild {
         cmake {
-            path "CMakeLists.txt"
+            path 'src/main/cpp/CMakeLists.txt'
         }
     }
 }
@@ -62,8 +69,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:12.0.1'
     implementation 'com.firebase:firebase-client-android:2.5.0'
     implementation 'com.xw.repo:bubbleseekbar:3.16'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
 
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'

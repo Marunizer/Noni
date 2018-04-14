@@ -9,8 +9,8 @@
 
     <com.joooonho.SelectableRoundedImageView
         android:id="@+id/circle_image"
-        android:layout_width="74dp"
-        android:layout_height="74dp"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
         android:src="@drawable/cast_album_art_placeholder"
@@ -20,7 +20,7 @@
 
     <TextView
         android:id="@+id/circle_text"
-        android:layout_width="74dp"
+        android:layout_width="96dp"
         android:gravity="center"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

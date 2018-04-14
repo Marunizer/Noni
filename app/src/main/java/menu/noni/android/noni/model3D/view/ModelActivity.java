@@ -41,7 +41,11 @@ import com.joooonho.SelectableRoundedImageView;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -65,21 +69,10 @@ import menu.noni.android.noni.model3D.util.Menu;
  */
 public class ModelActivity extends FragmentActivity implements MyCircleAdapter.AdapterCallback, CategoryPickerAdapter.AdapterCallbackCategory{
 
-//	// Used to load the 'native-lib' library on application startup.
-//	static {
-//		System.loadLibrary("native-lib");
-//	}
-//
-//	/**
-//	 * A native method that is implemented by the 'native-lib' native library,
-//	 * which is packaged with this application.
-//	 */
-//	public native String stringFromJNI();
-//	//call method as normal with stringFromJNI()
-
     private static final String TAG = ModelActivity.class.getSimpleName();
     //eventually try to have deeper levels of control, but for now one folder for all works
     private File storageFile;
+    private File externalFile;
 
 	// Storage Permissions
 	private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -124,6 +117,11 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
     private TextView menuTitle;
     private Button categoryButton;
 
+	public native void stringFromJNI(String dracoFile, String objFile);
+	static {
+		System.loadLibrary("hello-libs");
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,6 +132,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		{
 			this.paramAssetDir = getFilesDir().getAbsolutePath();
             this.storageFile = new File(getFilesDir() + File.separator + "model");
+			this.externalFile = new File("/storage/emulated/0/FLYNN");
 			this.coordinateKey = b.getString("coordinateKey");
 			this.restaurantName = b.getString("restaurantName");
 
@@ -176,6 +175,9 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 		if (!storageFile.exists())
 			storageFile.mkdirs();
+
+		if (!externalFile.exists())
+			externalFile.mkdirs();
 
 		//Check permission and request for storage options... Then proceed with application
 		if(verifyStoragePermissions())
@@ -266,47 +268,56 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					//For each model in this category Add to allItems table
 					for(DataSnapshot model: items.getChildren())
 					{
-						//keep reference for deeper level of model data for each model
-						DataSnapshot data = model.child("model_data_android");
 
-						String descriptionText;
+						boolean isHidden = false;
 
-						//check if item has a description, Database is not consistent at the moment
-						if(!model.child("description").exists())
-							descriptionText = model.getKey();
-						else
-							descriptionText = model.child("description").getValue().toString();
+						//if equals true, then this will be true, if doesnt, will be false
+						isHidden = model.child("hidden").getValue().toString().equals("true");
 
-						//Create the menu item
-						Menu.Categories.MenuItem menuItem = new Menu.Categories.MenuItem(
-								model.getKey(),
-								data.child("drc_name").getValue().toString(),
-								data.child("mtl_name").getValue().toString(),
-								data.child("texture_name").getValue().toString(),
-								model.child("icon_name").getValue().toString(),
-								descriptionText,
-								model.child("price").getValue().toString());
-
-						//Add the menu item to the table AND the order added to our list
-						category.allItems.put(model.getKey(),menuItem);
-						category.keyConverter.add(model.getKey());
-						System.out.println(TAG + " Adding item : " + menuItem.getName());
-
-						//If first item to even be looked at, Begin Activity progress
-						if(firstAccess && categoryOrganized)
+						if (!isHidden)
 						{
-							organizeCategories();
-							firstAccess = false;
-							categoryKey = categories.getKey();
-							categoryIndex = 0;
-							foodTitle.setText(menuItem.getName());
-							foodCost.setText(menuItem.getCost());
-							menuTitle.setText(restaurantName);
-							categoryButton.setText(categoryKey);
-							setModelItem(menuItem);
+							//keep reference for deeper level of model data for each model
+							DataSnapshot data = model.child("model_data_android");
 
-							//Would rather start downloading/loading first model here, TESTING at the moment, may be better method
-							firstAccess();
+							String descriptionText;
+
+							//check if item has a description, Database is not consistent at the moment
+							if(!model.child("description").exists())
+								descriptionText = model.getKey();
+							else
+								descriptionText = model.child("description").getValue().toString();
+
+							//Create the menu item
+							Menu.Categories.MenuItem menuItem = new Menu.Categories.MenuItem(
+									model.getKey(),
+									data.child("drc_name").getValue().toString(),
+									data.child("mtl_name").getValue().toString(),
+									data.child("texture_name").getValue().toString(),
+									model.child("icon_name").getValue().toString(),
+									descriptionText,
+									model.child("price").getValue().toString());
+
+							//Add the menu item to the table AND the order added to our list
+							category.allItems.put(model.getKey(),menuItem);
+							category.keyConverter.add(model.getKey());
+							System.out.println(TAG + " Adding item : " + menuItem.getName());
+
+							//If first item to even be looked at, Begin Activity progress
+							if(firstAccess && categoryOrganized)
+							{
+								organizeCategories();
+								firstAccess = false;
+								categoryKey = categories.getKey();
+								categoryIndex = 0;
+								foodTitle.setText(menuItem.getName());
+								foodCost.setText(menuItem.getCost());
+								menuTitle.setText(restaurantName);
+								categoryButton.setText(categoryKey);
+								setModelItem(menuItem);
+
+								//Would rather start downloading/loading first model here, TESTING at the moment, may be better method
+								firstAccess();
+							}
 						}
 					}
 				}
@@ -422,26 +433,28 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	//Prepares and checks Downloads to be done, then starts eaCH download in a thread if necessary//basically a factory
 	private void prepareDownload(final Menu.Categories.MenuItem modelToDownload){
 
-		// TODO: Do not download obj, instead download draco, then convert to obj, Implement AFTER Draco use is finished
-        // String drcPath = getFilesDir().toString() + "/model/" + modelToDownload.getDrcPath();
-		String objPath = getFilesDir().toString() + "/model/" + modelToDownload.getObjPath();
+        final String drcPath = "/storage/emulated/0/FLYNN/" + modelToDownload.getDrcPath();
+        final String otherPath = "/storage/emulated/0/FLYNN/" + modelToDownload.getObjPath();
 		String mtlPath = getFilesDir().toString() + "/model/" + modelToDownload.getMtlPath();
 		String jpgPath = getFilesDir().toString() + "/model/" + modelToDownload.getJpgPath();
 
-		//File drcFile = new File(drcPath);
-		final File objFile = new File(objPath);
+		final File drcFile = new File(drcPath);
 		final File mtlFile = new File(mtlPath);
 		final File jpgFile = new File(jpgPath);
 
-		if(!objFile.exists() || !mtlFile.exists() || !jpgFile.exists())
+		if(!drcFile.exists() || !mtlFile.exists() || !jpgFile.exists())
 		{
-		  //  dracoDownload(drcFile, modelToDownload.getDrcPath());
+			Thread downloadDrcThread = new Thread(){
+				public void run(){
+					downloadModel(drcFile, modelToDownload.getDrcPath(), modelToDownload);
 
-            Thread downloadObjThread = new Thread(){
-                public void run(){
-                    downloadModel(objFile, modelToDownload.getObjPath(), modelToDownload);
-                }
-            };
+					if(modelToDownload.getName().equals("Blueberry Pancakes")) {
+						stringFromJNI(drcPath, otherPath);
+						System.out.println("yes draco Path: " + drcPath + " at " + modelToDownload.getName());
+					}
+					System.out.println("MAKE IT HERE");
+				}
+			};
 
             Thread downloadMtlThread = new Thread(){
                 public void run(){
@@ -454,7 +467,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
                     downloadModel(jpgFile, modelToDownload.getJpgPath(), modelToDownload);
                 }
             };
-            downloadObjThread.start();
+            downloadDrcThread.start();
             downloadMtlThread.start();
             downloadJpgThread.start();
 		}
@@ -465,6 +478,22 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			recyclerLayout.setVisibility(View.VISIBLE);
 			categoryButton.setVisibility(View.VISIBLE);
         }
+	}
+
+	//copy contents of external file to internal file
+	private void externalToInternal(String inputExternal, String outputInternal) throws IOException{
+
+		File src = new File(inputExternal);
+		File dst = new File(outputInternal);
+		InputStream is=new FileInputStream(src);
+		OutputStream os=new FileOutputStream(dst);
+		byte[] buff=new byte[1024];
+		int len;
+		while((len=is.read(buff))>0){
+			os.write(buff,0,len);
+		}
+		is.close();
+		os.close();
 	}
 
 	//Final download stage: Downloads requested file from Firebase storage
@@ -484,9 +513,22 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
 					targetModel.incrementAtomicDownloadCheck();
 
-					if(targetModel.getAtomicDownloadCheck()%3==0)
+					if(targetModel.getAtomicDownloadCheck()%3==0)//cause draco lol
 					{
-					    //model fully downloaded, set reference to true
+						//This creates the obk file
+						final String drcPath = "/storage/emulated/0/FLYNN/" + targetModel.getDrcPath();
+						final String otherPath = "/storage/emulated/0/FLYNN/" + targetModel.getObjPath();
+						final String finalPath = getFilesDir().toString() + "/model/" + targetModel.getObjPath();
+						stringFromJNI(drcPath, otherPath);
+						//Here we want to copy the external file and move it to internal
+						try {
+							System.out.println("We are attempting to move file to internal");
+							externalToInternal(otherPath,finalPath);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+						//model fully downloaded, set reference to true
 						targetModel.setDownloaded();
 
 						beginBackroundDownload();
@@ -503,7 +545,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 							categoryButton.setVisibility(View.VISIBLE);
                         }
 					}
-					System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName() + imageKey  + "    downloadCheck = " + targetModel.getAtomicDownloadCheck());
+						System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName() + imageKey  + "    downloadCheck = " + targetModel.getAtomicDownloadCheck());
 				}
 			}).addOnFailureListener(new OnFailureListener() {
 				@Override
@@ -524,11 +566,22 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		{
 			targetModel.incrementAtomicDownloadCheck();
 			//Even if does not exist, should still increment if other files rely on it
-			if(targetModel.getAtomicDownloadCheck()%3==0)
+			if(targetModel.getAtomicDownloadCheck()%3==0) //4 downloads lol
 			{
+				//This creates the obk file
+				final String drcPath = "/storage/emulated/0/FLYNN/" + targetModel.getDrcPath();
+				final String otherPath = "/storage/emulated/0/FLYNN/" + targetModel.getObjPath();
+				final String finalPath = getFilesDir().toString() + "/model/" + targetModel.getObjPath();
+				stringFromJNI(drcPath, otherPath);
+				//Here we want to copy the external file and move it to internal
+				try {
+					externalToInternal(otherPath,finalPath);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 				//model fully downloaded, set reference to true
 				targetModel.setDownloaded();
-				//getModelItem().setDownloaded();
 				beginBackroundDownload();
 				// First model to be downloaded, load ASAP
 				if (firstDownloadAndLoad)
@@ -544,12 +597,6 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 				}
 			}
 		}
-	}
-
-	//To be used to download Draco file
-	private void dracoDownload(File files_folder, String imageKey) {
-
-		//TODO: Download Draco to external folder, then decompress for obj
 	}
 
 	//Assume in 3D view: loads model selected
@@ -615,8 +662,8 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	{
 		gifView.setVisibility(View.GONE);
 		downloadText.setVisibility(View.GONE);
-		//Apperantly this get's called a million times???? so not a good idea tO do this VVV
-		//beginLoadingModel();
+		recyclerLayout.setVisibility(View.VISIBLE);
+		categoryButton.setVisibility(View.VISIBLE);
 	}
 
     //Category Button : Shows DialogFragment

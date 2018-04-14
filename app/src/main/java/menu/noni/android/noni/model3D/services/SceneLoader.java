@@ -13,7 +13,6 @@ import java.util.List;
 import menu.noni.android.noni.model3D.model.Object3DBuilder;
 import menu.noni.android.noni.model3D.model.Object3DBuilder.Callback;
 import menu.noni.android.noni.model3D.model.Object3DData;
-import menu.noni.android.noni.model3D.view.ModelActivity;
 import menu.noni.android.noni.model3D.view.ModelFragment;
 import menu.noni.android.noni.util.url.android.Handler;
 

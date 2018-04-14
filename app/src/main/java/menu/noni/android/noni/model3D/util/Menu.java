@@ -202,7 +202,7 @@ public class Menu {
                 if (isOneWord(name))
                     return name;
                 else
-                    return convertToCamelCase(name);
+                    return name.replaceAll(" ","");//convertToCamelCase(name);
             }
 
             //TODO: Should move to Utils
@@ -243,6 +243,10 @@ public class Menu {
             //TODO: Should move to Utils
             private static boolean isOneWord(String s) {
                 return (s.length() > 0 && s.split("\\s+").length == 1);
+            }
+
+            public String getDrcPath() {
+                return drcPath;
             }
 
             //Unused for now, SplitsCamelCase --> Splits Camel Case

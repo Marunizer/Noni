@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.squareup.picasso.Picasso;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -199,7 +200,13 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
                                 String name = item.child(NAME_KEY).getValue().toString();
                                 String item_lat = item.child(LAT_KEY).getValue().toString();
                                 String item_long = item.child(LONG_KEY).getValue().toString();
-                                int dollar_signs = Integer.valueOf(item.child(COST_KEY).getValue().toString());
+                                int dollar_signs = 1;
+
+                                if (item.child(COST_KEY).getValue() != null)
+                                {
+                                    dollar_signs = Integer.valueOf(item.child(COST_KEY).getValue().toString());
+                                }
+
                                 Location rest_location = new Location(String.valueOf(location));
                                 rest_location.setLongitude(Double.parseDouble(item_long));
                                 rest_location.setLatitude(Double.parseDouble(item_lat));
@@ -474,10 +481,11 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
         //Get the path to the file from the data set
-        String path = "restsTableImages" + File.separator + ((Restaurant) mDataset.get(position)).getName() + "_main_image.png";
+        String path = "restsTableImages" + File.separator + ((Restaurant) mDataset.get(position)).getName().replaceAll("'", "").replaceAll(" ", "")+ "_main_image.png";
         //Create a StorageReference variable to store the path to the image
         StorageReference image = fbStorageReference.child(path);
 
+      //  File imgFile = image.get
 
         //Serve this path to Glide which is put into the image holder and cached for us
         //Can change withCrossFade timer to change fade in time, in milliseconds.
@@ -486,6 +494,8 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 .transition(DrawableTransitionOptions.withCrossFade(725))
                 .override(600,600)
                 .into(holder.restImage);
+      //  Picasso.with(context).load(image.getBucket()).into(holder.restImage);
+     //   Picasso.with(context).load(imgFile).into(holder.restImage);
 
         //Add '$' based on the number provided
         int dollar_cost = ((Restaurant) mDataset.get(position)).getGeneralCost();

@@ -10,6 +10,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.view.Window;
@@ -54,9 +55,17 @@ public class MainActivity extends Activity {
     //Stores the Location of user, involving specific coordinates and such
     Location mLastLocation;
 
+//    public native void stringFromJNI();
+//    static {
+//        System.loadLibrary("hello-libs");
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        String s =  Environment.getExternalStorageDirectory().getAbsolutePath().toString();
+//        stringFromJNI();
 
         context = this;
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);

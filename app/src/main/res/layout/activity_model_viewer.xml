@@ -107,7 +107,7 @@
     <LinearLayout
         android:id="@+id/recycler_layout"
         android:layout_width="match_parent"
-        android:layout_height="106dp"
+        android:layout_height="132dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/cast_expanded_controller_bg_gradient_light"
         android:orientation="horizontal">
