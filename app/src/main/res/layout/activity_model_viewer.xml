@@ -58,6 +58,20 @@
         android:textColor="#000000"
         android:textSize="24sp" />
 
+    <TextView
+        android:layout_marginTop="6dp"
+        android:id="@+id/item_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/item_cost"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/avenir"
+        android:gravity="end"
+        android:textColor="#000000"
+        android:textSize="16dp"/>
+
     <com.joooonho.SelectableRoundedImageView
         android:id="@+id/backButton"
         android:layout_width="64dp"

@@ -115,6 +115,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 	private TextView downloadText;
     private TextView foodTitle;
     private TextView foodCost;
+    private TextView foodDescription;
    // private TextView menuTitle;
     private Button categoryButton;
     private Button arButton;
@@ -151,6 +152,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
         setContentView(R.layout.activity_model_viewer);
         foodTitle = findViewById(R.id.title_text);
         foodCost = findViewById(R.id.item_cost);
+        foodDescription = findViewById(R.id.item_description);
        // menuTitle = findViewById(R.id.store_name);
         categoryButton = findViewById(R.id.category_button);
         arButton = findViewById(R.id.view_change);
@@ -315,6 +317,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 								categoryIndex = 0;
 								foodTitle.setText(menuItem.getName());
 								foodCost.setText(menuItem.getCost());
+								foodDescription.setText(menuItem.getDescription());
 								//menuTitle.setText(restaurantName);
 								categoryButton.setText(categoryKey);
 								setModelItem(menuItem);
@@ -402,6 +405,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 
 			foodTitle.setTextColor(Color.WHITE);
 			foodCost.setTextColor(Color.WHITE);
+			foodDescription.setVisibility(View.GONE);
 			//menuTitle.setTextColor(Color.WHITE);
 			gradientFrameTop.setVisibility(View.VISIBLE);
 
@@ -481,7 +485,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 			onDownloadGifEnd();
 			recyclerLayout.setVisibility(View.VISIBLE);
 			categoryButton.setVisibility(View.VISIBLE);
-			arButton.setVisibility(View.VISIBLE);
+			//arButton.setVisibility(View.VISIBLE);
         }
 	}
 
@@ -548,7 +552,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
                             onDownloadGifEnd();
 							recyclerLayout.setVisibility(View.VISIBLE);
 							categoryButton.setVisibility(View.VISIBLE);
-							arButton.setVisibility(View.VISIBLE);
+							//arButton.setVisibility(View.VISIBLE);
                         }
 					}
 						System.out.println(TAG + " FINISHED DOWNLOADING... " + targetModel.getName() + imageKey  + "    downloadCheck = " + targetModel.getAtomicDownloadCheck());
@@ -600,7 +604,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 					onDownloadGifEnd();
 					recyclerLayout.setVisibility(View.VISIBLE);
 					categoryButton.setVisibility(View.VISIBLE);
-					arButton.setVisibility(View.VISIBLE);
+					//arButton.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -671,7 +675,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		downloadText.setVisibility(View.GONE);
 		recyclerLayout.setVisibility(View.VISIBLE);
 		categoryButton.setVisibility(View.VISIBLE);
-		arButton.setVisibility(View.VISIBLE);
+		//arButton.setVisibility(View.VISIBLE);
 	}
 
     //Category Button : Shows DialogFragment
@@ -727,6 +731,7 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		//Update UI
 		this.foodCost.setText(modelItem.getCost());
 		this.foodTitle.setText(modelItem.getName());
+		this.foodDescription.setText(modelItem.getDescription());
 
 		downloadAll(categoryIndex, menuIndex);
 
