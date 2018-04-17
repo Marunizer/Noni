@@ -13,7 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import menu.noni.android.noni.R;
 
@@ -28,6 +31,8 @@ public class SelectViewDialogFragment extends DialogFragment {
 
     CardView select3DCardView;
     CardView selectARCardView;
+    ImageView gif3D;
+    ImageView gifAR;
 
     //Helps pass along data
     String key;
@@ -48,6 +53,20 @@ public class SelectViewDialogFragment extends DialogFragment {
 
         select3DCardView = rootView.findViewById(R.id.selection_3d);
         selectARCardView = rootView.findViewById(R.id.selection_ar);
+        gif3D = rootView.findViewById(R.id.gid3D);
+        gifAR = rootView.findViewById(R.id.gifAR);
+
+        GlideApp.with(getContext())
+                .load(R.drawable.three_d_gif)
+                .transition(DrawableTransitionOptions.withCrossFade(800))
+                .override(600,600)
+                .into(gif3D);
+
+        GlideApp.with(getContext())
+                .load(R.drawable.ar_gif)
+                .transition(DrawableTransitionOptions.withCrossFade(800))
+                .override(600,600)
+                .into(gifAR);
 
         select3DCardView.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -9,13 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4"
-        android:background="@color/black_overlay">
+        android:background="@drawable/three_d_gif">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
+                android:id="@+id/gid3D"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
@@ -28,10 +29,10 @@
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:background="@color/black_overlay"
                 android:fontFamily="@font/avenir"
                 android:gravity="center"
                 android:maxLines="2"
+                android:background="@color/black_overlay"
                 android:text="@string/_3d_menu"
                 android:textColor="@color/cast_expanded_controller_text_color"
                 android:textSize="30sp" />
@@ -60,7 +61,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4"
-        android:background="@color/black_overlay">
+        android:background="@drawable/ar_gif">
 
         <RelativeLayout
 
@@ -68,7 +69,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-
+                android:id="@+id/gifAR"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
@@ -81,10 +82,10 @@
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:background="@color/black_overlay"
                 android:fontFamily="@font/avenir"
                 android:gravity="center"
                 android:maxLines="2"
+                android:background="@color/black_overlay"
                 android:text="@string/ar_menu"
                 android:textColor="@color/cast_expanded_controller_text_color"
                 android:textSize="30sp" />
