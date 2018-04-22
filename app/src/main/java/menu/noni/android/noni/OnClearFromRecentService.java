@@ -38,7 +38,7 @@ public class OnClearFromRecentService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
 
-        deleteFiles();
+       // deleteFiles();
         Log.e("ClearFromRecentService", "END");
         //Code here
         stopSelf();

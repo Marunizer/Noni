@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Paint;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -54,6 +56,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import menu.noni.android.noni.R;
+import menu.noni.android.noni.model3D.MainActivity;
 import menu.noni.android.noni.model3D.util.FireBaseHelper;
 import menu.noni.android.noni.model3D.util.LocationHelper;
 import menu.noni.android.noni.model3D.util.Restaurant;
@@ -400,16 +403,69 @@ public class RestaurantViewActivity extends AppCompatActivity implements MyAdapt
     protected void onResume()
     {
         super.onResume();
-        File file = new File(getFilesDir().toString() + "/model");
-        //We check if there are more than 7 models (7 model* 3 files each for now) and if so, start a new
-        if (file.exists() && file.listFiles().length > 21)
-           deleteFiles();
+//        File file = new File(getFilesDir().toString() + "/model");
+//        //We check if there are more than 7 models (7 model* 3 files each for now) and if so, start a new
+//        if (file.exists() && file.listFiles().length > 21)
+//           deleteFiles();
     }
+//
+//    void sendLocation(float latitude, float longitude) {
+//        Geocoder geocoder;
+//        List<Address> addresses;
+//        geocoder = new Geocoder(this, Locale.getDefault());
+//
+//        try {
+//            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+//            LocationHelper.setLocationAccessible(true);
+//            LocationHelper.setUsingLocation(true);
+//            LocationHelper.setLocation(mLastLocation);
+//            LocationHelper.setLongitude((float)mLastLocation.getLongitude());
+//            LocationHelper.setLatitude((float)mLastLocation.getLatitude());
+//            LocationHelper.setAddress(addresses.get(0).getAddressLine(0));
+//            LocationHelper.setStreetName(addresses.get(0).getThoroughfare());
+//            LocationHelper.setState(addresses.get(0).getAdminArea());
+//            LocationHelper.setCity(addresses.get(0).getLocality());
+//            LocationHelper.setZipcode(addresses.get(0).getPostalCode());
+//        } catch (IOException e) {
+//            sendLocation();
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        prepareRestaurantArray();
+
+//        double latitude = LocationHelper.getLatitude();
+//        double longitude = LocationHelper.getLongitude();
+
+        if (LocationHelper.isUsingLocation() && (LocationHelper.getLatitude() == 0.0f || LocationHelper.getLongitude() == 0.0f))
+        {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+//            SharedPreferences sharedLat = getSharedPreferences("LOCATION_LAT_PREF",MODE_PRIVATE);
+//            SharedPreferences sharedLong =  getSharedPreferences("LOCATION_LONG_PREF",MODE_PRIVATE);
+//
+//            final String restoredLat = sharedLat.getString("latitude", null);
+//            final String restoredLong = sharedLong.getString("longitude", null);
+
+        }
+        else if (!LocationHelper.isUsingLocation() && LocationHelper.getZipcode() == null)
+        {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        else
+            prepareRestaurantArray();
+
+        //if on location usage AND location == null
+        // then retrieve location from shared preferences, set it as the locationHelper
+
+        //else if on Zipcode usage AND zipcode == null
+        // then retrieve zipcode from sharedPreferences, set the locationHelper
+//        prepareRestaurantArray();
     }
 
     //Set new list of restaurants

@@ -55,17 +55,9 @@ public class MainActivity extends Activity {
     //Stores the Location of user, involving specific coordinates and such
     Location mLastLocation;
 
-//    public native void stringFromJNI();
-//    static {
-//        System.loadLibrary("hello-libs");
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        String s =  Environment.getExternalStorageDirectory().getAbsolutePath().toString();
-//        stringFromJNI();
 
         context = this;
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -114,6 +106,16 @@ public class MainActivity extends Activity {
                 if (location != null) {
                     mLastLocation = location;
                     sendLocation();
+
+//                    //Lets save the location of the user in case needed later on !
+//                    SharedPreferences.Editor latEditor = getSharedPreferences("LOCATION_LAT_PREF", MODE_PRIVATE).edit();
+//                    SharedPreferences.Editor longEditor = getSharedPreferences("LOCATION_LONG_PREF", MODE_PRIVATE).edit();
+//                    SharedPreferences.Editor providerEditor = getSharedPreferences("LOCATION_PROVIDER", MODE_PRIVATE).edit();
+//
+//                    latEditor.putString("latitude", String.valueOf(mLastLocation.getLatitude())).apply();
+//                    longEditor.putString("longitude", String.valueOf(mLastLocation.getLongitude())).apply();
+//                    providerEditor.putString("provider",mLastLocation.getProvider()).apply();
+
                     Intent intent = new Intent(MainActivity.this.getApplicationContext(), RestaurantViewActivity.class);
                     MainActivity.this.startActivity(intent);
                     finish();

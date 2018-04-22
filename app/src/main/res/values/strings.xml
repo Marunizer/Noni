@@ -60,7 +60,7 @@
     <string name="ar_menu">AR MENU</string>
     <string name="or">OR</string>
     <string name="max_distance_miles">Max Distance: (miles)</string>
-    <string name="fetching_your_meal">Fetching your meal...</string>
+    <string name="fetching_your_meal">Fetching your meal..</string>
     <string name="location_preferences">Location Preferences</string>
     <string name="switchMode">switch</string>
 </resources>

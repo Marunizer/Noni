@@ -280,7 +280,14 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 						//if equals true, then this will be true, if doesnt, will be false
 						isHidden = model.child("hidden").getValue().toString().equals("true");
 
-						if (!isHidden)
+						boolean hardCode = false;
+						if (viewFlag)
+						{
+							if (model.getKey().equals("Angus Burger"))
+								hardCode = true;
+						}
+
+						if (!isHidden && !hardCode)
 						{
 							//keep reference for deeper level of model data for each model
 							DataSnapshot data = model.child("model_data_android");
@@ -355,6 +362,20 @@ public class ModelActivity extends FragmentActivity implements MyCircleAdapter.A
 		if (check == 2)
 		{
 			downloadAll(categoryIndex, menuIndex+1);
+		}
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			getWindow().getDecorView().setSystemUiVisibility(
+					View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+							| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+							| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+							| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+							| View.SYSTEM_UI_FLAG_FULLSCREEN
+							| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 		}
 	}
 
