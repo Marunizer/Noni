@@ -17,8 +17,8 @@
         android:id="@+id/gradient_frame_top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"
         android:visibility="invisible" />
+        <!--android:background="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"-->
 
     <!--<TextView-->
         <!--android:id="@+id/store_name"-->
@@ -81,10 +81,10 @@
         android:onClick="onBackPress"
         android:rotation="180"
         android:scaleType="centerCrop"
-        android:src="@drawable/quantum_ic_play_arrow_grey600_36"
         app:sriv_border_color="#F29AB2"
         app:sriv_border_width="2dp"
         app:sriv_oval="true" />
+    <!--android:src="@drawable/quantum_ic_play_arrow_grey600_36"-->
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -130,8 +130,8 @@
         android:layout_width="match_parent"
         android:layout_height="132dp"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/cast_expanded_controller_bg_gradient_light"
         android:orientation="horizontal">
+        <!--android:background="@drawable/cast_expanded_controller_bg_gradient_light"-->
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/model_recycler_view"

@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"
     android:gravity="center"
     android:orientation="vertical"
     app:cardCornerRadius="05dp">
+    <!--android:background="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"-->
 
     <!-- A RecyclerView with some commonly used attributes -->
     <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"

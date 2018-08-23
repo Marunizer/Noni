@@ -34,8 +34,8 @@
             android:fontFamily="@font/avenir"
             android:gravity="center"
             android:maxLines="2"
-            android:textColor="@color/cast_expanded_controller_text_color"
             android:textSize="30sp" />
+        <!--android:textColor="@color/cast_expanded_controller_text_color"-->
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

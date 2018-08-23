@@ -13,10 +13,10 @@
         android:layout_height="96dp"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
-        android:src="@drawable/cast_album_art_placeholder"
         app:sriv_border_color="@color/noni_theme"
         app:sriv_border_width="2dp"
         app:sriv_oval="true" />
+    <!--android:src="@drawable/cast_album_art_placeholder"-->
 
     <TextView
         android:id="@+id/circle_text"
